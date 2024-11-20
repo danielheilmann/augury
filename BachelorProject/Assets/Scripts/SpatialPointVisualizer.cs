@@ -26,12 +26,12 @@ public class SpatialPointVisualizer : MonoBehaviour
 
     private void OnEnable()
     {
-        SpatialPointManager.OnPointCreated.AddListener(VisualizePoint);
+        SpatialPointManager.OnPointCreated.AddListener(VisualizeAt);
     }
 
     private void OnDisable()
     {
-        SpatialPointManager.OnPointCreated.RemoveListener(VisualizePoint);
+        SpatialPointManager.OnPointCreated.RemoveListener(VisualizeAt);
     }
 
     void Start()
@@ -58,10 +58,10 @@ public class SpatialPointVisualizer : MonoBehaviour
         VisualizeAt(point.position);
     }
 
-    public GameObject VisualizeAt(Vector3 position)
+    public void VisualizeAt(Vector3 position)
     {
-        if (!gameObject.activeInHierarchy | prefab == null)
-            return null;
+        if (!this.gameObject.activeInHierarchy | prefab == null)
+            return;
 
         GameObject availableGO = pool[currentIndex];
 
@@ -71,7 +71,5 @@ public class SpatialPointVisualizer : MonoBehaviour
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;
-
-        return availableGO;
     }
 }

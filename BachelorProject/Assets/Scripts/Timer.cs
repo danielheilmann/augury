@@ -6,7 +6,7 @@ public class Timer : MonoBehaviour
 {
     public static Timer Instance { get; private set; }
     public static UnityEvent OnTick = new();
-    [SerializeField] private float ticksPerSecond;
+    [SerializeField] public float ticksPerSecond;
     private float waitTime;
     private Coroutine coroutine;
 
@@ -27,19 +27,13 @@ public class Timer : MonoBehaviour
     private void OnEnable()
     {
         waitTime = 1 / ticksPerSecond;
-        coroutine = StartCoroutine(Tick());
-        // InvokeRepeating("Tick", 0f, waitTime);
+        coroutine = StartCoroutine(Tick()); //< Having this in OnEnable() allows editing of tick rate during runtime. After overwriting the tick rate, simply disable and reenable this component.
     }
 
     private void OnDisable()
     {
         StopCoroutine(coroutine);
     }
-
-    // public void Tick()
-    // {
-    //     OnTick.Invoke();
-    // }
 
     private IEnumerator Tick()
     {
