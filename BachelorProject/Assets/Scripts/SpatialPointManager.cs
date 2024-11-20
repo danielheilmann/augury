@@ -6,14 +6,15 @@ using UnityEngine.Events;
 
 public class SpatialPointManager : MonoBehaviour
 {
-    [SerializeField] private const int MaxPointCountStoredInMemory = 4; //65536;
+    private const int MaxPointCountStoredInMemory = 65536;  //< Capacity of 65536 corresponds to ~11 Minutes at 100 Ticks/s. 
+
     public static SpatialPointManager Instance { get; private set; }
     public static UnityEvent<Vector3> OnPointCreated = new();
-    
+
     // [SerializeField] private List<SpatialPoint> points = new List<SpatialPoint>();
-    [SerializeField] private Dictionary<DateTime, Vector3> points = new(MaxPointCountStoredInMemory); //< Capacity of 65536 corresponds to ~11 Minutes at 100 Ticks/s. 
+    [SerializeField] private Dictionary<DateTime, Vector3> points = new(MaxPointCountStoredInMemory);
     //? For memory-optimization, maybe I should use two arrays instead?
-    //? Instead, I could also save the points to a file occasionally (e.g. in batches, every 5 minutes). This would lighten the load on RAM but increase Disk R/W.
+    //?~ Instead, I could also save the points to a file occasionally (e.g. in batches, every 5 minutes). This would lighten the load on RAM but increase Disk R/W.
     [SerializeField] private int pointCount = 0;
     private int pointCapacity = MaxPointCountStoredInMemory;
 
@@ -30,7 +31,7 @@ public class SpatialPointManager : MonoBehaviour
 
     public void CreatePointAt(Vector3 position)
     {
-        DateTime timeStamp = DateTime.Now;
+        DateTime timeStamp = DateTime.Now;  //TODO: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
         Debug.Log($"{timeStamp} | Created Point at {position}");
 
         points.Add(timeStamp, position);
@@ -39,9 +40,18 @@ public class SpatialPointManager : MonoBehaviour
 
         if (pointCount == pointCapacity)
         {
-            Debug.LogWarning($"You have just surpassed {pointCapacity} SpatialPoint entries. Doubling dictionary length (to {pointCapacity*2}). It is recommended to either keep sessions shorter or to reduce the tick rate (currently at {Timer.Instance.ticksPerSecond} ticks/s).");
+            Debug.LogWarning($"You have just surpassed {pointCapacity} SpatialPoint entries. Doubling dictionary length (to {pointCapacity * 2}). It is recommended to either keep sessions shorter or to reduce the tick rate (currently at {Timer.Instance.ticksPerSecond} ticks/s).");
             pointCapacity *= 2;
             points.EnsureCapacity(pointCapacity);
         }
+    }
+
+    /// <summary>
+    /// This function is called when the behaviour becomes disabled or inactive.
+    /// </summary>
+    private void OnDisable()
+    {
+        string formattedTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");   //TODO: Ideally, this would use the session start time instead, but I guess I can implement that when there is an actual "Start Session" button.
+        FileSystemHandler.SaveDictionaryToFile("Session " + formattedTimeStamp, points);
     }
 }

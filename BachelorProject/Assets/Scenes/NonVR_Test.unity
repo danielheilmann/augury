@@ -471,7 +471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ee2532a1954ac4449ea96cc3f6ae934, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ticksPerSecond: 20
+  ticksPerSecond: 10
 --- !u!114 &194419852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -484,7 +484,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 412111de8fb1c534bb651f2b79c68473, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  points: []
+  pointCount: 0
 --- !u!4 &194419853
 Transform:
   m_ObjectHideFlags: 0
