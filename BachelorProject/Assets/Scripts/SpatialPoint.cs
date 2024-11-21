@@ -3,21 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//! Currently not in use.
 [Serializable]
 public struct SpatialPoint
 {
-    [SerializeField] public DateTime timeStamp;
-    [SerializeField] public Vector3 position;
+    public float timeStampTicks { get; private set; }
+    public Vector3 position { get; private set; }
 
-    public SpatialPoint(DateTime timeStamp = new(), Vector3 position = new())
+    public SpatialPoint(float timeStampTicks, Vector3 position)
     {
-        this.timeStamp = timeStamp;
+        this.timeStampTicks = timeStampTicks;
         this.position = position;
     }
-
-    // public void Set(DateTime timeStamp, Vector3 position)
-    // {
-    //     this.timeStamp = timeStamp;
-    //     this.position = position;
-    // }
 }

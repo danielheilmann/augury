@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using SimpleJSON;
+using System.Globalization;
 
 public class FileSystemHandler : MonoBehaviour
 {
@@ -10,34 +12,33 @@ public class FileSystemHandler : MonoBehaviour
 
     public static string SaveDictionaryToFile(string participantIdentifier, Dictionary<DateTime, Vector3> dictionary)
     {
-        string filePath = Path.Combine(Application.dataPath, participantIdentifier + FileEnding);
-        string fileText = ParsePointDictToText(dictionary);
+        string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedData").Name;
+        string filePath = $"{dataDirectory}/{participantIdentifier + FileEnding}";
+        string fileText = ParseDictionaryToJSONString(dictionary);
 
         File.WriteAllText(filePath, fileText);
+        Debug.Log($"Saved data to file: {filePath}");
 
-        // File.Create(filePath);
-        // if (File.Exists(filePath))
-        // {
-        //     using (StreamWriter sw = File.CreateText(filePath))
-        //     {
-        //         foreach (KeyValuePair<DateTime, Vector3> entry in dictionary)
-        //         {
-        //             sw.WriteLine(entry.Key.ToString() + ", " + entry.Value.ToString());
-        //         }
-        //     }
-        // }
-
-        Debug.Log($"Saved file to {filePath}");
         return filePath;
     }
 
-    private static string ParsePointDictToText(Dictionary<DateTime, Vector3> input)
+    private static string ParseDictionaryToJSONString(Dictionary<DateTime, Vector3> dictionary)
     {
-        string output = "";
-        foreach (KeyValuePair<DateTime, Vector3> entry in input)
+        JSONObject exportData = new JSONObject();
+
+        exportData.Add("version", Application.version);
+
+        foreach (var gazePoint in dictionary)
         {
-            output += entry.Key.ToString() + ", " + entry.Value.ToString() + "\n";
+            JSONArray position = new JSONArray();
+            position.Add(gazePoint.Value.x);
+            position.Add(gazePoint.Value.y);
+            position.Add(gazePoint.Value.z);
+
+            string timeStamp = gazePoint.Key.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            exportData.Add(timeStamp, position);
         }
-        return output;
+
+        return exportData.ToString(1);  //TODO: Removing the argument here disables pretty formatting, which will reduce file size and is therefore recommended.
     }
 }

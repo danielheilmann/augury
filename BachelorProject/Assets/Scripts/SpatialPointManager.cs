@@ -15,7 +15,7 @@ public class SpatialPointManager : MonoBehaviour
     [SerializeField] private Dictionary<DateTime, Vector3> points = new(MaxPointCountStoredInMemory);
     //? For memory-optimization, maybe I should use two arrays instead?
     //?~ Instead, I could also save the points to a file occasionally (e.g. in batches, every 5 minutes). This would lighten the load on RAM but increase Disk R/W.
-    [SerializeField] private int pointCount = 0;
+    [SerializeField] private int currentPointCount = 0;
     private int pointCapacity = MaxPointCountStoredInMemory;
 
     private void Awake()
@@ -36,9 +36,9 @@ public class SpatialPointManager : MonoBehaviour
 
         points.Add(timeStamp, position);
         OnPointCreated.Invoke(position);
-        pointCount++;
+        currentPointCount++;
 
-        if (pointCount == pointCapacity)
+        if (currentPointCount == pointCapacity)
         {
             Debug.LogWarning($"You have just surpassed {pointCapacity} SpatialPoint entries. Doubling dictionary length (to {pointCapacity * 2}). It is recommended to either keep sessions shorter or to reduce the tick rate (currently at {Timer.Instance.ticksPerSecond} ticks/s).");
             pointCapacity *= 2;
@@ -52,6 +52,28 @@ public class SpatialPointManager : MonoBehaviour
     private void OnDisable()
     {
         string formattedTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");   //TODO: Ideally, this would use the session start time instead, but I guess I can implement that when there is an actual "Start Session" button.
-        FileSystemHandler.SaveDictionaryToFile("Session " + formattedTimeStamp, points);
+        string filepath = FileSystemHandler.SaveDictionaryToFile("Session " + formattedTimeStamp, points);
+        OpenFileExplorerAt(filepath);
+    }
+
+    public void OpenFileExplorerAt(string filePath)
+    {
+        System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
+        process.FileName = "explorer.exe";
+        process.Arguments = $"/select,\"{ConvertToWindowsPath(filePath)}\"";
+
+        System.Diagnostics.Process.Start(process);
+
+    }
+
+    private static string ConvertToWindowsPath(string path)
+    {
+        char[] charList = path.ToCharArray();
+        for (int i = 0; i < charList.Length; i++)
+        {
+            if (charList[i] == '/')
+                charList[i] = '\\';
+        }
+        return new string(charList);
     }
 }
