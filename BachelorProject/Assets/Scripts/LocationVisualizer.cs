@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpatialPointVisualizer : MonoBehaviour
+public class LocationVisualizer : MonoBehaviour
 {
-    public static SpatialPointVisualizer Instance { get; private set; }
+    public static LocationVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
     [SerializeField] private List<GameObject> pool = new List<GameObject>();
@@ -26,12 +26,12 @@ public class SpatialPointVisualizer : MonoBehaviour
 
     private void OnEnable()
     {
-        SpatialPointManager.OnPointCreated.AddListener(VisualizeAt);
+        GazePointManager.OnPointCreated.AddListener(VisualizeAt);
     }
 
     private void OnDisable()
     {
-        SpatialPointManager.OnPointCreated.RemoveListener(VisualizeAt);
+        GazePointManager.OnPointCreated.RemoveListener(VisualizeAt);
     }
 
     void Start()
@@ -53,7 +53,7 @@ public class SpatialPointVisualizer : MonoBehaviour
         go.SetActive(false);
     }
 
-    public void VisualizePoint(SpatialPoint point)
+    public void VisualizePoint(GazePoint point)
     {
         VisualizeAt(point.position);
     }

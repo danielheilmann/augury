@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SpatialPointManager : MonoBehaviour
+public class GazePointManager : MonoBehaviour
 {
     private const int MaxPointCountStoredInMemory = 65536;  //< Capacity of 65536 corresponds to ~11 Minutes at 100 Ticks/s. 
 
-    public static SpatialPointManager Instance { get; private set; }
+    public static GazePointManager Instance { get; private set; }
     public static UnityEvent<Vector3> OnPointCreated = new();
 
     // [SerializeField] private List<SpatialPoint> points = new List<SpatialPoint>();

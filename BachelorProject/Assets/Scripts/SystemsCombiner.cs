@@ -21,6 +21,6 @@ public class SystemsCombiner : MonoBehaviour
 
     private void CreatePointAtRayHitLocation(RaycastHit hit)
     {
-        SpatialPointManager.Instance.CreatePointAt(hit.point);
+        GazePointManager.Instance.CreatePointAt(hit.point);
     }
 }
