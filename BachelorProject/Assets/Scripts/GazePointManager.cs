@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,10 +10,8 @@ public class GazePointManager : MonoBehaviour
 
     //#> Private Variables 
     [SerializeField] private Dictionary<DateTime, Vector3> points;
-    //? For memory-optimization, maybe I should use two arrays instead?
-    //?~ Instead, I could also save the points to a file occasionally (e.g. in batches, every 5 minutes). This would lighten the load on RAM but increase Disk R/W.
-    [SerializeField] private int pointCapacity; //< Determines the amount of GazePoints allowed to be stored in memory.
-    [SerializeField] private int currentPointCount;
+    [SerializeField, ReadOnly] private int pointCapacity; //< Determines the amount of GazePoints allowed to be stored in memory.
+    [SerializeField, ReadOnly] private int currentPointCount;
 
     private void Start()
     {

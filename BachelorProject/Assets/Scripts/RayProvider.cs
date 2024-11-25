@@ -24,7 +24,7 @@ public class RayProvider : MonoBehaviour
             if (hit.collider != null)
             {
                 OnHit.Invoke(hit);
-                // SpatialPointManager.CreatePointAt(hit.point);
+                
             }
         }
     }

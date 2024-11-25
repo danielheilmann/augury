@@ -2,25 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//TODO: I do not like that this exists. There has to be a better way to link these two. Just rewriting OnHit to send the position instead is not an option though, as the collider will be needed for the static/dynamic check later on.
 public class SystemsCombiner : MonoBehaviour
 {
-    private void Awake()
+    private GazePointManager gazePointManager;
+
+    private void Start()
+    {
+        gazePointManager = FindObjectOfType<GazePointManager>();
+    }
+
+    private void OnEnable()
     {
         RayProvider.OnHit.AddListener(CreatePointAtRayHitLocation);
     }
 
-    private void Start()
+    private void OnDisable()
     {
-        // Set up Frame Limiter
-        // float vSyncFactor = (float)Screen.currentResolution.refreshRateRatio.value / 60f;
-        // int targetFPS = Mathf.Clamp(Mathf.RoundToInt(vSyncFactor), 1, 4);
-        // Application.targetFrameRate = targetFPS * 60;
-        Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount = 1;
+        RayProvider.OnHit.RemoveListener(CreatePointAtRayHitLocation);
     }
 
     private void CreatePointAtRayHitLocation(RaycastHit hit)
     {
-        GazePointManager.Instance.CreatePointAt(hit.point);
+        gazePointManager.CreatePointAt(hit.point);
     }
 }
