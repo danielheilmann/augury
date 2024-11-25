@@ -10,10 +10,10 @@ public class FileSystemHandler : MonoBehaviour
 {
     private const string FileEnding = ".txt";
 
-    public static string SaveDictionaryToFile(string participantIdentifier, Dictionary<DateTime, Vector3> dictionary)
+    public static string SaveGazePointsToFile(string fileTitle, Dictionary<DateTime, Vector3> dictionary)
     {
         string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedData").Name;
-        string filePath = $"{dataDirectory}/{participantIdentifier + FileEnding}";
+        string filePath = $"{dataDirectory}/{fileTitle + FileEnding}";
         string fileText = ParseDictionaryToJSONString(dictionary);
 
         File.WriteAllText(filePath, fileText);
@@ -41,4 +41,28 @@ public class FileSystemHandler : MonoBehaviour
 
         return exportData.ToString(1);  //TODO: Removing the argument here disables pretty formatting, which will reduce file size and is therefore recommended.
     }
+
+
+    #region Automatically open File Explorer at file location
+    public static void OpenFileExplorerAt(string filePath)
+    {
+        System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
+        process.FileName = "explorer.exe";
+        process.Arguments = $"/select,\"{ConvertToWindowsPath(filePath)}\"";
+
+        System.Diagnostics.Process.Start(process);
+
+    }
+
+    private static string ConvertToWindowsPath(string path)
+    {
+        char[] charList = path.ToCharArray();
+        for (int i = 0; i < charList.Length; i++)
+        {
+            if (charList[i] == '/')
+                charList[i] = '\\';
+        }
+        return new string(charList);
+    }
+    #endregion
 }

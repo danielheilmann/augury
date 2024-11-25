@@ -38,6 +38,7 @@ public class GazePointManager : MonoBehaviour
         OnPointCreated.Invoke(position);
         currentPointCount++;
 
+        //> Automatically increase GazePoint dictionary size if necessary.
         if (currentPointCount == pointCapacity)
         {
             Debug.LogWarning($"You have just surpassed {pointCapacity} SpatialPoint entries. Doubling dictionary length (to {pointCapacity * 2}). It is recommended to either keep sessions shorter or to reduce the tick rate (currently at {Timer.Instance.ticksPerSecond} ticks/s).");
@@ -51,29 +52,9 @@ public class GazePointManager : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        string formattedTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");   //TODO: Ideally, this would use the session start time instead, but I guess I can implement that when there is an actual "Start Session" button.
-        string filepath = FileSystemHandler.SaveDictionaryToFile("Session " + formattedTimeStamp, points);
-        OpenFileExplorerAt(filepath);
+        string filepath = FileSystemHandler.SaveGazePointsToFile(fileTitle:$"Session {SessionManager.sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")}", points);
+        FileSystemHandler.OpenFileExplorerAt(filepath);
     }
 
-    public void OpenFileExplorerAt(string filePath)
-    {
-        System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
-        process.FileName = "explorer.exe";
-        process.Arguments = $"/select,\"{ConvertToWindowsPath(filePath)}\"";
-
-        System.Diagnostics.Process.Start(process);
-
-    }
-
-    private static string ConvertToWindowsPath(string path)
-    {
-        char[] charList = path.ToCharArray();
-        for (int i = 0; i < charList.Length; i++)
-        {
-            if (charList[i] == '/')
-                charList[i] = '\\';
-        }
-        return new string(charList);
-    }
+    
 }
