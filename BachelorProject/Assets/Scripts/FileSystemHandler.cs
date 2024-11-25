@@ -12,7 +12,7 @@ public class FileSystemHandler : MonoBehaviour
 
     public static string SaveGazePointsToFile(string fileTitle, Dictionary<DateTime, Vector3> dictionary)
     {
-        string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedData").Name;
+        string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedSessionData").Name;
         string filePath = $"{dataDirectory}/{fileTitle + FileEnding}";
         string fileText = ParseDictionaryToJSONString(dictionary);
 

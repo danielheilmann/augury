@@ -448,10 +448,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 194419853}
+  - component: {fileID: 194419857}
   - component: {fileID: 194419851}
   - component: {fileID: 194419852}
   - component: {fileID: 194419854}
   - component: {fileID: 194419855}
+  - component: {fileID: 194419856}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -471,7 +473,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ee2532a1954ac4449ea96cc3f6ae934, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ticksPerSecond: 10
 --- !u!114 &194419852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -484,7 +485,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 412111de8fb1c534bb651f2b79c68473, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointCount: 0
+  pointCapacity: 65536
+  currentPointCount: 0
 --- !u!4 &194419853
 Transform:
   m_ObjectHideFlags: 0
@@ -525,6 +527,32 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c9d4986b053bce47a39bbe97092bd5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &194419856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194419850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3f939bf63d1aa64ea7a0662185d6a3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeGazePointGroup: []
+  fixations: []
+--- !u!114 &194419857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194419850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d772ed0d53473f94e871a0f10f5e31f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &214488769
