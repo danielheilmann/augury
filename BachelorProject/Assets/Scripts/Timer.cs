@@ -6,13 +6,11 @@ public class Timer : MonoBehaviour
 {
     public static Timer Instance { get; private set; }
     public static UnityEvent OnTick = new();
-    [SerializeField] public float ticksPerSecond;
+    public static float ticksPerSecond = 10;
+
     private float waitTime;
     private Coroutine coroutine;
 
-    /// <summary>
-    /// Awake is called when the script instance is being loaded.
-    /// </summary>
     private void Awake()
     {
         if (Instance == null)
@@ -27,7 +25,7 @@ public class Timer : MonoBehaviour
     private void OnEnable()
     {
         waitTime = 1 / ticksPerSecond;
-        coroutine = StartCoroutine(Tick()); //< Having this in OnEnable() allows editing of tick rate during runtime. After overwriting the tick rate, simply disable and reenable this component.
+        coroutine = StartCoroutine(Tick()); //< Having this in OnEnable() allows modification of tick rate during runtime. After overwriting the tick rate, simply disable and reenable this component.
     }
 
     private void OnDisable()
