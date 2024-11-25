@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class FixationManager : MonoBehaviour
 {
-    [SerializeField] private const float distanceThreshold = 0.1f;
-    [SerializeField] private const int pointCountThresholdForFixationCreation = 10;
-    [SerializeField] private List<Vector3> activeGazePointGroup = new();
-    [SerializeField] private List<Vector3> fixations = new List<Vector3>();
+    [SerializeField] private const float distanceThreshold = 0.1f;  //< Tweakable
+    [SerializeField] private const int pointCountThresholdForFixationCreation = 10;  //< Tweakable
 
-    private Vector3 previousGazePoint;
-
+    [SerializeField] private List<Vector3> activeGazePointGroup = new(); //< Only serialized for visualization in editor
+    [SerializeField] private List<Vector3> fixations = new List<Vector3>(); //< Only serialized for visualization in editor
 
     private void OnEnable()
     {
@@ -24,29 +22,17 @@ public class FixationManager : MonoBehaviour
 
     private void EvaluateFixation(Vector3 newGazePoint)
     {
-        if (previousGazePoint != null)
+        Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
+
+        if (Vector3.Distance(newGazePoint, currentFixationGroupAveragePosition) > distanceThreshold)
         {
-            if (Vector3.Distance(newGazePoint, CalculateAveragePosition(activeGazePointGroup)) < distanceThreshold)
-            {
-                activeGazePointGroup.Add(newGazePoint);
-            }
-            else
-            {
-                if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation)
-                {
-                    //> Collapse active fixation group into a fixation
-                    fixations.Add(CalculateAveragePosition(activeGazePointGroup));
-                }
-                activeGazePointGroup.Clear();
-                activeGazePointGroup.Add(newGazePoint);
-            }
-        }
-        else
-        {
-            activeGazePointGroup.Add(newGazePoint);
+            if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active fixation group into a fixation, but only if it contains enough points.
+                fixations.Add(currentFixationGroupAveragePosition);
+
+            activeGazePointGroup.Clear();
         }
 
-        previousGazePoint = newGazePoint;   //TODO< What if line of gazepoints?
+        activeGazePointGroup.Add(newGazePoint);
     }
 
     private Vector3 CalculateAveragePosition(List<Vector3> vectors)
@@ -77,13 +63,5 @@ public class FixationManager : MonoBehaviour
                 Gizmos.DrawLine(thisFixation, nextFixation);
             }
         }
-
-        // foreach (var location in fixations)
-        // {
-        //     Gizmos.color = gizmoColor;
-        //     Gizmos.DrawSphere(location, radius);
-
-        // }
-        // Gizmos.DrawLineList(new System.ReadOnlySpan<Vector3>(fixations.ToArray()));
     }
 }

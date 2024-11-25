@@ -7,7 +7,6 @@ using UnityEngine.Events;
 public class GazePointManager : MonoBehaviour
 {
     //#> Static Variables 
-    public static GazePointManager Instance { get; private set; }
     public static UnityEvent<Vector3> OnPointCreated = new();
 
     //#> Private Variables 
@@ -16,17 +15,6 @@ public class GazePointManager : MonoBehaviour
     //?~ Instead, I could also save the points to a file occasionally (e.g. in batches, every 5 minutes). This would lighten the load on RAM but increase Disk R/W.
     [SerializeField] private int pointCapacity; //< Determines the amount of GazePoints allowed to be stored in memory.
     [SerializeField] private int currentPointCount;
-
-    private void Awake()
-    {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError($"{this} cannot set itself as instance as one has already been set by {Instance.gameObject}. Deleting self.");
-            Destroy(this);
-        }
-    }
 
     private void Start()
     {
