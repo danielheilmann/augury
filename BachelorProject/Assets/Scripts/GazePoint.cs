@@ -5,8 +5,20 @@ using UnityEngine;
 //! Currently not in use.
 
 [Serializable]
-public record GazePoint(float timeStampTicks, Vector3 position)
+public struct GazePoint
 {
-    public float timeStampTicks { get; private set; } = timeStampTicks;
-    public Vector3 position { get; private set; } = position;
+    public DateTime timeStamp { get; private set; }
+    public Vector3 position { get; private set; }
+
+    public GazePoint(DateTime timeStamp, Vector3 position)
+    {
+        this.timeStamp = timeStamp;
+        this.position = position;
+    }
+
+    public void Set(DateTime timeStamp, Vector3 position)
+    {
+        this.timeStamp = timeStamp;
+        this.position = position;
+    }
 }

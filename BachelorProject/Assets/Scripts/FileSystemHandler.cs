@@ -10,11 +10,11 @@ public class FileSystemHandler : MonoBehaviour
 {
     private const string FileEnding = ".txt";
 
-    public static string SaveGazePointsToFile(string fileTitle, Dictionary<DateTime, Vector3> dictionary)
+    public static string SaveGazePointsToFile(string fileTitle, List<GazePoint> gazePoints)
     {
         string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedSessionData").Name;
         string filePath = $"{dataDirectory}/{fileTitle + FileEnding}";
-        string fileText = ParseDictionaryToJSONString(dictionary);
+        string fileText = ParseDictionaryToJSONString(gazePoints);
 
         File.WriteAllText(filePath, fileText);
         Debug.Log($"Saved data to file: {filePath}");
@@ -22,20 +22,20 @@ public class FileSystemHandler : MonoBehaviour
         return filePath;
     }
 
-    private static string ParseDictionaryToJSONString(Dictionary<DateTime, Vector3> dictionary)
+    private static string ParseDictionaryToJSONString(List<GazePoint> gazePoints)
     {
         JSONObject exportData = new JSONObject();
 
         exportData.Add("version", Application.version);
 
-        foreach (var gazePoint in dictionary)
+        foreach (var gazePoint in gazePoints)
         {
             JSONArray position = new JSONArray();
-            position.Add(gazePoint.Value.x);
-            position.Add(gazePoint.Value.y);
-            position.Add(gazePoint.Value.z);
+            position.Add(gazePoint.position.x);
+            position.Add(gazePoint.position.y);
+            position.Add(gazePoint.position.z);
 
-            string timeStamp = gazePoint.Key.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            string timeStamp = gazePoint.timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
             exportData.Add(timeStamp, position);
         }
 
