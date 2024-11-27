@@ -9,7 +9,7 @@ public class GazePointManager : MonoBehaviour
     public static UnityEvent<Vector3> OnPointCreated = new();
 
     //#> Private Variables 
-    [SerializeField] private Dictionary<DateTime, Vector3> points;
+    [SerializeField] private Dictionary<DateTime, Vector3> points;  //TODO: Will need to be modified for the implementation of localized gaze points.
     [SerializeField, ReadOnly] private int pointCapacity; //< Determines the amount of GazePoints allowed to be stored in memory.
     [SerializeField, ReadOnly] private int currentPointCount;
 
@@ -17,6 +17,23 @@ public class GazePointManager : MonoBehaviour
     {
         pointCapacity = Mathf.RoundToInt(Settings.expectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 65536 corresponds to ~11 Minutes at 100 Ticks/s.
         points = new Dictionary<DateTime, Vector3>(pointCapacity);
+    }
+
+    private void OnEnable()
+    {
+        RayProvider.OnHit.AddListener(EvaluateRaycastHit);
+    }
+
+    private void OnDisable()
+    {
+        RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
+
+        Save();
+    }
+
+    private void EvaluateRaycastHit(RaycastHit hit)
+    {
+        CreatePointAt(hit.point);
     }
 
     public void CreatePointAt(Vector3 position)
@@ -37,13 +54,11 @@ public class GazePointManager : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-        Save();
-    }
-
     private void Save()
     {
+        if (points.Count == 0)  //< There is no reason to save a file without point entries
+            return;
+
         string filepath = FileSystemHandler.SaveGazePointsToFile(fileTitle: $"Session {SessionManager.sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")}", points);
         if (Settings.OpenExplorerOnSave)
             FileSystemHandler.OpenFileExplorerAt(filepath);
