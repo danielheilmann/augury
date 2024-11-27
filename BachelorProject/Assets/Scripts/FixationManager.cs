@@ -1,12 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class FixationManager : MonoBehaviour
 {
+    //#> Constants 
     [SerializeField] private const float distanceThreshold = 0.1f;  //< Tweakable
     [SerializeField] private const int pointCountThresholdForFixationCreation = 10;  //< Tweakable
 
+    //#> Static Variables 
+    public static UnityEvent<Vector3, int> OnFixationCreated = new();
+
+    //#> Private Variables 
     [SerializeField] private List<Vector3> activeGazePointGroup = new(); //< Only serialized for visualization in editor
     [SerializeField] private List<Vector3> fixations = new List<Vector3>(); //< Only serialized for visualization in editor
 
@@ -27,7 +33,7 @@ public class FixationManager : MonoBehaviour
         if (Vector3.Distance(newGazePoint, currentFixationGroupAveragePosition) > distanceThreshold)
         {
             if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active fixation group into a fixation, but only if it contains enough points.
-                fixations.Add(currentFixationGroupAveragePosition);
+                CreateFixation(currentFixationGroupAveragePosition);
 
             activeGazePointGroup.Clear();
         }
@@ -45,7 +51,13 @@ public class FixationManager : MonoBehaviour
         return sum /= vectors.Count; ;
     }
 
-    private void OnDrawGizmos()
+    private void CreateFixation(Vector3 position)
+    {
+        fixations.Add(position);
+        OnFixationCreated.Invoke(position, fixations.Count);
+    }
+
+    private void OnDrawGizmos() //< For debug visualization
     {
         float radius = 0.2f;
         Color gizmoColor = Color.red;
