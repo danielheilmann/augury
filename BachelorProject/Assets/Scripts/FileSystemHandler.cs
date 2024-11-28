@@ -10,13 +10,23 @@ public class FileSystemHandler : MonoBehaviour
 {
     private const string FileEnding = ".txt";
 
-    public static string SaveGazePointsToFile(string fileTitle, List<GazePoint> gazePoints)
+    public static void Save(List<GazePoint> gazePoints)
+    {
+        if (gazePoints.Count == 0)  //< There is no reason to save a file without point entries
+            return;
+
+        string filepath = SaveGazePointsToFile(fileTitle: $"Session {SessionManager.sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")}", gazePoints);
+        if (Settings.OpenExplorerOnSave)
+            FileSystemHandler.OpenFileExplorerAt(filepath);
+    }
+
+    private static string SaveGazePointsToFile(string fileTitle, List<GazePoint> gazePoints)
     {
         string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedSessionData").Name;
-        string filePath = $"{dataDirectory}/{fileTitle + FileEnding}";
-        string fileText = ParseDictionaryToJSONString(gazePoints);
+        string filePath = $"{dataDirectory}/{fileTitle}{FileEnding}";
+        string fileContent = ParseDictionaryToJSONString(gazePoints);
 
-        File.WriteAllText(filePath, fileText);
+        File.WriteAllText(filePath, fileContent);
         Debug.Log($"Saved data to file: {filePath}");
 
         return filePath;
@@ -41,7 +51,6 @@ public class FileSystemHandler : MonoBehaviour
 
         return exportData.ToString(1);  //TODO: Removing the argument here disables pretty formatting, which will reduce file size and is therefore recommended.
     }
-
 
     #region Automatically open File Explorer at file location
     public static void OpenFileExplorerAt(string filePath)

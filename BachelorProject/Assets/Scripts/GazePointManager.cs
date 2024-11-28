@@ -31,7 +31,7 @@ public class GazePointManager : MonoBehaviour
     {
         RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
 
-        Save();
+        FileSystemHandler.Save(points);
     }
 
     private void EvaluateRaycastHit(RaycastHit hit)
@@ -65,15 +65,5 @@ public class GazePointManager : MonoBehaviour
     private void SetPoint(int index, DateTime timeStamp, Vector3 position)
     {
         points[index].Set(timeStamp, position);
-    }
-
-    private void Save()
-    {
-        if (points.Count == 0)  //< There is no reason to save a file without point entries
-            return;
-
-        string filepath = FileSystemHandler.SaveGazePointsToFile(fileTitle: $"Session {SessionManager.sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")}", points);
-        if (Settings.OpenExplorerOnSave)
-            FileSystemHandler.OpenFileExplorerAt(filepath);
     }
 }

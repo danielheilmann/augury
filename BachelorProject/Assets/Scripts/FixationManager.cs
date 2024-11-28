@@ -57,23 +57,23 @@ public class FixationManager : MonoBehaviour
         OnFixationCreated.Invoke(position, fixations.Count);
     }
 
-    private void OnDrawGizmos() //< For debug visualization
-    {
-        float radius = 0.2f;
-        Color gizmoColor = Color.red;
+    // private void OnDrawGizmos() //< For debug visualization
+    // {
+    //     float radius = 0.2f;
+    //     Color gizmoColor = Color.red;
 
-        for (int i = 0; i < fixations.Count; i++)
-        {
-            Vector3 thisFixation = fixations[i];
+    //     for (int i = 0; i < fixations.Count; i++)
+    //     {
+    //         Vector3 thisFixation = fixations[i];
 
-            Gizmos.color = gizmoColor;
-            Gizmos.DrawSphere(thisFixation, radius);
+    //         Gizmos.color = gizmoColor;
+    //         Gizmos.DrawSphere(thisFixation, radius);
 
-            if (i + 1 <= fixations.Count - 1)   //< If the following check would not go out of bounds. (This is probably cheaper than a custom exception handler)
-            {
-                Vector3 nextFixation = fixations[i + 1];
-                Gizmos.DrawLine(thisFixation, nextFixation);
-            }
-        }
-    }
+    //         if (i + 1 <= fixations.Count - 1)   //< If the following check would not go out of bounds. (This is probably cheaper than a custom exception handler)
+    //         {
+    //             Vector3 nextFixation = fixations[i + 1];
+    //             Gizmos.DrawLine(thisFixation, nextFixation);
+    //         }
+    //     }
+    // }
 }
