@@ -31,7 +31,7 @@ public class GazePointManager : MonoBehaviour
     {
         RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
 
-        FileSystemHandler.Save(points);
+        FileSystemHandler.SaveGazePoints(points);
     }
 
     private void EvaluateRaycastHit(RaycastHit hit)
