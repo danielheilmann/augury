@@ -6,10 +6,10 @@ using UnityEngine;
 
 public static class DynamicObjectManager
 {
-    [SerializeField, ReadOnly] public static Dictionary<string, DynamicObject> dynObjects = new Dictionary<string, DynamicObject>();    //< Should also be turned into a (public get, private set) field to limit access
+    [SerializeField, ReadOnly] public static Dictionary<int, DynamicObject> dynObjects = new Dictionary<int, DynamicObject>();    //< Should also be turned into a (public get, private set) field to limit access
     public static void Register(DynamicObject dynObject)
     {
-        string dynObjID = dynObject.MeshName.GetHashCode().ToString();
+        int dynObjID = dynObject.meshName.GetHashCode();    //TODO: Decouple ID from MeshName, as this is likely to lead to a lot of overlaps in an actual application!
         if (dynObjects.TryAdd(dynObjID, dynObject))
             dynObject.id = dynObjID;
         else
@@ -25,8 +25,8 @@ public static class DynamicObjectManager
 
 public class DynamicObject : MonoBehaviour
 {
-    [SerializeField, ReadOnly] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
-    [SerializeField, ReadOnly] public string MeshName;
+    [SerializeField, ReadOnly] public int id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
+    [SerializeField, ReadOnly] public string meshName;
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> scaleHistory = new();
@@ -74,7 +74,8 @@ public class DynamicObject : MonoBehaviour
 
     private void UpdatePropertyValues()
     {
-        MeshName = GetComponent<MeshFilter>().sharedMesh.name;
+        meshName = GetComponent<MeshFilter>().sharedMesh.name;
+        id = meshName.GetHashCode();    //< This might be updated by the DynamicObjectManager if there is an overlap in the IDs. But by it being set here already, you can at least see the preliminary ID in the editor before pressing play.
     }
 
     private void OnTimerTick()
