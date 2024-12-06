@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//! Currently not in use.
 
 [Serializable]
-public struct GazePoint
+public class GazePoint  //TODO: For some reason, having this as structs makes it so that it cannot simply be overwritten using the Set() method. And just creating a new object every tick leads to noticable frame drops.
 {
+    public string name;
     public DateTime timeStamp { get; private set; }
     public Vector3 position { get; private set; }
 
@@ -14,11 +14,15 @@ public struct GazePoint
     {
         this.timeStamp = timeStamp;
         this.position = position;
+        this.name = "";
     }
 
     public void Set(DateTime timeStamp, Vector3 position)
     {
         this.timeStamp = timeStamp;
         this.position = position;
+        this.name = "" + timeStamp + position;
     }
 }
+
+//TODO: Maybe implement something like a "GazePointParser" static helper class here with "ToJSON" and "FromJSON" methods for parsing, so that these functionalities do not have to be in the FileHandler class.
