@@ -30,7 +30,7 @@ public class GazePointManager : MonoBehaviour
     private void OnDisable()
     {
         RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
-
+        points.RemoveRange(currentWorkingIndex, pointCapacity - currentWorkingIndex); //TODO: Needs to be verified to work correctly.
         FileSystemHandler.SaveGazePoints(points);
     }
 

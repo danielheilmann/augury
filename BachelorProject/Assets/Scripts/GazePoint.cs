@@ -21,7 +21,7 @@ public class GazePoint  //TODO: For some reason, having this as structs makes it
     {
         this.timeStamp = timeStamp;
         this.position = position;
-        this.name = "" + timeStamp + position;
+        this.name = timeStamp + " " + position;
     }
 }
 

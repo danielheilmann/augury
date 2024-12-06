@@ -9,7 +9,24 @@ using UnityEngine.SceneManagement;
 
 public static class FileSystemHandler
 {
-    private const string FileEnding = ".txt";
+    private const string FileExtension = ".txt";
+    private const string FolderName = "RecordedSessionData";
+    private static char dirSeperator = Path.DirectorySeparatorChar;
+
+    /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the FileSystemHandler class. </summary>   
+    /// <param name="fileTitle"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
+    /// <param name="fileContent"> The content of the file in the form of a single string. It may also be JSON, as it is nothing but text. </param>
+    /// <returns> The full file path of the file that was created. </returns>
+    private static string CreateFile(string fileTitle, string fileContent)
+    {
+        string dir = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent}{dirSeperator}{FolderName}").Name;
+        string filePath = $"{dir}{dirSeperator}{fileTitle}{FileExtension}";
+
+        File.WriteAllText(filePath, fileContent);
+        Debug.Log($"Saved data to file: {filePath}");
+
+        return filePath;
+    }
 
     #region Saving Gaze Points
     public static void SaveGazePoints(List<GazePoint> gazePoints)
@@ -17,21 +34,10 @@ public static class FileSystemHandler
         if (gazePoints.Count == 0)  //< There is no reason to save a file without point entries
             return;
 
-        string filepath = SaveGazePointsToFile(fileTitle: $"Session {SessionManager.sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")}", gazePoints);
+        string filepath = CreateFile(fileTitle: $"{SessionManager.sessionTitle} - GazePoints", fileContent: ParseListToJSONString(gazePoints));
+
         if (Settings.OpenExplorerOnSave)
             OpenFileExplorerAt(filepath);
-    }
-
-    private static string SaveGazePointsToFile(string fileTitle, List<GazePoint> gazePoints)
-    {
-        string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedSessionData").Name;
-        string filePath = $"{dataDirectory}/{fileTitle}{FileEnding}";
-        string fileContent = ParseListToJSONString(gazePoints);
-
-        File.WriteAllText(filePath, fileContent);
-        Debug.Log($"Saved data to file: {filePath}");
-
-        return filePath;
     }
 
     private static string ParseListToJSONString(List<GazePoint> gazePoints)
@@ -56,16 +62,9 @@ public static class FileSystemHandler
     #endregion
 
     #region Saving DynamicObjects
-    public static string SaveDynamicObjectToFile(string fileTitle, DynamicObject dynamicObject)
+    public static void SaveDynamicObject(DynamicObject dynamicObject)
     {
-        string dataDirectory = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent.ToString()}/RecordedSessionData").Name;
-        string filePath = $"{dataDirectory}/{fileTitle}{FileEnding}";
-        string fileContent = ParseDynamicObjectToJSONString(dynamicObject); ;
-
-        File.WriteAllText(filePath, fileContent);
-        Debug.Log($"Saved data to file: {filePath}");
-
-        return filePath;
+        CreateFile(fileTitle: $"{SessionManager.sessionTitle} - DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
     }
 
     private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject)   //TODO: This looks very bloated, maybe it should be put into something like a DynamicObject.ToJSON() method?
@@ -140,7 +139,6 @@ public static class FileSystemHandler
         return exportData.ToString(Settings.PrettyJSONExportIndent);  //TODO: Removing the argument here disables pretty formatting, which will reduce file size and is therefore recommended.
     }
     #endregion
-
 
     #region Automatically open File Explorer at file location
     public static void OpenFileExplorerAt(string filePath)

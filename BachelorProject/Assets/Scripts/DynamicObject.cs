@@ -18,7 +18,7 @@ public static class DynamicObjectManager
 
     public static void Unregister(DynamicObject dynObject)
     {
-        FileSystemHandler.SaveDynamicObjectToFile(fileTitle: $"Session {SessionManager.sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")} - DynObj_{dynObject.id}", dynObject);
+        FileSystemHandler.SaveDynamicObject(dynObject);
         dynObjects.Remove(dynObject.id);
     }
 }
