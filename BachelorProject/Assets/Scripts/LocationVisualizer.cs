@@ -26,12 +26,12 @@ public class LocationVisualizer : MonoBehaviour
 
     private void OnEnable()
     {
-        GazePointManager.OnPointCreated.AddListener(VisualizeAt);
+        GazePointManager.OnPointCreated.AddListener(VisualizePoint);
     }
 
     private void OnDisable()
     {
-        GazePointManager.OnPointCreated.RemoveListener(VisualizeAt);
+        GazePointManager.OnPointCreated.RemoveListener(VisualizePoint);
     }
 
     void Start()
@@ -55,21 +55,33 @@ public class LocationVisualizer : MonoBehaviour
 
     public void VisualizePoint(GazePoint point)
     {
-        VisualizeAt(point.position);
-    }
-
-    public void VisualizeAt(Vector3 position)
-    {
-        if (!this.gameObject.activeInHierarchy | prefab == null)
+        if (!this.gameObject.activeInHierarchy | prefab == null)    //< The activeInHierarchy check should not be necessary considering that the even is unsubscribed from OnDisable().
             return;
 
         GameObject availableGO = pool[currentIndex];
 
-        availableGO.transform.position = position;
-        availableGO.name = position.ToString();
-        availableGO.SetActive(true);
+        if (point.attachedToDynObj)
+            VisualizeLocal(availableGO, point.attachedToDynObj.transform, point.position);
+        else
+            VisualizeAt(availableGO, point.position);
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;
+    }
+
+    private void VisualizeAt(GameObject visualizationGO, Vector3 position)
+    {
+        visualizationGO.transform.SetParent(this.transform);
+        visualizationGO.transform.localPosition = position;
+        visualizationGO.name = position.ToString();
+        visualizationGO.SetActive(true);
+    }
+
+    private void VisualizeLocal(GameObject visualizationGO, Transform parentToAttachTo, Vector3 position)
+    {
+        visualizationGO.transform.SetParent(parentToAttachTo);
+        visualizationGO.transform.localPosition = position;
+        visualizationGO.name = parentToAttachTo.name + " " + position.ToString();
+        visualizationGO.SetActive(true);
     }
 }

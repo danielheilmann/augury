@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+//TODO: Newly added dynamic gaze points are not supported by FixationManager yet
 public class FixationManager : MonoBehaviour
 {
     //#> Constants 
@@ -26,8 +27,9 @@ public class FixationManager : MonoBehaviour
         GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
     }
 
-    private void EvaluateFixation(Vector3 newGazePoint)
+    private void EvaluateFixation(GazePoint gazePoint)
     {
+        Vector3 newGazePoint = gazePoint.position;
         Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
 
         if (Vector3.Distance(newGazePoint, currentFixationGroupAveragePosition) > distanceThreshold)

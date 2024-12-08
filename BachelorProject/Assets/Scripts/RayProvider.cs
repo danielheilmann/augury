@@ -24,8 +24,16 @@ public class RayProvider : MonoBehaviour
             if (hit.collider != null)
             {
                 OnHit.Invoke(hit);
-                
+
             }
         }
     }
+
+    /// <summary>
+    /// Callback to draw gizmos only if the object is selected.
+    /// </summary>
+    // private void OnDrawGizmosSelected()
+    // {
+    //     Debug.DrawRay(this.transform.position, this.transform.forward * 10, Color.red, duration: 2.0f, depthTest: true);
+    // }
 }

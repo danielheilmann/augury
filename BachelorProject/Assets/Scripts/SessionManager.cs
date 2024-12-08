@@ -16,6 +16,6 @@ public class SessionManager : MonoBehaviour
     public static void StartSession()
     {
         sessionStartTime = DateTime.Now;
-        sessionTitle = $"Session {sessionStartTime:yyyy-MM-dd HH-mm-ss}";   //< Simplified version of "sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")"
+        sessionTitle = $"Session {sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss", System.Globalization.CultureInfo.InvariantCulture)}";   //< Simplified version of "sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")"
     }
 }

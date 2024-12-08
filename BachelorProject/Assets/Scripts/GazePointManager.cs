@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class GazePointManager : MonoBehaviour
 {
     //#> Static Variables 
-    public static UnityEvent<Vector3> OnPointCreated = new();
+    public static UnityEvent<GazePoint> OnPointCreated = new();
 
     //#> Private Variables 
     [SerializeField] private List<GazePoint> points;  //TODO: Will need to be modified for the implementation of localized gaze points.
@@ -36,17 +36,18 @@ public class GazePointManager : MonoBehaviour
 
     private void EvaluateRaycastHit(RaycastHit hit)
     {
-        CreatePointAt(hit.point);
+        if (hit.collider.gameObject.TryGetComponent<DynamicObject>(out DynamicObject dynObj))
+            CreatePointAt(hit.point, dynObj);
+        else
+            CreatePointAt(hit.point);
     }
 
-    public void CreatePointAt(Vector3 position)
+    public void CreatePointAt(Vector3 pointPosition, DynamicObject connectedDynObj = null)
     {
         DateTime timeStamp = DateTime.Now;  //TODO: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
-        Debug.Log($"{timeStamp} | Created Point at {position}");
 
-        SetPoint(currentWorkingIndex, timeStamp, position);
-
-        OnPointCreated.Invoke(position);
+        GazePoint point = SetPoint(currentWorkingIndex, timeStamp, pointPosition, connectedDynObj);
+        OnPointCreated.Invoke(point);
         currentWorkingIndex++;
 
         //> Automatically increase GazePoint dictionary size if necessary.
@@ -62,8 +63,40 @@ public class GazePointManager : MonoBehaviour
         }
     }
 
-    private void SetPoint(int index, DateTime timeStamp, Vector3 position)
+    private GazePoint SetPoint(int index, DateTime timeStamp, Vector3 position, DynamicObject dynObj = null)
     {
-        points[index].Set(timeStamp, position);
+        if (dynObj == null)
+        {
+            points[index].Set(timeStamp, position, dynObj);
+            Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
+        }
+        else
+        {
+            Vector3 relativePosition = position - dynObj.transform.position;    //TODO: This offset is causing issues because it does not take into account scaled objects. If an object is scaled, the offset will be wrong because it also gets multiplied by the scaling modifier. (for some reason) But if I just adjust the relative position when the gazepoint is created, they will become misplaced if the object changes scale after they attach themselves. So maybe I should forgo parenting entirely and instead include my own following behaviour in the... DynamicObject? GazePointVisualizers?
+            points[index].Set(timeStamp, relativePosition, dynObj);
+            Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Local Point at {position}, which is attached to \"{dynObj.name}\" with an offset of {relativePosition}", dynObj.gameObject);
+        }
+
+        return points[index];
     }
+
+    /// <summary>
+    /// Callback to draw gizmos that are pickable and always drawn.
+    /// </summary>
+    // private void OnDrawGizmos()
+    // {
+    //     foreach (var point in points)
+    //     {
+    //         if (point.attachedToDynObj)
+    //         {
+    //             Gizmos.color = Color.blue;
+    //             Gizmos.DrawSphere(point.position + point.attachedToDynObj.transform.position, 0.2f);
+    //         }
+    //         else
+    //         {
+    //             Gizmos.color = Color.yellow;
+    //             Gizmos.DrawSphere(point.position, 0.2f);
+    //         }
+    //     }
+    // }
 }
