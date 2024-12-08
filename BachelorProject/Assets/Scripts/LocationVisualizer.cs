@@ -58,30 +58,17 @@ public class LocationVisualizer : MonoBehaviour
         if (!this.gameObject.activeInHierarchy | prefab == null)    //< The activeInHierarchy check should not be necessary considering that the even is unsubscribed from OnDisable().
             return;
 
-        GameObject availableGO = pool[currentIndex];
+        GameObject visualizerGO = pool[currentIndex];
+        Transform goParent = point.isLocal ? point.dynamicObject.transform : this.transform;
+        string goName = point.isLocal ? $"{point.dynamicObject.name} {point.position.ToString()}" : point.position.ToString();
 
-        if (point.attachedToDynObj)
-            VisualizeLocal(availableGO, point.attachedToDynObj.transform, point.position);
-        else
-            VisualizeAt(availableGO, point.position);
+        visualizerGO.transform.position = point.position;
+        visualizerGO.transform.SetParent(goParent, true);
+        visualizerGO.name = goName;
+        visualizerGO.GetComponentInChildren<Renderer>().material.SetColor("_Color", point.isLocal ? new Color(0.243f, 0.231f, 0.961f) : new Color(1f, 0.271f, 0.569f));
+        visualizerGO.SetActive(true);
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;
-    }
-
-    private void VisualizeAt(GameObject visualizationGO, Vector3 position)
-    {
-        visualizationGO.transform.SetParent(this.transform);
-        visualizationGO.transform.localPosition = position;
-        visualizationGO.name = position.ToString();
-        visualizationGO.SetActive(true);
-    }
-
-    private void VisualizeLocal(GameObject visualizationGO, Transform parentToAttachTo, Vector3 position)
-    {
-        visualizationGO.transform.SetParent(parentToAttachTo);
-        visualizationGO.transform.localPosition = position;
-        visualizationGO.name = parentToAttachTo.name + " " + position.ToString();
-        visualizationGO.SetActive(true);
     }
 }

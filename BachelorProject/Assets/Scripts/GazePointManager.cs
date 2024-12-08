@@ -72,7 +72,7 @@ public class GazePointManager : MonoBehaviour
         }
         else
         {
-            Vector3 relativePosition = position - dynObj.transform.position;    //TODO: This offset is causing issues because it does not take into account scaled objects. If an object is scaled, the offset will be wrong because it also gets multiplied by the scaling modifier. (for some reason) But if I just adjust the relative position when the gazepoint is created, they will become misplaced if the object changes scale after they attach themselves. So maybe I should forgo parenting entirely and instead include my own following behaviour in the... DynamicObject? GazePointVisualizers?
+            Vector3 relativePosition = position - dynObj.transform.position;
             points[index].Set(timeStamp, relativePosition, dynObj);
             Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Local Point at {position}, which is attached to \"{dynObj.name}\" with an offset of {relativePosition}", dynObj.gameObject);
         }

@@ -8,25 +8,26 @@ public class GazePoint  //TODO: For some reason, having this as structs makes it
 {
     public string name;
     public DateTime timeStamp { get; private set; }
-    public Vector3 position { get; private set; }
-    public DynamicObject attachedToDynObj { get; private set; }
+    public Vector3 position => isLocal ? dynamicObject.transform.position + _position : _position;
+    public Vector3 rawPosition => _position;
+    private Vector3 _position;
+    public DynamicObject dynamicObject { get; private set; } = null;
+    public bool isLocal => dynamicObject != null;
 
     public GazePoint(DateTime timeStamp, Vector3 position)
     {
         this.timeStamp = timeStamp;
-        this.position = position;
+        this._position = position;
         this.name = "";
-
-        this.attachedToDynObj = null;
     }
 
     public void Set(DateTime timeStamp, Vector3 position, DynamicObject connectedDynObj = null)
     {
         this.timeStamp = timeStamp;
-        this.position = position;
+        this._position = position;
         this.name = timeStamp + " " + position;
 
-        this.attachedToDynObj = connectedDynObj;
+        this.dynamicObject = connectedDynObj;
     }
 }
 
