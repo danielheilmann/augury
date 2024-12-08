@@ -13,6 +13,7 @@ public class GazePoint  //TODO: For some reason, having this as structs makes it
     private Vector3 _position;
     public DynamicObject dynamicObject { get; private set; } = null;
     public bool isLocal => dynamicObject != null;
+    public int dynObjID => isLocal ? dynamicObject.id : -1;
 
     public GazePoint(DateTime timeStamp, Vector3 position)
     {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//TODO: I should probably rework this entire thing, removing the unnecessary ObjectPool could allow streamlining the Fixations, which, right now just feel overcomplicated.
 public class FixationVisualizer : MonoBehaviour
 {
     public static FixationVisualizer Instance { get; private set; }
@@ -51,25 +52,27 @@ public class FixationVisualizer : MonoBehaviour
         go.SetActive(false);
     }
 
-    public void VisualizeAt(Vector3 position, int fixationNumber)
+    public void VisualizeAt(Vector3 position, int fixationNumber, DynamicObject dynObj)
     {
         if (!this.gameObject.activeInHierarchy | prefab == null)
             return;
 
-        ConfigureFixationGO(go: pool[currentIndex], position: position, id: fixationNumber, precedingFixation: GetPrecedingFixationFromList(currentIndex));
+        ConfigureFixationGO(go: pool[currentIndex], position: position, id: fixationNumber, precedingFixation: GetPrecedingFixationFromList(currentIndex), dynObj);
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;
     }
 
     //TODO: Implement a way to adapt the scale of the fixation circle based on the amount of fixations points / fixation duration.
-    private void ConfigureFixationGO(GameObject go, Vector3 position, int id, Fixation precedingFixation)
+    private void ConfigureFixationGO(GameObject go, Vector3 position, int id, Fixation precedingFixation, DynamicObject dynObj)
     {
         go.SetActive(false);
         go.transform.position = position;
+        go.transform.SetParent(dynObj == null ? this.transform : dynObj.transform, true);
         go.name = $"{id} {position}";
         Fixation fixation = go.GetComponent<Fixation>();
         fixation.SetID(id);
+        fixation.SetDynamicObject(dynObj);
         fixation.ConnectToPrecedingFixation(precedingFixation);
         go.SetActive(true);
     }
@@ -85,7 +88,7 @@ public class FixationVisualizer : MonoBehaviour
 
         Fixation precedingFixation = pool[previousIndex].GetComponent<Fixation>();
 
-        if (precedingFixation.isActiveAndEnabled)   //TODO: This does not fix the line-looping yet, as after going through the initial pool - nevermind
+        if (precedingFixation.isActiveAndEnabled)
             return precedingFixation;
         else return null;
     }

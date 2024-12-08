@@ -6,15 +6,12 @@ using TMPro;
 public class Fixation : MonoBehaviour
 {
     public int number { get; private set; }
-    private Fixation precedingFixation;
+    [SerializeField] private Fixation precedingFixation;
+    [SerializeField] private DynamicObject connectedDynamicObject;
 
     [SerializeField] private TextMeshProUGUI textField;
     [SerializeField] private LineRenderer line;
 
-    /// <summary>
-    /// Start is called on the frame when a script is enabled just before
-    /// any of the Update methods is called the first time.
-    /// </summary>
     private void Awake()
     {
         // textField = GetComponentInChildren<TextMeshProUGUI>(); //< Opted for manual assignment instead.
@@ -23,10 +20,25 @@ public class Fixation : MonoBehaviour
         line.SetPosition(1, Vector3.zero);  //< This way, both pos 0 and 1 are Vector3.zero, resulting in no line being drawn.
     }
 
+    private void LateUpdate()
+    {
+        if (connectedDynamicObject != null && precedingFixation != null)
+        {
+            //> To update line between the points whenever this fixation point is moved //TODO: To update this properly on both sides, the entire fixation architecture needs to be reworked so that a manager can handle these updates.
+            Vector3 vectorToPrecedingFixation = precedingFixation.transform.position - this.transform.position;
+            line.SetPosition(1, vectorToPrecedingFixation);
+        }
+    }
+
     public void SetID(int number)
     {
         this.number = number;
         textField.text = number.ToString();
+    }
+
+    public void SetDynamicObject(DynamicObject dynamicObject)
+    {
+        this.connectedDynamicObject = dynamicObject;
     }
 
     public void ConnectToPrecedingFixation(Fixation other)

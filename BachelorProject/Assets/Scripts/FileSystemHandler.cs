@@ -49,7 +49,7 @@ public static class FileSystemHandler
         foreach (var gazePoint in gazePoints)
         {
             JSONObject pointData = new JSONObject();
-            pointData.Add("dynObjID", gazePoint.isLocal ? gazePoint.dynamicObject.id : -1); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
+            pointData.Add("dynObjID", gazePoint.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
 
             JSONArray position = new JSONArray();
             position.Add(gazePoint.position.x);
