@@ -62,7 +62,9 @@ public class LocationVisualizer : MonoBehaviour
         Transform goParent = point.isLocal ? point.dynamicObject.transform : this.transform;
         string goName = point.isLocal ? $"{point.dynamicObject.name} {point.position.ToString()}" : point.position.ToString();
 
+        visualizerGO.transform.SetParent(null);
         visualizerGO.transform.position = point.position;
+        visualizerGO.transform.localScale = Vector3.one;    //< To reset scale in case a dynamic object was scaled after this point was attached (which leads to the point itself being scaled as well).
         visualizerGO.transform.SetParent(goParent, true);
         visualizerGO.name = goName;
         visualizerGO.GetComponentInChildren<Renderer>().material.SetColor("_Color", point.isLocal ? new Color(0.243f, 0.231f, 0.961f) : new Color(1f, 0.271f, 0.569f));
