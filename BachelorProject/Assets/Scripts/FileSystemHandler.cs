@@ -23,7 +23,7 @@ public static class FileSystemHandler
         string filePath = $"{dir}{dirSeperator}{fileTitle}{FileExtension}";
 
         File.WriteAllText(filePath, fileContent);
-        Debug.Log($"Saved data to file: {filePath}");
+        Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
 
         return filePath;
     }
@@ -42,22 +42,26 @@ public static class FileSystemHandler
 
     private static string ParseListToJSONString(List<GazePoint> gazePoints)
     {
-        JSONObject exportData = new JSONObject();
-
-        exportData.Add("appVersion", Application.version);
+        JSONObject output = new JSONObject();
+        output.Add("appVersion", Application.version);
+        output.Add("inScene", SceneManager.GetActiveScene().name);
 
         foreach (var gazePoint in gazePoints)
         {
+            JSONObject pointData = new JSONObject();
+            pointData.Add("dynObjID", gazePoint.isLocal ? gazePoint.dynamicObject.id : -1); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
+
             JSONArray position = new JSONArray();
             position.Add(gazePoint.position.x);
             position.Add(gazePoint.position.y);
             position.Add(gazePoint.position.z);
+            pointData.Add("position", position);
 
             string timeStamp = gazePoint.timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
-            exportData.Add(timeStamp, position);
+            output.Add(timeStamp, pointData);
         }
 
-        return exportData.ToString(Settings.PrettyJSONExportIndent);
+        return output.ToString(Settings.PrettyJSONExportIndent);
     }
     #endregion
 
@@ -73,7 +77,7 @@ public static class FileSystemHandler
 
         exportData.Add("appVersion", Application.version);
         exportData.Add("inScene", SceneManager.GetActiveScene().name);
-        exportData.Add("objectId", dynamicObject.id);
+        exportData.Add("dynObjID", dynamicObject.id);
 
         #region Position History
         JSONArray positionHist = new JSONArray();
