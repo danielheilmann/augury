@@ -25,7 +25,14 @@ public class RayProvider : MonoBehaviour
             {
                 OnHit.Invoke(hit);
                 
+                if (hit.collider.TryGetComponent<HeatmapDriver>(out HeatmapDriver heatmap))
+                heatmap.OnHit(hit);
             }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Debug.DrawRay(this.transform.position, this.transform.forward * 10, Color.red, duration: 2.0f, depthTest: true);
     }
 }
