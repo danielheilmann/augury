@@ -5,6 +5,7 @@ using UnityEngine;
 //TODO: I should probably rework this entire thing, removing the unnecessary ObjectPool could allow streamlining the Fixations, which, right now just feel overcomplicated.
 public class FixationVisualizer : MonoBehaviour
 {
+    private const float offsetFactor = 0.01f;   //< During placement, the visualizer canvas is lifted from the surface by an amount equal to surfaceNormal * offsetFactor.
     public static FixationVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
@@ -52,22 +53,23 @@ public class FixationVisualizer : MonoBehaviour
         go.SetActive(false);
     }
 
-    public void VisualizeAt(Vector3 position, int fixationNumber, DynamicObject dynObj)
+    public void VisualizeAt(Vector3 position, int fixationNumber, Vector3 surfaceNormal, DynamicObject dynObj)
     {
         if (!this.gameObject.activeInHierarchy | prefab == null)
             return;
 
-        ConfigureFixationGO(go: pool[currentIndex], position: position, id: fixationNumber, precedingFixation: GetPrecedingFixationFromList(currentIndex), dynObj);
+        ConfigureFixationGO(go: pool[currentIndex], position: position, surfaceNormal:surfaceNormal, id: fixationNumber, precedingFixation: GetPrecedingFixationFromList(currentIndex), dynObj: dynObj);
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;
     }
 
     //TODO: Implement a way to adapt the scale of the fixation circle based on the amount of fixations points / fixation duration.
-    private void ConfigureFixationGO(GameObject go, Vector3 position, int id, Fixation precedingFixation, DynamicObject dynObj)
+    private void ConfigureFixationGO(GameObject go, Vector3 position, Vector3 surfaceNormal, int id, Fixation precedingFixation, DynamicObject dynObj)
     {
         go.SetActive(false);
-        go.transform.position = position;
+        go.transform.position = position + surfaceNormal * offsetFactor;    //< surfaceNormal is added here to prevent Z-Fighting
+        go.GetComponentInChildren<Canvas>().transform.LookAt(position - surfaceNormal);
         go.transform.SetParent(dynObj == null ? this.transform : dynObj.transform, true);
         go.name = $"{id} {position}";
         Fixation fixation = go.GetComponent<Fixation>();
@@ -84,7 +86,6 @@ public class FixationVisualizer : MonoBehaviour
         int previousIndex;
         if (currentIndex == 0) previousIndex = pool.Count - 1;
         else previousIndex = currentIndex - 1;
-            
 
         Fixation precedingFixation = pool[previousIndex].GetComponent<Fixation>();
 
