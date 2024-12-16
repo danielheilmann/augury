@@ -11,9 +11,9 @@ public static class FileSystemHandler
 {
     private const string FileExtension = ".txt";
     private const string FolderName = "RecordedSessionData";
-    private static char dirSeperator = Path.DirectorySeparatorChar;
+    private static char dirSeperator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
 
-    /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the FileSystemHandler class. </summary>   
+    /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
     /// <param name="fileTitle"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
     /// <param name="fileContent"> The content of the file in the form of a single string. It may also be JSON, as it is nothing but text. </param>
     /// <returns> The full file path of the file that was created. </returns>
@@ -22,7 +22,8 @@ public static class FileSystemHandler
         string dir = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent}{dirSeperator}{FolderName}").Name;
         string filePath = $"{dir}{dirSeperator}{fileTitle}{FileExtension}";
 
-        File.WriteAllText(filePath, fileContent);
+        if (!Settings.TestModeEnabled)  //< So that the application does not constantly create new files while running tests for unrelated features.
+            File.WriteAllText(filePath, fileContent);
         Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
 
         return filePath;
