@@ -35,8 +35,11 @@ public class FixationManager : MonoBehaviour
         {
             //TODO: Right now, the system sometimes creates new fixations, seemingly without reaching this threshold?
             if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active fixation group into a fixation, but only if it contains enough points.
-                CreateFixation(currentFixationGroupAveragePosition, activeGazePointGroup[0].dynamicObject);
-
+            {
+                Vector3 averageSurfaceNormal = CalculateAverageSurfaceNormal(activeGazePointGroup);
+                int fixationID = fixations.Count;
+                CreateFixation(currentFixationGroupAveragePosition, averageSurfaceNormal, fixationID, activeGazePointGroup[0].dynamicObject);
+            }
             activeGazePointGroup.Clear();
         }
 
@@ -50,38 +53,23 @@ public class FixationManager : MonoBehaviour
         foreach (GazePoint point in gazePoints)
             sum += point.position;
 
-        return sum /= gazePoints.Count; ;
+        return sum /= gazePoints.Count;
     }
 
-    private void CreateFixation(Vector3 fixationPosition, DynamicObject dynObj)
+    private Vector3 CalculateAverageSurfaceNormal(List<GazePoint> gazePoints)
     {
-        //TODO: This is still a little unreliable around the top edges, but generally workable
+        Vector3 sum = Vector3.zero;
 
-        Collider[] overlapHitObjects = Physics.OverlapSphere(fixationPosition, 0.01f);
-        if (overlapHitObjects.Length == 0)
-        {
-            Debug.LogWarning($"Tried to create fixation at {fixationPosition}, but the overlap sphere failed to detect any colliders. Tweaking of variables is recommended.");
-            return;
-        }
+        foreach (GazePoint point in gazePoints)
+            sum += point.surfaceNormal;
 
-        GameObject overlapHitObject = Physics.OverlapSphere(fixationPosition, 0.01f)[0].gameObject;
-        Vector3 relativePosToHitObject = overlapHitObject.transform.position - fixationPosition;
+        return sum /= gazePoints.Count;
+    }
 
-        if (Physics.Raycast(origin: fixationPosition - relativePosToHitObject * 0.05f, direction: relativePosToHitObject, maxDistance: 0.5f, hitInfo: out RaycastHit hit, layerMask: Physics.DefaultRaycastLayers, queryTriggerInteraction: QueryTriggerInteraction.UseGlobal))
-        // if (Physics.SphereCast(origin: position, radius: 0.1f, Vector3.up, out RaycastHit hit))
-        {
-            if (hit.collider.gameObject == overlapHitObject)
-            {
-                Vector3 surfaceNormal = hit.normal;
-                fixations.Add(fixationPosition);
-                OnFixationCreated.Invoke(fixationPosition, fixations.Count, surfaceNormal, dynObj);
-            }
-            else
-                Debug.LogWarning($"Tried to create fixation at {fixationPosition}, but accidentally hit an object ({hit.collider.gameObject.name}) during normal-detection raycast that was not the intended target ({overlapHitObject.name}). Tweaking of variables is recommended.");
-        }
-        else
-            //TODO: This implementation is still unable to generate hits on large, flat objects (like the ground plane), as these cause the raycast to turn parallel
-            Debug.LogWarning($"Tried to create fixation at {fixationPosition}, but the normal-detection raycast missed ({overlapHitObject.name}). Tweaking of variables is recommended.");
+    private void CreateFixation(Vector3 fixationPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj)
+    {
+        fixations.Add(fixationPosition);    //TODO: Improve the way fixations are stored later
+        OnFixationCreated.Invoke(fixationPosition, fixationIndex, surfaceNormal, dynObj);
     }
 
     private bool IsDifferentIDthanLastEntry(int id)

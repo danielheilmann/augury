@@ -37,16 +37,16 @@ public class GazePointManager : MonoBehaviour
     private void EvaluateRaycastHit(RaycastHit hit)
     {
         if (hit.collider.gameObject.TryGetComponent<DynamicObject>(out DynamicObject dynObj))
-            CreatePointAt(hit.point, dynObj);
+            CreatePointAt(hit.point, hit.normal, dynObj);
         else
-            CreatePointAt(hit.point);
+            CreatePointAt(hit.point, hit.normal);
     }
 
-    public void CreatePointAt(Vector3 pointPosition, DynamicObject connectedDynObj = null)
+    public void CreatePointAt(Vector3 pointPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
     {
         DateTime timeStamp = DateTime.Now;  //TODO: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
 
-        GazePoint point = SetPoint(currentWorkingIndex, timeStamp, pointPosition, connectedDynObj);
+        GazePoint point = SetPoint(currentWorkingIndex, timeStamp, pointPosition, hitNormal, connectedDynObj);
         OnPointCreated.Invoke(point);
         currentWorkingIndex++;
 
@@ -63,17 +63,17 @@ public class GazePointManager : MonoBehaviour
         }
     }
 
-    private GazePoint SetPoint(int index, DateTime timeStamp, Vector3 position, DynamicObject dynObj = null)
+    private GazePoint SetPoint(int index, DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject dynObj = null)
     {
         if (dynObj == null)
         {
-            points[index].Set(timeStamp, position, dynObj);
+            points[index].Set(timeStamp, position, surfaceNormal, dynObj);
             Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
         }
         else
         {
             Vector3 relativePosition = position - dynObj.transform.position;
-            points[index].Set(timeStamp, relativePosition, dynObj);
+            points[index].Set(timeStamp, relativePosition, surfaceNormal, dynObj);
             Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Local Point at {position}, which is attached to \"{dynObj.name}\" with an offset of {relativePosition}", dynObj.gameObject);
         }
 

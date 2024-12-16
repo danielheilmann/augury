@@ -8,12 +8,13 @@ public class GazePoint  //TODO: For some reason, having this as structs makes it
 {
     public string name;
     public DateTime timeStamp { get; private set; }
-    public Vector3 position => isLocal ? dynamicObject.transform.position + _position : _position;
-    public Vector3 rawPosition => _position;
-    private Vector3 _position;
+    public Vector3 surfaceNormal { get; private set; }
     public DynamicObject dynamicObject { get; private set; } = null;
     public bool isLocal => dynamicObject != null;
     public int dynObjID => isLocal ? dynamicObject.id : -1;
+    public Vector3 position => isLocal ? dynamicObject.transform.position + _position : _position;
+    public Vector3 rawPosition => _position;
+    private Vector3 _position;
 
     public GazePoint(DateTime timeStamp, Vector3 position)
     {
@@ -22,10 +23,11 @@ public class GazePoint  //TODO: For some reason, having this as structs makes it
         this.name = "";
     }
 
-    public void Set(DateTime timeStamp, Vector3 position, DynamicObject connectedDynObj = null)
+    public void Set(DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject connectedDynObj = null)
     {
         this.timeStamp = timeStamp;
         this._position = position;
+        this.surfaceNormal = surfaceNormal;
         this.name = timeStamp + " " + position;
 
         this.dynamicObject = connectedDynObj;

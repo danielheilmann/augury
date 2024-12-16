@@ -9,7 +9,7 @@ public class FixationVisualizer : MonoBehaviour
     public static FixationVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
-    [SerializeField] private List<GameObject> pool = new List<GameObject>();
+    [SerializeField] private List<GameObject> pool;
     private int currentIndex = 0;
 
     private void Awake()
@@ -41,6 +41,7 @@ public class FixationVisualizer : MonoBehaviour
         if (prefab == null)
             return;
 
+        pool = new List<GameObject>(poolSize);
         for (int i = 0; i < poolSize; i++)
             IncreasePool();
     }
@@ -58,7 +59,7 @@ public class FixationVisualizer : MonoBehaviour
         if (!this.gameObject.activeInHierarchy | prefab == null)
             return;
 
-        ConfigureFixationGO(go: pool[currentIndex], position: position, surfaceNormal:surfaceNormal, id: fixationNumber, precedingFixation: GetPrecedingFixationFromList(currentIndex), dynObj: dynObj);
+        ConfigureFixationGO(go: pool[currentIndex], position: position, surfaceNormal: surfaceNormal, id: fixationNumber, precedingFixation: GetPrecedingFixationFromList(currentIndex), dynObj: dynObj);
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;
@@ -68,14 +69,12 @@ public class FixationVisualizer : MonoBehaviour
     private void ConfigureFixationGO(GameObject go, Vector3 position, Vector3 surfaceNormal, int id, Fixation precedingFixation, DynamicObject dynObj)
     {
         go.SetActive(false);
+        //< All of this config should happen in the fixation class instead.
         go.transform.position = position + surfaceNormal * offsetFactor;    //< surfaceNormal is added here to prevent Z-Fighting
         go.GetComponentInChildren<Canvas>().transform.LookAt(position - surfaceNormal);
         go.transform.SetParent(dynObj == null ? this.transform : dynObj.transform, true);
         go.name = $"{id} {position}";
-        Fixation fixation = go.GetComponent<Fixation>();
-        fixation.SetID(id);
-        fixation.SetDynamicObject(dynObj);
-        fixation.ConnectToPrecedingFixation(precedingFixation);
+        go.GetComponent<Fixation>().Configure(id, dynObj, precedingFixation);
         go.SetActive(true);
     }
 
