@@ -31,7 +31,7 @@ public static class FileSystemHandler
     #region Saving Gaze Points
     public static void SaveGazePoints(List<GazePoint> gazePoints)
     {
-        if (gazePoints.Count == 0)  //< There is no reason to save a file without point entries
+        if (gazePoints.Count == 0)  //< There is no reason to save a file from a session without any point entries, as that was most likely a start-stop situation.
             return;
 
         string filepath = CreateFile(fileTitle: $"{SessionManager.sessionTitle} - GazePoints", fileContent: ParseListToJSONString(gazePoints));

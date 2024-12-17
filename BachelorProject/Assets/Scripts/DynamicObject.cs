@@ -81,11 +81,11 @@ public class DynamicObject : MonoBehaviour
     private void OnTimerTick()
     {
         DateTime timestamp = DateTime.Now;
-        if (positionHistory.Count == 0 || transform.localPosition != positionHistory.ElementAt(positionHistory.Count - 1).Value)
+        if (transform.localPosition != positionHistory.ElementAt(positionHistory.Count - 1).Value)
             positionHistory.Add(timestamp, transform.localPosition);
-        if (rotationHistory.Count == 0 || transform.localRotation != rotationHistory.ElementAt(rotationHistory.Count - 1).Value)
+        if (transform.localRotation != rotationHistory.ElementAt(rotationHistory.Count - 1).Value)
             rotationHistory.Add(timestamp, transform.localRotation);
-        if (scaleHistory.Count == 0 || transform.localScale != scaleHistory.ElementAt(scaleHistory.Count - 1).Value)
+        if (transform.localScale != scaleHistory.ElementAt(scaleHistory.Count - 1).Value)
             scaleHistory.Add(timestamp, transform.localScale);
     }
 }
