@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LocationVisualizer : MonoBehaviour
+public class GazePointVisualizer : MonoBehaviour
 {
-    public static LocationVisualizer Instance { get; private set; }
+    public static GazePointVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
     [SerializeField] private List<GameObject> pool = new List<GameObject>();

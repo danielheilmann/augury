@@ -1,64 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
-public class Fixation : MonoBehaviour
+public class Fixation
 {
-    public int number { get; private set; }
+    /// <summary> Global Fixation ID </summary>
+    public int gfid { get; private set; }
+    /// <summary> Local Fixation ID </summary>
+    public int lfid { get; private set; }   //TODO: Not implemented yet
     public Vector3 surfaceNormal { get; private set; }
-    public Vector3 position => transform.position;
-    [SerializeField] private Fixation precedingFixation;
-    [SerializeField] private DynamicObject connectedDynamicObject;
+    public DynamicObject dynamicObject { get; private set; } = null;
+    public Vector3 position => isLocal ? dynamicObject.transform.position + _position : _position;
+    public bool isLocal => dynamicObject != null;
+    public Vector3 rawPosition => _position;
+    private Vector3 _position;
 
-    [SerializeField] private TextMeshProUGUI textField;
-    [SerializeField] private LineRenderer line;
-
-    private void Awake()
+    public Fixation(Vector3 position, Vector3 surfaceNormal, int gfid, int lfid = -1, DynamicObject dynamicObject = null)
     {
-        // textField = GetComponentInChildren<TextMeshProUGUI>(); //< Opted for manual assignment instead.
-        line.positionCount = 2;
-        line.SetPosition(0, Vector3.zero);
-        line.SetPosition(1, Vector3.zero);  //< This way, both pos 0 and 1 are Vector3.zero, resulting in no line being drawn.
-    }
+        this.surfaceNormal = surfaceNormal;
+        this.dynamicObject = dynamicObject;
+        _position = position;
+        this.gfid = gfid;
 
-    private void LateUpdate()
-    {
-        if (connectedDynamicObject != null && precedingFixation != null)
-        {
-            //> To update line between the points whenever this fixation point is moved 
-            //TODO: To update this properly on both sides, the entire fixation architecture needs to be reworked so that a manager can handle these updates.
-            Vector3 vectorToPrecedingFixation = precedingFixation.transform.position - this.transform.position;
-            line.SetPosition(1, vectorToPrecedingFixation);
-        }
-    }
-
-    public Fixation Configure(int id, DynamicObject dynamicObject, Fixation precedingFixation) //< Allows for configuration without having to call 3 separate methods.
-    {
-        SetID(id);
-        SetDynamicObject(dynamicObject);
-        ConnectToPrecedingFixation(precedingFixation);
-        return this;
-    }
-
-    public void SetID(int number)
-    {
-        this.number = number;
-        textField.text = number.ToString();
-    }
-
-    public void SetDynamicObject(DynamicObject dynamicObject)
-    {
-        this.connectedDynamicObject = dynamicObject;
-    }
-
-    public void ConnectToPrecedingFixation(Fixation other)
-    {
-        precedingFixation = other;
-        if (number > 1)
-        {
-            Vector3 vectorToPrecedingFixation = precedingFixation.transform.position - this.transform.position;
-            line.SetPosition(1, vectorToPrecedingFixation);
-        }
+        this.lfid = isLocal ? lfid : gfid;
     }
 }
