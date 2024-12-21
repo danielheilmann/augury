@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LocationVisualizer : MonoBehaviour
+public class GazePointVisualizer : MonoBehaviour
 {
-    public static LocationVisualizer Instance { get; private set; }
+    public static GazePointVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
     [SerializeField] private List<GameObject> pool = new List<GameObject>();
@@ -26,12 +26,12 @@ public class LocationVisualizer : MonoBehaviour
 
     private void OnEnable()
     {
-        GazePointManager.OnPointCreated.AddListener(VisualizeAt);
+        GazePointManager.OnPointCreated.AddListener(VisualizePoint);
     }
 
     private void OnDisable()
     {
-        GazePointManager.OnPointCreated.RemoveListener(VisualizeAt);
+        GazePointManager.OnPointCreated.RemoveListener(VisualizePoint);
     }
 
     void Start()
@@ -55,19 +55,20 @@ public class LocationVisualizer : MonoBehaviour
 
     public void VisualizePoint(GazePoint point)
     {
-        VisualizeAt(point.position);
-    }
-
-    public void VisualizeAt(Vector3 position)
-    {
-        if (!this.gameObject.activeInHierarchy | prefab == null)
+        if (!this.gameObject.activeInHierarchy | prefab == null)    //< The activeInHierarchy check should not be necessary considering that the even is unsubscribed from OnDisable().
             return;
 
-        GameObject availableGO = pool[currentIndex];
+        GameObject visualizerGO = pool[currentIndex];
+        Transform goParent = point.isLocal ? point.dynamicObject.transform : this.transform;
+        string goName = point.isLocal ? $"{point.dynamicObject.name} {point.position.ToString()}" : point.position.ToString();
 
-        availableGO.transform.position = position;
-        availableGO.name = position.ToString();
-        availableGO.SetActive(true);
+        visualizerGO.transform.SetParent(null);
+        visualizerGO.transform.position = point.position;
+        visualizerGO.transform.localScale = Vector3.one;    //< To reset scale in case a dynamic object was scaled after this point was attached (which leads to the point itself being scaled as well).
+        visualizerGO.transform.SetParent(goParent, true);
+        visualizerGO.name = goName;
+        visualizerGO.GetComponentInChildren<Renderer>().material.SetColor("_Color", point.isLocal ? new Color(0.243f, 0.231f, 0.961f) : new Color(1f, 0.271f, 0.569f));
+        visualizerGO.SetActive(true);
 
         if (currentIndex < poolSize - 1) currentIndex++;
         else currentIndex = 0;

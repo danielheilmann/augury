@@ -11,9 +11,9 @@ public static class FileSystemHandler
 {
     private const string FileExtension = ".txt";
     private const string FolderName = "RecordedSessionData";
-    private static char dirSeperator = Path.DirectorySeparatorChar;
+    private static char dirSeperator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
 
-    /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the FileSystemHandler class. </summary>   
+    /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
     /// <param name="fileTitle"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
     /// <param name="fileContent"> The content of the file in the form of a single string. It may also be JSON, as it is nothing but text. </param>
     /// <returns> The full file path of the file that was created. </returns>
@@ -22,8 +22,11 @@ public static class FileSystemHandler
         string dir = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent}{dirSeperator}{FolderName}").Name;
         string filePath = $"{dir}{dirSeperator}{fileTitle}{FileExtension}";
 
-        File.WriteAllText(filePath, fileContent);
-        Debug.Log($"Saved data to file: {filePath}");
+        if (!Settings.TestModeEnabled)  //< So that the application does not constantly create new files while running tests for unrelated features.
+        {
+            File.WriteAllText(filePath, fileContent);
+            Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
+        }
 
         return filePath;
     }
@@ -42,22 +45,26 @@ public static class FileSystemHandler
 
     private static string ParseListToJSONString(List<GazePoint> gazePoints)
     {
-        JSONObject exportData = new JSONObject();
-
-        exportData.Add("appVersion", Application.version);
+        JSONObject output = new JSONObject();
+        output.Add("appVersion", Application.version);
+        output.Add("inScene", SceneManager.GetActiveScene().name);
 
         foreach (var gazePoint in gazePoints)
         {
+            JSONObject pointData = new JSONObject();
+            pointData.Add("dynObjID", gazePoint.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
+
             JSONArray position = new JSONArray();
             position.Add(gazePoint.position.x);
             position.Add(gazePoint.position.y);
             position.Add(gazePoint.position.z);
+            pointData.Add("position", position);
 
             string timeStamp = gazePoint.timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
-            exportData.Add(timeStamp, position);
+            output.Add(timeStamp, pointData);
         }
 
-        return exportData.ToString(Settings.PrettyJSONExportIndent);
+        return output.ToString(Settings.PrettyJSONExportIndent);
     }
     #endregion
 
@@ -67,13 +74,13 @@ public static class FileSystemHandler
         CreateFile(fileTitle: $"{SessionManager.sessionTitle} - DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
     }
 
-    private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject)   //TODO: This looks very bloated, maybe it should be put into something like a DynamicObject.ToJSON() method?
+    private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject) //?< This could be moved into the DynamicObject class to serve as a simple ".ToJSON()" method
     {
         JSONObject exportData = new JSONObject();
 
         exportData.Add("appVersion", Application.version);
         exportData.Add("inScene", SceneManager.GetActiveScene().name);
-        exportData.Add("objectId", dynamicObject.id);
+        exportData.Add("dynObjID", dynamicObject.id);
 
         #region Position History
         JSONArray positionHist = new JSONArray();
@@ -92,7 +99,7 @@ public static class FileSystemHandler
 
             positionHist.Add(timestampedPosition);
         }
-        exportData.Add("positionHistory", positionHist);    //TODO: Nesting JSONArrays like this deletes the original array's name field (in this case "timestamp").
+        exportData.Add("positionHistory", positionHist);
         #endregion
 
         #region Rotation History
@@ -136,7 +143,7 @@ public static class FileSystemHandler
         exportData.Add("scaleHistory", scaleHist);
         #endregion
 
-        return exportData.ToString(Settings.PrettyJSONExportIndent);  //TODO: Removing the argument here disables pretty formatting, which will reduce file size and is therefore recommended.
+        return exportData.ToString(Settings.PrettyJSONExportIndent);
     }
     #endregion
 

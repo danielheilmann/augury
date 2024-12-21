@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,15 +5,15 @@ using UnityEngine.Events;
 public class FixationManager : MonoBehaviour
 {
     //#> Constants 
-    [SerializeField] private const float distanceThreshold = 0.1f;  //< Tweakable
-    [SerializeField] private const int pointCountThresholdForFixationCreation = 10;  //< Tweakable
+    [SerializeField] private const float distanceThreshold = 0.3f;  //< Tweakable
+    [SerializeField] private const int pointCountThresholdForFixationCreation = 5;  //< Tweakable  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
 
     //#> Static Variables 
-    public static UnityEvent<Vector3, int> OnFixationCreated = new();
+    public static UnityEvent<Fixation> OnFixationCreated = new();
 
     //#> Private Variables 
-    [SerializeField] private List<Vector3> activeGazePointGroup = new(); //< Only serialized for visualization in editor
-    [SerializeField] private List<Vector3> fixations = new List<Vector3>(); //< Only serialized for visualization in editor
+    [SerializeField] private List<GazePoint> activeGazePointGroup = new(); //< Only serialized for visualization in editor
+    [SerializeField] private List<Fixation> fixations = new List<Fixation>(); //< Only serialized for visualization in editor
 
     private void OnEnable()
     {
@@ -26,36 +25,60 @@ public class FixationManager : MonoBehaviour
         GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
     }
 
-    private void EvaluateFixation(Vector3 newGazePoint)
+    #region Create Fixation
+    private void EvaluateFixation(GazePoint gazePoint)
     {
         Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
 
-        if (Vector3.Distance(newGazePoint, currentFixationGroupAveragePosition) > distanceThreshold)
+        if (Vector3.Distance(gazePoint.position, currentFixationGroupAveragePosition) > distanceThreshold || IsDifferentIDthanLastEntry(gazePoint.dynObjID))
         {
-            if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active fixation group into a fixation, but only if it contains enough points.
-                CreateFixation(currentFixationGroupAveragePosition);
-
+            if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active newFixation group into a newFixation, but only if it contains enough points.
+            {
+                Vector3 averageSurfaceNormal = CalculateAverageSurfaceNormal(activeGazePointGroup);
+                int fixationID = fixations.Count;
+                CreateFixation(currentFixationGroupAveragePosition, averageSurfaceNormal, fixationID, activeGazePointGroup[0].dynamicObject);
+            }
             activeGazePointGroup.Clear();
         }
 
-        activeGazePointGroup.Add(newGazePoint);
+        activeGazePointGroup.Add(gazePoint);
     }
 
-    private Vector3 CalculateAveragePosition(List<Vector3> vectors)
+    private Vector3 CalculateAveragePosition(List<GazePoint> gazePoints)
     {
         Vector3 sum = Vector3.zero;
 
-        foreach (Vector3 vector in vectors)
-            sum += vector;
+        foreach (GazePoint point in gazePoints)
+            sum += point.position;
 
-        return sum /= vectors.Count; ;
+        return sum /= gazePoints.Count;
     }
 
-    private void CreateFixation(Vector3 position)
+    private Vector3 CalculateAverageSurfaceNormal(List<GazePoint> gazePoints)
     {
-        fixations.Add(position);
-        OnFixationCreated.Invoke(position, fixations.Count);
+        Vector3 sum = Vector3.zero;
+
+        foreach (GazePoint point in gazePoints)
+            sum += point.surfaceNormal;
+
+        return sum /= gazePoints.Count;
     }
+
+    private void CreateFixation(Vector3 fixationPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj = null)
+    {
+        Fixation newFixation = new Fixation(fixationPosition, surfaceNormal, fixationIndex, dynamicObject: dynObj);
+        fixations.Add(newFixation);
+        OnFixationCreated.Invoke(newFixation);
+    }
+
+    private bool IsDifferentIDthanLastEntry(int id)
+    {
+        if (activeGazePointGroup.Count > 0)
+            return id != activeGazePointGroup[activeGazePointGroup.Count - 1].dynObjID;
+        else
+            return false;
+    }
+    #endregion
 
     // private void OnDrawGizmos() //< For debug visualization
     // {

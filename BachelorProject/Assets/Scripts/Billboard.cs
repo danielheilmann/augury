@@ -17,7 +17,7 @@ public class Billboard : MonoBehaviour
     {
         if (renderer.isVisible) //< Also returns true when the renderer is visible in the editor
         {
-            Debug.Log($"{this.gameObject.name} is visible.");
+            // Debug.Log($"{this.gameObject.name} is visible.");
             transform.rotation = mainCamera.transform.rotation;
         }
             // transform.LookAt(mainCamera.transform);
