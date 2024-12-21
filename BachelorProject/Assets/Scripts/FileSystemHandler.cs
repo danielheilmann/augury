@@ -23,8 +23,10 @@ public static class FileSystemHandler
         string filePath = $"{dir}{dirSeperator}{fileTitle}{FileExtension}";
 
         if (!Settings.TestModeEnabled)  //< So that the application does not constantly create new files while running tests for unrelated features.
+        {
             File.WriteAllText(filePath, fileContent);
-        Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
+            Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
+        }
 
         return filePath;
     }
@@ -72,7 +74,7 @@ public static class FileSystemHandler
         CreateFile(fileTitle: $"{SessionManager.sessionTitle} - DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
     }
 
-    private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject)   //TODO: This looks very bloated, maybe it should be put into something like a DynamicObject.ToJSON() method?
+    private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject) //?< This could be moved into the DynamicObject class to serve as a simple ".ToJSON()" method
     {
         JSONObject exportData = new JSONObject();
 
@@ -97,7 +99,7 @@ public static class FileSystemHandler
 
             positionHist.Add(timestampedPosition);
         }
-        exportData.Add("positionHistory", positionHist);    //TODO: Nesting JSONArrays like this deletes the original array's name field (in this case "timestamp").
+        exportData.Add("positionHistory", positionHist);
         #endregion
 
         #region Rotation History
@@ -141,7 +143,7 @@ public static class FileSystemHandler
         exportData.Add("scaleHistory", scaleHist);
         #endregion
 
-        return exportData.ToString(Settings.PrettyJSONExportIndent);  //TODO: Removing the argument here disables pretty formatting, which will reduce file size and is therefore recommended.
+        return exportData.ToString(Settings.PrettyJSONExportIndent);
     }
     #endregion
 

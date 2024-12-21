@@ -10,9 +10,9 @@ public class GazePointManager : MonoBehaviour
     public static UnityEvent<GazePoint> OnPointCreated = new();
 
     //#> Private Variables 
-    [SerializeField] private List<GazePoint> points;  //TODO: Will need to be modified for the implementation of localized gaze points.
+    [SerializeField] private List<GazePoint> points;
     [SerializeField, ReadOnly] private int pointCapacity; //< Determines the amount of GazePoints allowed to be stored in memory.
-    [SerializeField, ReadOnly] private int currentWorkingIndex;
+    [SerializeField, ReadOnly] private int currentIndex;
 
     private void Start()
     {
@@ -30,7 +30,8 @@ public class GazePointManager : MonoBehaviour
     private void OnDisable()
     {
         RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
-        points.RemoveRange(currentWorkingIndex, pointCapacity - currentWorkingIndex); //TODO: Needs to be verified to work correctly.
+
+        points.RemoveRange(currentIndex, pointCapacity - currentIndex); //< Trim unused points that were added during the last capacity increase.
         FileSystemHandler.SaveGazePoints(points);
     }
 
@@ -42,18 +43,21 @@ public class GazePointManager : MonoBehaviour
             CreatePointAt(hit.point, hit.normal);
     }
 
-    public void CreatePointAt(Vector3 pointPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
+    private void CreatePointAt(Vector3 pointPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
     {
-        DateTime timeStamp = DateTime.Now;  //TODO: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
+        DateTime timeStamp = DateTime.Now;  //?: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
 
-        GazePoint point = SetPoint(currentWorkingIndex, timeStamp, pointPosition, hitNormal, connectedDynObj);
+        GazePoint point = SetPoint(currentIndex, timeStamp, pointPosition, hitNormal, connectedDynObj);
         OnPointCreated.Invoke(point);
-        currentWorkingIndex++;
+        currentIndex++;
 
-        //> Automatically increase GazePoint dictionary size if necessary.
-        if (currentWorkingIndex >= pointCapacity)
+        //> Automatically increase GazePoint list size whenever necessary.
+        if (currentIndex >= pointCapacity)
+            ExpandCachedList();
+
+        void ExpandCachedList()
         {
-            Debug.LogWarning($"You have just surpassed the expected session duration of {pointCapacity / 60 / Timer.ticksPerSecond} minutes. This forced an increase in data capacity during runtime, which might cause measurements to be dropped due to the sudden drop in framerate.\nTo prevent this from happening, it is recommended to either keep sessions shorter, edit the expected session duration (currently {Settings.ExpectedSessionRuntimeInMinutes} minutes) or reduce the tick rate (currently at {Timer.ticksPerSecond} ticks/s).\n(Increased GazePoint list capacity from {pointCapacity} to {pointCapacity * 2}.)");
+            Debug.LogWarning($"You just surpassed the expected session duration of {pointCapacity / 60 / Timer.ticksPerSecond} minutes. This forced an increase in data capacity during runtime, which might cause measurements to be dropped due to the sudden drop in framerate.\nTo prevent this from happening, it is recommended to either keep sessions shorter, edit the expected session duration (currently {Settings.ExpectedSessionRuntimeInMinutes} minutes) or reduce the tick rate (currently at {Timer.ticksPerSecond} ticks/s).\n(Increased GazePoint list capacity from {pointCapacity} to {pointCapacity * 2}.)");
             pointCapacity *= 2;
             points.Capacity = pointCapacity;
 

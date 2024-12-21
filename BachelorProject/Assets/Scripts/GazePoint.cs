@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class GazePoint  //TODO: For some reason, having this as structs makes it so that it cannot simply be overwritten using the Set() method. And just creating a new object every tick leads to noticable frame drops.
+public class GazePoint  //!< For some reason, having this as structs makes it so that it cannot simply be overwritten using the Set() method. And just creating a new object every tick leads to noticable frame drops. Therefore, I chose to implement them as class and then cache / preload them into memory (in the GazePointManager)
 {
-    public string name;
+    public string name; //< To be identifiable in a serialized list
     public DateTime timeStamp { get; private set; }
     public Vector3 surfaceNormal { get; private set; }
     public DynamicObject dynamicObject { get; private set; } = null;
@@ -34,4 +34,4 @@ public class GazePoint  //TODO: For some reason, having this as structs makes it
     }
 }
 
-//TODO: Maybe implement something like a "GazePointParser" static helper class here with "ToJSON" and "FromJSON" methods for parsing, so that these functionalities do not have to be in the FileHandler class.
+//?> Maybe move "ToJSON" and "FromJSON" methods into this class for easier parsing, so that these functionalities do not have to be in the FileHandler class.

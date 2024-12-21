@@ -24,7 +24,6 @@ public class DebugCharController : MonoBehaviour
         KeyboardMovement();
     }
 
-    // TODO: The camera rotation seems to be heavily affected by sudden (massive) framedrops, making rotation feel very jagged.
     private void MouseCameraDriver()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
