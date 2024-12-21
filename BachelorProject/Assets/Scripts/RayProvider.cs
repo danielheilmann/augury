@@ -25,10 +25,7 @@ public class RayProvider : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Callback to draw gizmos only if the object is selected.
-    /// </summary>
-    // private void OnDrawGizmosSelected()
+    // private void OnDrawGizmos()
     // {
     //     Debug.DrawRay(this.transform.position, this.transform.forward * 10, Color.red, duration: 2.0f, depthTest: true);
     // }
