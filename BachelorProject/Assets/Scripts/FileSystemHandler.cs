@@ -55,7 +55,7 @@ public static class FileSystemHandler
     private static string ParseListToJSONString(List<GazePoint> gazePoints)
     {
         JSONObject output = new JSONObject();
-        output.Add(KEY_SESSION_ID, SessionManager.sessionStartTimeString);
+        output.Add(KEY_SESSION_ID, SessionManager.sessionTitle); //< Allows the system to not rely on file names, which might be changed by the user for their convenience.
         output.Add(KEY_APP_VERSION, Application.version);
         output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
 
@@ -88,7 +88,7 @@ public static class FileSystemHandler
     {
         JSONObject output = new JSONObject();
 
-        output.Add(KEY_SESSION_ID, SessionManager.sessionStartTimeString);
+        output.Add(KEY_SESSION_ID, SessionManager.sessionTitle);
         output.Add(KEY_APP_VERSION, Application.version);
         output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
         output.Add(KEY_DYNOBJ_ID, dynamicObject.id);
