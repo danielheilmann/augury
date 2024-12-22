@@ -180,4 +180,47 @@ public static class FileSystemHandler
         return new string(charList);
     }
     #endregion
+    #endregion
+
+    #region Reading Data
+    public static List<KeyValuePair<string, string>> FetchSessions()
+    {
+        string[] filePaths = Directory.GetFiles(DataDirectoryName, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
+        Debug.Log(filePaths.ToCommaSeparatedString());
+
+        List<KeyValuePair<string, string>> sessionIdentifiers = new(); //identifier, filepath
+        //TODO: Maybe this could be improved by implementing the saving in a way where each session gets it's own session subfolder. That way, the reading system would only have to read the folder name. This way, the user would also be able to name the folder any way they want and it would come up in the app this way. Furthermore, it would enable the storage of an additional session meta file, containing information about start and end times, session duration, participant number, etc.
+        foreach (string filePath in filePaths)
+        {
+            string fileContent = File.ReadAllText(filePath);
+            JSONNode data = JSONNode.Parse(fileContent);
+
+            // Debug.Log($"{data[KEY_SESSION_ID]}");
+            string sessionIdentifier = data[KEY_SESSION_ID];
+            sessionIdentifiers.Add(new(sessionIdentifier, filePath));
+        }
+        return sessionIdentifiers;
+    }
+
+    public static Dictionary<string, string> GetSessionContents(string sessionIdentifier)
+    {
+        Dictionary<string, string> output = new(); // fileIdentifier, content
+
+        string[] filePaths = Directory.GetFiles(dataDir, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
+        foreach (string filePath in filePaths)
+        {
+            string fileContentString = File.ReadAllText(filePath);
+            JSONNode fileConstentNode = JSONNode.Parse(fileContentString);
+            if (fileConstentNode[KEY_SESSION_ID] != sessionIdentifier)
+                continue;
+            if (fileConstentNode[KEY_APP_VERSION] != Application.version)
+                continue;
+            string fileIdentifier = fileConstentNode[KEY_DYNOBJ_ID];
+            if (string.IsNullOrEmpty(fileIdentifier))
+                fileIdentifier = "gazepoints";
+            output.TryAdd(fileIdentifier, fileContentString);
+        }
+        return output;
+    }
+    #endregion
 }

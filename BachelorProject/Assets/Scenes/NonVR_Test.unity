@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -476,6 +476,7 @@ GameObject:
   - component: {fileID: 194419854}
   - component: {fileID: 194419856}
   - component: {fileID: 194419859}
+  - component: {fileID: 194419860}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -509,7 +510,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   points: []
   pointCapacity: 0
-  currentWorkingIndex: 0
+  currentIndex: 0
 --- !u!4 &194419853
 Transform:
   m_ObjectHideFlags: 0
@@ -553,7 +554,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeGazePointGroup: []
-  fixations: []
 --- !u!114 &194419857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -581,6 +581,19 @@ MonoBehaviour:
   prefab: {fileID: 3505965556154532284, guid: 3ac6886de6fe7744899ae101c8c9067a, type: 3}
   poolSize: 60
   pool: []
+  fixationVisualizations: []
+--- !u!114 &194419860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194419850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89b5c0f6cfc4a4440b7923bde7deaa32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &214488769
 GameObject:
   m_ObjectHideFlags: 0
