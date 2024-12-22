@@ -72,13 +72,13 @@ public class GazePointManager : MonoBehaviour
         if (dynObj == null)
         {
             points[index].Set(timeStamp, position, surfaceNormal, dynObj);
-            // Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
+            // Debug.Log($"{timeStamp.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
         }
         else
         {
             Vector3 relativePosition = position - dynObj.transform.position;
             points[index].Set(timeStamp, relativePosition, surfaceNormal, dynObj);
-            // Debug.Log($"{timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)} | Created Local Point at {position}, which is attached to \"{dynObj.name}\" with an offset of {relativePosition}", dynObj.gameObject);
+            // Debug.Log($"{timeStamp.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)} | Created Local Point at {position}, which is attached to \"{dynObj.name}\" with an offset of {relativePosition}", dynObj.gameObject);
         }
 
         return points[index];

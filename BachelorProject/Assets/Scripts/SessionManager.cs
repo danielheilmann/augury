@@ -6,9 +6,10 @@ using UnityEngine;
 public class SessionManager : MonoBehaviour
 {
     public static DateTime sessionStartTime;
+    public static string sessionStartTimeString => sessionStartTime.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture);
     public static string sessionTitle;
 
-    private void Start()
+    private void Start() //TODO: Should trigger OnRecordingStart instead
     {
         StartSession();
     }
@@ -16,6 +17,6 @@ public class SessionManager : MonoBehaviour
     public static void StartSession()
     {
         sessionStartTime = DateTime.Now;
-        sessionTitle = $"Session {sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss", System.Globalization.CultureInfo.InvariantCulture)}";   //< Simplified version of "sessionStartTime.ToString("yyyy-MM-dd HH-mm-ss")"
+        sessionTitle = $"Session {sessionStartTime.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)}";
     }
 }

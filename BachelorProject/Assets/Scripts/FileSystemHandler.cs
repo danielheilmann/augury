@@ -6,21 +6,30 @@ using System;
 using SimpleJSON;
 using System.Globalization;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
+//TODO Make sure to implement failsaves for corrupted or scrambled files
 public static class FileSystemHandler
 {
-    private const string FileExtension = ".txt";
-    private const string FolderName = "RecordedSessionData";
+    public const string TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+    private const string FileExtension = ".json";
+    private const string DataDirectoryName = "RecordedSessionData";
+    private const string KEY_SESSION_ID = "session";
+    private const string KEY_APP_VERSION = "appVersion";
+    private const string KEY_SCENE_ID = "inScene";
+    private const string KEY_POSITION = "position";
+    private const string KEY_DYNOBJ_ID = "dynObjID";
     private static char dirSeperator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
+    private static string dataDir { get { if (!Directory.Exists(DataDirectoryName)) Directory.CreateDirectory(DataDirectoryName); return DataDirectoryName; } }
 
+    #region Writing Data
     /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
     /// <param name="fileTitle"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
     /// <param name="fileContent"> The content of the file in the form of a single string. It may also be JSON, as it is nothing but text. </param>
     /// <returns> The full file path of the file that was created. </returns>
     private static string CreateFile(string fileTitle, string fileContent)
     {
-        string dir = Directory.CreateDirectory($"{new DirectoryInfo(Application.dataPath).Parent}{dirSeperator}{FolderName}").Name;
-        string filePath = $"{dir}{dirSeperator}{fileTitle}{FileExtension}";
+        string filePath = $"{dataDir}{dirSeperator}{fileTitle}{FileExtension}";
 
         if (!Settings.TestModeEnabled)  //< So that the application does not constantly create new files while running tests for unrelated features.
         {
@@ -46,21 +55,22 @@ public static class FileSystemHandler
     private static string ParseListToJSONString(List<GazePoint> gazePoints)
     {
         JSONObject output = new JSONObject();
-        output.Add("appVersion", Application.version);
-        output.Add("inScene", SceneManager.GetActiveScene().name);
+        output.Add(KEY_SESSION_ID, SessionManager.sessionStartTimeString);
+        output.Add(KEY_APP_VERSION, Application.version);
+        output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
 
         foreach (var gazePoint in gazePoints)
         {
             JSONObject pointData = new JSONObject();
-            pointData.Add("dynObjID", gazePoint.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
+            pointData.Add(KEY_DYNOBJ_ID, gazePoint.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
 
             JSONArray position = new JSONArray();
             position.Add(gazePoint.position.x);
             position.Add(gazePoint.position.y);
             position.Add(gazePoint.position.z);
-            pointData.Add("position", position);
+            pointData.Add(KEY_POSITION, position);
 
-            string timeStamp = gazePoint.timeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            string timeStamp = gazePoint.timeStamp.ToString(TimestampFormat, CultureInfo.InvariantCulture);
             output.Add(timeStamp, pointData);
         }
 
@@ -76,18 +86,19 @@ public static class FileSystemHandler
 
     private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject) //?< This could be moved into the DynamicObject class to serve as a simple ".ToJSON()" method
     {
-        JSONObject exportData = new JSONObject();
+        JSONObject output = new JSONObject();
 
-        exportData.Add("appVersion", Application.version);
-        exportData.Add("inScene", SceneManager.GetActiveScene().name);
-        exportData.Add("dynObjID", dynamicObject.id);
+        output.Add(KEY_SESSION_ID, SessionManager.sessionStartTimeString);
+        output.Add(KEY_APP_VERSION, Application.version);
+        output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
+        output.Add(KEY_DYNOBJ_ID, dynamicObject.id);
 
         #region Position History
         JSONArray positionHist = new JSONArray();
         Dictionary<DateTime, Vector3> positionDictionary = dynamicObject.positionHistory;
-        foreach (var entry in positionDictionary) //< Are they even sorted in this case?
+        foreach (var entry in positionDictionary) //?< Are they even sorted in this case?
         {
-            string timestamp = entry.Key.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
 
             JSONArray position = new JSONArray();
             position.Add(entry.Value.x);
@@ -99,7 +110,7 @@ public static class FileSystemHandler
 
             positionHist.Add(timestampedPosition);
         }
-        exportData.Add("positionHistory", positionHist);
+        output.Add("positionHistory", positionHist);
         #endregion
 
         #region Rotation History
@@ -107,7 +118,7 @@ public static class FileSystemHandler
         Dictionary<DateTime, Quaternion> rotationDictionary = dynamicObject.rotationHistory;
         foreach (var entry in rotationDictionary) //< Are they even sorted in this case?
         {
-            string timestamp = entry.Key.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
 
             JSONArray rotation = new JSONArray();
             rotation.Add(entry.Value.x);
@@ -120,7 +131,7 @@ public static class FileSystemHandler
 
             rotationHist.Add(timestampedPosition);
         }
-        exportData.Add("rotationHistory", rotationHist);
+        output.Add("rotationHistory", rotationHist);
         #endregion
 
         #region Scale History
@@ -128,7 +139,7 @@ public static class FileSystemHandler
         Dictionary<DateTime, Vector3> scaleDictionary = dynamicObject.scaleHistory;
         foreach (var entry in scaleDictionary) //< Are they even sorted in this case?
         {
-            string timestamp = entry.Key.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
 
             JSONArray scale = new JSONArray();
             scale.Add(entry.Value.x);
@@ -140,15 +151,15 @@ public static class FileSystemHandler
 
             scaleHist.Add(timestampedPosition);
         }
-        exportData.Add("scaleHistory", scaleHist);
+        output.Add("scaleHistory", scaleHist);
         #endregion
 
-        return exportData.ToString(Settings.PrettyJSONExportIndent);
+        return output.ToString(Settings.PrettyJSONExportIndent);
     }
     #endregion
 
     #region Automatically open File Explorer at file location
-    public static void OpenFileExplorerAt(string filePath)
+    private static void OpenFileExplorerAt(string filePath)
     {
         System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
         process.FileName = "explorer.exe";
