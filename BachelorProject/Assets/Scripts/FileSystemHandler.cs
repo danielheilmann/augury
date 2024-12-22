@@ -17,8 +17,11 @@ public static class FileSystemHandler
     private const string KEY_SESSION_ID = "session";
     private const string KEY_APP_VERSION = "appVersion";
     private const string KEY_SCENE_ID = "inScene";
+    public const string KEY_TIMESTAMP = "timestamp";
     private const string KEY_POSITION = "position";
+    private const string KEY_SURFACENORMAL = "surfaceNormal";
     private const string KEY_DYNOBJ_ID = "dynObjID";
+    private const string KEY_GAZEPOINTS = "gazepoints";
     private static char dirSeperator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
     private static string dataDir { get { if (!Directory.Exists(DataDirectoryName)) Directory.CreateDirectory(DataDirectoryName); return DataDirectoryName; } }
 
@@ -34,7 +37,7 @@ public static class FileSystemHandler
         if (!Settings.TestModeEnabled)  //< So that the application does not constantly create new files while running tests for unrelated features.
         {
             File.WriteAllText(filePath, fileContent);
-            Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
+            Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
         }
 
         return filePath;
@@ -46,7 +49,7 @@ public static class FileSystemHandler
         if (gazePoints.Count == 0)  //< There is no reason to save a file from a session without any point entries, as that was most likely a start-stop situation.
             return;
 
-        string filepath = CreateFile(fileTitle: $"{SessionManager.sessionTitle} - GazePoints", fileContent: ParseListToJSONString(gazePoints));
+        string filepath = CreateFile(fileTitle: $"{SessionManager.sessionIdentifier} - GazePoints", fileContent: ParseListToJSONString(gazePoints));
 
         if (Settings.OpenExplorerOnSave)
             OpenFileExplorerAt(filepath);
@@ -55,24 +58,34 @@ public static class FileSystemHandler
     private static string ParseListToJSONString(List<GazePoint> gazePoints)
     {
         JSONObject output = new JSONObject();
-        output.Add(KEY_SESSION_ID, SessionManager.sessionTitle); //< Allows the system to not rely on file names, which might be changed by the user for their convenience.
+
+        output.Add(KEY_SESSION_ID, SessionManager.sessionIdentifier);
         output.Add(KEY_APP_VERSION, Application.version);
         output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
 
-        foreach (var gazePoint in gazePoints)
+        JSONArray points = new JSONArray();
+        foreach (GazePoint gp in gazePoints)
         {
-            JSONObject pointData = new JSONObject();
-            pointData.Add(KEY_DYNOBJ_ID, gazePoint.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
+            JSONObject point = new JSONObject();
+
+            point.Add(KEY_TIMESTAMP, gp.timeStamp.ToString(TimestampFormat, CultureInfo.InvariantCulture));
+            point.Add(KEY_DYNOBJ_ID, gp.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
+
+            JSONArray surfaceNormal = new JSONArray();
+            surfaceNormal.Add(gp.surfaceNormal.x);
+            surfaceNormal.Add(gp.surfaceNormal.y);
+            surfaceNormal.Add(gp.surfaceNormal.z);
+            point.Add(KEY_SURFACENORMAL, surfaceNormal);
 
             JSONArray position = new JSONArray();
-            position.Add(gazePoint.position.x);
-            position.Add(gazePoint.position.y);
-            position.Add(gazePoint.position.z);
-            pointData.Add(KEY_POSITION, position);
+            position.Add(gp.position.x);
+            position.Add(gp.position.y);
+            position.Add(gp.position.z);
+            point.Add(KEY_POSITION, position);
 
-            string timeStamp = gazePoint.timeStamp.ToString(TimestampFormat, CultureInfo.InvariantCulture);
-            output.Add(timeStamp, pointData);
+            points.Add(point);
         }
+        output.Add(KEY_GAZEPOINTS, points);
 
         return output.ToString(Settings.PrettyJSONExportIndent);
     }
@@ -81,14 +94,14 @@ public static class FileSystemHandler
     #region Saving DynamicObjects
     public static void SaveDynamicObject(DynamicObject dynamicObject)
     {
-        CreateFile(fileTitle: $"{SessionManager.sessionTitle} - DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
+        CreateFile(fileTitle: $"{SessionManager.sessionIdentifier} - DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
     }
 
     private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject) //?< This could be moved into the DynamicObject class to serve as a simple ".ToJSON()" method
     {
         JSONObject output = new JSONObject();
 
-        output.Add(KEY_SESSION_ID, SessionManager.sessionTitle);
+        output.Add(KEY_SESSION_ID, SessionManager.sessionIdentifier);
         output.Add(KEY_APP_VERSION, Application.version);
         output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
         output.Add(KEY_DYNOBJ_ID, dynamicObject.id);

@@ -19,7 +19,7 @@ public class GazePointManager : MonoBehaviour
         pointCapacity = Mathf.RoundToInt(Settings.ExpectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
         points = new List<GazePoint>(pointCapacity);
         for (int i = 0; i < pointCapacity; i++)
-            points.Add(new GazePoint(DateTime.Now, Vector3.zero));
+            points.Add(new GazePoint());
     }
 
     private void OnEnable()
@@ -63,7 +63,7 @@ public class GazePointManager : MonoBehaviour
 
             int capacityToFill = pointCapacity / 2;
             for (int i = 0; i < capacityToFill; i++)
-                points.Add(new GazePoint(DateTime.Now, Vector3.zero));
+                points.Add(new GazePoint());
         }
     }
 
