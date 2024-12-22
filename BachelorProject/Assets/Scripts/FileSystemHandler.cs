@@ -71,16 +71,10 @@ public static class FileSystemHandler
             point.Add(KEY_TIMESTAMP, gp.timeStamp.ToString(TimestampFormat, CultureInfo.InvariantCulture));
             point.Add(KEY_DYNOBJ_ID, gp.dynObjID); //< Needs to write a dynObjID entry for every JSON-Object, otherwise it does not write any dynObjID entry.
 
-            JSONArray surfaceNormal = new JSONArray();
-            surfaceNormal.Add(gp.surfaceNormal.x);
-            surfaceNormal.Add(gp.surfaceNormal.y);
-            surfaceNormal.Add(gp.surfaceNormal.z);
+            JSONArray surfaceNormal = Vector3ToJSONArray(gp.surfaceNormal);
             point.Add(KEY_SURFACENORMAL, surfaceNormal);
 
-            JSONArray position = new JSONArray();
-            position.Add(gp.position.x);
-            position.Add(gp.position.y);
-            position.Add(gp.position.z);
+            JSONArray position = Vector3ToJSONArray(gp.position);
             point.Add(KEY_POSITION, position);
 
             points.Add(point);
@@ -111,14 +105,11 @@ public static class FileSystemHandler
         Dictionary<DateTime, Vector3> positionDictionary = dynamicObject.positionHistory;
         foreach (var entry in positionDictionary) //?< Are they even sorted in this case?
         {
-            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
-
-            JSONArray position = new JSONArray();
-            position.Add(entry.Value.x);
-            position.Add(entry.Value.y);
-            position.Add(entry.Value.z);
-
             JSONObject timestampedPosition = new JSONObject();
+
+            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
+            JSONArray position = Vector3ToJSONArray(entry.Value);
+
             timestampedPosition.Add(timestamp, position);
 
             positionHist.Add(timestampedPosition);
@@ -131,15 +122,15 @@ public static class FileSystemHandler
         Dictionary<DateTime, Quaternion> rotationDictionary = dynamicObject.rotationHistory;
         foreach (var entry in rotationDictionary) //< Are they even sorted in this case?
         {
-            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
+            JSONObject timestampedPosition = new JSONObject();
 
+            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
             JSONArray rotation = new JSONArray();
             rotation.Add(entry.Value.x);
             rotation.Add(entry.Value.y);
             rotation.Add(entry.Value.z);
             rotation.Add(entry.Value.w);
 
-            JSONObject timestampedPosition = new JSONObject();
             timestampedPosition.Add(timestamp, rotation);
 
             rotationHist.Add(timestampedPosition);
@@ -152,14 +143,11 @@ public static class FileSystemHandler
         Dictionary<DateTime, Vector3> scaleDictionary = dynamicObject.scaleHistory;
         foreach (var entry in scaleDictionary) //< Are they even sorted in this case?
         {
-            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
-
-            JSONArray scale = new JSONArray();
-            scale.Add(entry.Value.x);
-            scale.Add(entry.Value.y);
-            scale.Add(entry.Value.z);
-
             JSONObject timestampedPosition = new JSONObject();
+
+            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
+            JSONArray scale = Vector3ToJSONArray(entry.Value);
+
             timestampedPosition.Add(timestamp, scale);
 
             scaleHist.Add(timestampedPosition);
@@ -168,6 +156,20 @@ public static class FileSystemHandler
         #endregion
 
         return output.ToString(Settings.PrettyJSONExportIndent);
+    }
+
+    /// <summary></summary>
+    /// <param name="vector"></param>
+    /// <returns>A JSONArray containing the x,y and z entries of a Vector3</returns>
+    private static JSONArray Vector3ToJSONArray(Vector3 vector)
+    {
+        JSONArray array = new JSONArray();
+
+        array.Add(vector.x);
+        array.Add(vector.y);
+        array.Add(vector.z);
+
+        return array;
     }
     #endregion
 
