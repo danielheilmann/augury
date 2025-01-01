@@ -31,16 +31,18 @@ public static class FileSystemHandler
     /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
     /// <param name="fileTitle"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
     /// <param name="fileContent"> The content of the file in the form of a single string. It may also be JSON, as it is nothing but text. </param>
-    /// <returns> The full file path of the file that was created. </returns>
+    /// <returns> The full file path of the file that was created. If saving to file was skipped through global setting flag, return will be empty. </returns>
     private static string CreateFile(string fileTitle, string fileContent)
     {
-        string filePath = $"{dataDir}{dirSeperator}{fileTitle}{FileExtension}";
-
-        if (Settings.saveDataOnQuit)  //< So that the application does not constantly create new files while running tests for unrelated features.
+        if (Settings.skipSavingDataToFile)
         {
-            File.WriteAllText(filePath, fileContent);
-            Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
+            Debug.Log($"<color=#cc80ff>Skipped saving data to file. </color>");
+            return "";
         }
+
+        string filePath = $"{dataDir}{dirSeperator}{fileTitle}{FileExtension}";
+        File.WriteAllText(filePath, fileContent);
+        Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
 
         return filePath;
     }
@@ -82,8 +84,10 @@ public static class FileSystemHandler
             points.Add(point);
         }
         output.Add(KEY_GAZEPOINTS, points);
-
-        return output.ToString(Settings.prettyJSONExportIndent);
+        if (Settings.prettyJSONExport)
+            return output.ToString(1);
+        else 
+            return output.ToString();
     }
     #endregion
 
@@ -156,8 +160,11 @@ public static class FileSystemHandler
         }
         output.Add("scaleHistory", scaleHist);
         #endregion
-
-        return output.ToString(Settings.prettyJSONExportIndent);
+        
+        if (Settings.prettyJSONExport)
+            return output.ToString(1);
+        else 
+            return output.ToString();
     }
 
     /// <summary></summary>
