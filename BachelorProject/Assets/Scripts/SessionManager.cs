@@ -1,67 +1,78 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
+[DefaultExecutionOrder(2)]
 public class SessionManager : MonoBehaviour
 {
-    private enum DataMode { Record, Replay }
+    public enum DataMode { Idle, Record, Replay }
+    public static UnityEvent OnRecordStart = new();
+    public static UnityEvent OnRecordStop = new();
+    public static UnityEvent OnReplayStart = new();
+    public static UnityEvent OnReplayStop = new();
 
-    private const string FileNameSafeTimeFormat = "yyyy-MM-dd HH-mm-ss"; //< Ensures system file name compliance by using dashes as delimiter characters.
+    public static DataMode currentMode = DataMode.Idle;
+    private static bool wasRecordingInterrupted = false; //< As a check when entering a new scene. If the earlier session was interrupted by SceneChange, a new one should be started right after the scene change is complete. 
 
-    public static SessionManager Instance { get; private set; } //< Is important to ensure the sessionStartTime is not overwritten after e.g. a scene change (into a scene that also contains a SessionManager).
-    public static UnityEvent OnRecordStart { get; private set; } = new();
-    public static UnityEvent OnRecordStop { get; private set; } = new();
-    public static UnityEvent OnReplayStart { get; private set; } = new();
-    public static UnityEvent OnReplayStop { get; private set; } = new();
-    public static DateTime sessionStartTime { get; private set; }
-    public static string sessionIdentifier { get; private set; }
-
-    [SerializeField] private DataMode mode = DataMode.Record;
-
-    private void Awake()
-    {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError($"{this} cannot set itself as instance as one has already been set by {Instance.gameObject}. Deleting self.");
-            Destroy(this);
-        }
-    }
-
+    /// <summary>
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
+    /// </summary>
     private void Start()
     {
-        switch (mode)
+        if (wasRecordingInterrupted)
+            StartRecordSession();
+    }
+    private void OnApplicationQuit() => StopCurrentSession(); //< Is executed before OnDestroy and will therefore close the session before the OnDestroy-Fallbacks of DynamicObject and GazePointManager activate.
+    private void OnDestroy() //< Will be triggered OnSceneChange to make sure the current scene data is saved.
+    {
+        wasRecordingInterrupted = true;
+        StopCurrentSession();
+    }
+
+    public void StartRecordSession()
+    {
+        wasRecordingInterrupted = false;
+        Debug.Log($"Starting Record Mode.");
+        currentMode = DataMode.Record;
+        OnRecordStart?.Invoke();
+    }
+
+    public void StartReplaySession()
+    {
+        Debug.Log($"Starting Replay Mode.");
+        currentMode = DataMode.Replay;
+        OnReplayStart?.Invoke();
+    }
+
+    public void StopCurrentSession()
+    {
+        switch (currentMode)
         {
+            case DataMode.Idle:
+                Debug.Log($"Currently in \"Idle\". There is nothing to stop.");
+                break;
             case DataMode.Record:
-                StartRecording();
+                StopRecording();
                 break;
             case DataMode.Replay:
-                StartReplaying();
+                StopReplaying();
                 break;
         }
     }
 
-    private void StartRecording()
+    public void StopRecording()
     {
-        Debug.Log($"Started Record Mode.");
-
-        sessionStartTime = Timer.latestTimestamp;
-        sessionIdentifier = $"Session {sessionStartTime.ToString(FileNameSafeTimeFormat, System.Globalization.CultureInfo.InvariantCulture)}"; //! Pay attention that this is format is not the same as the FileSystemHandler.TimestampFormat, as that one is not "file name compliant"! (will lead to error due to the colons)
-
-        OnRecordStart.Invoke();
+        Debug.Log($"Stopping Record Mode.");
+        currentMode = DataMode.Idle;
+        OnRecordStop?.Invoke();
     }
 
-    private void StartReplaying()
+    public void StopReplaying()
     {
-        Debug.Log($"Started Replay Mode.");
-
-        // Execute any other code.
-
-        OnReplayStart.Invoke();
+        Debug.Log($"Stopping Replay Mode.");
+        currentMode = DataMode.Idle;
+        OnReplayStop?.Invoke();
     }
 }

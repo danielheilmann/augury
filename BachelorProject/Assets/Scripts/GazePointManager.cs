@@ -1,40 +1,72 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class GazePointManager : MonoBehaviour
 {
-    //#> Static Variables 
+    public static GazePointManager Instance { get; private set; } //< To prevent a situation where multiple managers track the same GazePoints.
     public static UnityEvent<GazePoint> OnPointCreated = new();
 
-    //#> Private Variables 
     [SerializeField] private List<GazePoint> points;
     [SerializeField, ReadOnly] private int pointCapacity; //< Determines the amount of GazePoints allowed to be stored in memory.
-    [SerializeField, ReadOnly] private int currentIndex;
+    [SerializeField, ReadOnly] private int currentIndex = 0;
 
-    private void Start()
+    #region Monobehaviour Methods
+    private void Awake()
     {
-        pointCapacity = Mathf.RoundToInt(Settings.expectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
-        points = new List<GazePoint>(pointCapacity);
-        for (int i = 0; i < pointCapacity; i++)
-            points.Add(new GazePoint());
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError($"{this} cannot set itself as instance as one has already been set by {Instance.gameObject}. Deleting self.");
+            Destroy(this);
+        }
     }
 
     private void OnEnable()
     {
         RayProvider.OnHit.AddListener(EvaluateRaycastHit);
+        SessionManager.OnRecordStart.AddListener(OnRecordSessionStart);
+        SessionManager.OnRecordStop.AddListener(OnRecordSessionStop);
     }
 
     private void OnDisable()
     {
         RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
+    }
 
-        points.RemoveRange(currentIndex, pointCapacity - currentIndex); //< Trim unused points that were added during the last capacity increase.
+    private void OnDestroy() //?< Actually, there should never be a case where the manager would be destroyed before a session stop.
+    {
+        SessionManager.OnRecordStart.RemoveListener(OnRecordSessionStart);
+        SessionManager.OnRecordStop.RemoveListener(OnRecordSessionStop);
+
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+            SaveGazePoints();
+    }
+    #endregion
+
+    #region Event Hooks
+    private void OnRecordSessionStart() => Initialize();
+    private void OnRecordSessionStop() => SaveGazePoints();
+    #endregion
+
+    private void Initialize()   //< Cannot be named "Reset()" as that is a Monobehaviour method which is run between OnEnable and Start.
+    {
+        pointCapacity = Mathf.RoundToInt(Settings.expectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
+        points = new List<GazePoint>(pointCapacity);
+        for (int i = 0; i < pointCapacity; i++)
+            points.Add(new GazePoint());
+        currentIndex = 0;
+    }
+
+    private void SaveGazePoints()
+    {
+        points.RemoveRange(currentIndex, pointCapacity - currentIndex); //< Trim unused points that were added during the last capacity increase. TrimExcess() cannot be used because the "unused" capacity is already filled with buffer GazePoints.
         FileSystemHandler.SaveGazePoints(points);
     }
 
+    #region Evaluation of Raycast into of GazePoint
     private void EvaluateRaycastHit(RaycastHit hit)
     {
         if (hit.collider.gameObject.TryGetComponent<DynamicObject>(out DynamicObject dynObj))
@@ -83,6 +115,7 @@ public class GazePointManager : MonoBehaviour
 
         return points[index];
     }
+    #endregion
 
     /// <summary>
     /// Callback to draw gizmos that are pickable and always drawn.

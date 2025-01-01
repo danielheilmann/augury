@@ -18,7 +18,6 @@ public static class DynamicObjectManager
 
     public static void Unregister(DynamicObject dynObject)
     {
-        FileSystemHandler.SaveDynamicObject(dynObject);
         dynObjects.Remove(dynObject.id);
     }
 }
@@ -32,50 +31,54 @@ public class DynamicObject : MonoBehaviour
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> scaleHistory = new();
 
     #region Monobehaviour Methods
-    private void Awake()
-    {
-        UpdatePropertyValues();
-    }
-
-    private void OnValidate()
-    {
-        UpdatePropertyValues();
-    }
+    private void Awake() => UpdatePropertyValues();
+    private void OnValidate() => UpdatePropertyValues();
 
     private void OnEnable()
     {
-        DynamicObjectManager.Register(this);
-        Timer.OnTick.AddListener(OnTimerTick);  //< Could maybe be optimized by the DynObjManager calling this on every DynObj instead? Kind of like a controlling head?
-    }
-
-    private void Start()
-    {
-        Initialize();
+        Timer.OnTick.AddListener(OnTimerTick);
+        SessionManager.OnRecordStart.AddListener(OnSessionStart);
+        SessionManager.OnRecordStop.AddListener(OnSessionStop);
     }
 
     private void OnDisable()
     {
         Timer.OnTick.RemoveListener(OnTimerTick);
+        //!> Should still listen to the SessionStart and -Stop events, even if it is inactive, so the following two lines are supposed to be "missing".
+        // SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
+        // SessionManager.OnRecordStop.RemoveListener(OnSessionStop); 
     }
 
+    private void Start() => DynamicObjectManager.Register(this);
     private void OnDestroy()
     {
         DynamicObjectManager.Unregister(this);
+
+        SessionManager.OnRecordStart.RemoveListener(OnSessionStart);  //< To prevent null exceptions
+        SessionManager.OnRecordStop.RemoveListener(OnSessionStop);  //< To prevent null exceptions
+
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)  //< This handles the situation where the DynamicObject is deleted (e.g. as part of the game mechanics) while a recording session is still ongoing. AKA [Case "destroyed during ongoing record session"]
+            OnSessionStop();
     }
     #endregion
 
+    private void OnSessionStart() => Initialize();
+    private void OnSessionStop() => FileSystemHandler.SaveDynamicObject(this);
+
     private void Initialize()
     {
-        DateTime timestamp = Timer.latestTimestamp;
+        //> Reset
+        positionHistory = new();
+        rotationHistory = new();
+        scaleHistory = new();
+
+        //> Reinitialize
+        DateTime timestamp = DateTime.Now;  //< This is executed before the Timer ticks for the first time, so I have to call DateTime.Now here to prevent the first entry from being at DateTime.MinValue.
+        
+        //> For one, these indicate the starting position of the DynamicObject. But there is another benefit: Without these first entries, I would have to check against null on every call of OnTimerTick, just because there would be a null exception the first time OnTimerTick is executed.
         positionHistory.Add(timestamp, transform.localPosition);
         rotationHistory.Add(timestamp, transform.localRotation);
         scaleHistory.Add(timestamp, transform.localScale);
-    }
-
-    private void UpdatePropertyValues()
-    {
-        meshName = GetComponent<MeshFilter>().sharedMesh.name;
-        id = meshName.GetHashCode();    //< This might be updated by the DynamicObjectManager if there is an overlap in the IDs. But by it being set here already, you can at least see the preliminary ID in the editor before pressing play.
     }
 
     private void OnTimerTick()
@@ -87,5 +90,11 @@ public class DynamicObject : MonoBehaviour
             rotationHistory.Add(timestamp, transform.localRotation);
         if (transform.localScale != scaleHistory.ElementAt(scaleHistory.Count - 1).Value)
             scaleHistory.Add(timestamp, transform.localScale);
+    }
+
+    private void UpdatePropertyValues()
+    {
+        string meshName = GetComponent<MeshFilter>().sharedMesh.name;
+        id = meshName.GetHashCode();
     }
 }
