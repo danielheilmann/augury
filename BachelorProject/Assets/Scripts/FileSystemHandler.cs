@@ -34,7 +34,7 @@ public static class FileSystemHandler
     {
         string filePath = $"{dataDir}{dirSeperator}{fileTitle}{FileExtension}";
 
-        if (!Settings.TestModeEnabled)  //< So that the application does not constantly create new files while running tests for unrelated features.
+        if (Settings.saveDataOnQuit)  //< So that the application does not constantly create new files while running tests for unrelated features.
         {
             File.WriteAllText(filePath, fileContent);
             Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
@@ -51,7 +51,7 @@ public static class FileSystemHandler
 
         string filepath = CreateFile(fileTitle: $"{SessionManager.sessionIdentifier} - GazePoints", fileContent: ParseListToJSONString(gazePoints));
 
-        if (Settings.OpenExplorerOnSave)
+        if (Settings.openExplorerOnSave)
             OpenFileExplorerAt(filepath);
     }
 
@@ -81,7 +81,7 @@ public static class FileSystemHandler
         }
         output.Add(KEY_GAZEPOINTS, points);
 
-        return output.ToString(Settings.PrettyJSONExportIndent);
+        return output.ToString(Settings.prettyJSONExportIndent);
     }
     #endregion
 
@@ -155,7 +155,7 @@ public static class FileSystemHandler
         output.Add("scaleHistory", scaleHist);
         #endregion
 
-        return output.ToString(Settings.PrettyJSONExportIndent);
+        return output.ToString(Settings.prettyJSONExportIndent);
     }
 
     /// <summary></summary>

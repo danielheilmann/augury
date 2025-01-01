@@ -16,7 +16,7 @@ public class GazePointManager : MonoBehaviour
 
     private void Start()
     {
-        pointCapacity = Mathf.RoundToInt(Settings.ExpectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
+        pointCapacity = Mathf.RoundToInt(Settings.expectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
         points = new List<GazePoint>(pointCapacity);
         for (int i = 0; i < pointCapacity; i++)
             points.Add(new GazePoint());
@@ -57,7 +57,7 @@ public class GazePointManager : MonoBehaviour
 
         void ExpandCachedList()
         {
-            Debug.LogWarning($"You just surpassed the expected session duration of {pointCapacity / 60 / Timer.ticksPerSecond} minutes. This forced an increase in data capacity during runtime, which might cause measurements to be dropped due to the sudden drop in framerate.\nTo prevent this from happening, it is recommended to either keep sessions shorter, edit the expected session duration (currently {Settings.ExpectedSessionRuntimeInMinutes} minutes) or reduce the tick rate (currently at {Timer.ticksPerSecond} ticks/s).\n(Increased GazePoint list capacity from {pointCapacity} to {pointCapacity * 2}.)");
+            Debug.LogWarning($"You just surpassed the expected session duration of {pointCapacity / 60 / Timer.ticksPerSecond} minutes. This forced an increase in data capacity during runtime, which might cause measurements to be dropped due to the sudden drop in framerate.\nTo prevent this from happening, it is recommended to either keep sessions shorter, edit the expected session duration (currently {Settings.expectedSessionRuntimeInMinutes} minutes) or reduce the tick rate (currently at {Timer.ticksPerSecond} ticks/s).\n(Increased GazePoint list capacity from {pointCapacity} to {pointCapacity * 2}.)");
             pointCapacity *= 2;
             points.Capacity = pointCapacity;
 
