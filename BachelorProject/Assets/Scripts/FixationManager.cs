@@ -2,18 +2,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+//TODO | Feature List:
+// 1. Distance check before creation of fixations to make sure fixations are not created right next to each other.
+// 2. Adaptive circle size based on amount of gazepoints in active group before fixation creation
+
 public class FixationManager : MonoBehaviour
 {
-    //#> Constants 
-    [SerializeField] private const float distanceThreshold = 0.3f;  //< Tweakable
-    [SerializeField] private const int pointCountThresholdForFixationCreation = 5;  //< Tweakable  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
-
     //#> Static Variables 
     public static UnityEvent<Fixation> OnFixationCreated = new();
 
     //#> Private Variables 
-    [SerializeField] private List<GazePoint> activeGazePointGroup = new(); //< Only serialized for visualization in editor
-    [SerializeField] private List<Fixation> fixations = new List<Fixation>(); //< Only serialized for visualization in editor
+    [Header("Settings")]
+    [SerializeField] private float distanceThreshold = 0.3f;
+    [SerializeField] private int pointCountThresholdForFixationCreation = 5;  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
+    [Header("Visualization of Private Lists")]
+    [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new(); //< Only serialized for visualization in editor
+    [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new List<Fixation>(); //< Only serialized for visualization in editor
 
     private void OnEnable()
     {
