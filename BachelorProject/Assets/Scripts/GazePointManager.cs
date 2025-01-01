@@ -45,7 +45,7 @@ public class GazePointManager : MonoBehaviour
 
     private void CreatePointAt(Vector3 pointPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
     {
-        DateTime timeStamp = DateTime.Now;  //?: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
+        DateTime timeStamp = Timer.latestTimestamp;  //?: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
 
         GazePoint point = SetPoint(currentIndex, timeStamp, pointPosition, hitNormal, connectedDynObj);
         OnPointCreated.Invoke(point);

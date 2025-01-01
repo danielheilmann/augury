@@ -66,7 +66,7 @@ public class DynamicObject : MonoBehaviour
 
     private void Initialize()
     {
-        DateTime timestamp = DateTime.Now;
+        DateTime timestamp = Timer.latestTimestamp;
         positionHistory.Add(timestamp, transform.localPosition);
         rotationHistory.Add(timestamp, transform.localRotation);
         scaleHistory.Add(timestamp, transform.localScale);
@@ -80,7 +80,7 @@ public class DynamicObject : MonoBehaviour
 
     private void OnTimerTick()
     {
-        DateTime timestamp = DateTime.Now;
+        DateTime timestamp = Timer.latestTimestamp;
         if (transform.localPosition != positionHistory.ElementAt(positionHistory.Count - 1).Value)
             positionHistory.Add(timestamp, transform.localPosition);
         if (transform.localRotation != rotationHistory.ElementAt(rotationHistory.Count - 1).Value)
