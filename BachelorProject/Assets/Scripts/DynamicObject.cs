@@ -49,7 +49,15 @@ public class DynamicObject : MonoBehaviour
         // SessionManager.OnRecordStop.RemoveListener(OnSessionStop); 
     }
 
-    private void Start() => DynamicObjectManager.Register(this);
+    private void Start()
+    {
+        DynamicObjectManager.Register(this);
+
+        //> If this object is instantiated after a recording session was started, it should still perform the initialization.
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+            Initialize();
+    }
+
     private void OnDestroy()
     {
         DynamicObjectManager.Unregister(this);
@@ -57,7 +65,8 @@ public class DynamicObject : MonoBehaviour
         SessionManager.OnRecordStart.RemoveListener(OnSessionStart);  //< To prevent null exceptions
         SessionManager.OnRecordStop.RemoveListener(OnSessionStop);  //< To prevent null exceptions
 
-        if (SessionManager.currentMode == SessionManager.DataMode.Record)  //< This handles the situation where the DynamicObject is deleted (e.g. as part of the game mechanics) while a recording session is still ongoing. AKA [Case "destroyed during ongoing record session"]
+        //> If this object is deleted (e.g. as part of the game mechanics) while a recording session is still in progress, save to file immediately
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)  
             OnSessionStop();
     }
     #endregion
@@ -73,8 +82,8 @@ public class DynamicObject : MonoBehaviour
         scaleHistory = new();
 
         //> Reinitialize
-        DateTime timestamp = DateTime.Now;  //< This is executed before the Timer ticks for the first time, so I have to call DateTime.Now here to prevent the first entry from being at DateTime.MinValue.
-        
+        DateTime timestamp = DateTime.Now;  //< This part of the code is usually executed before the Timer ticks for the first time, so I have to call DateTime.Now here to prevent the first entry from being at DateTime.MinValue.
+
         //> For one, these indicate the starting position of the DynamicObject. But there is another benefit: Without these first entries, I would have to check against null on every call of OnTimerTick, just because there would be a null exception the first time OnTimerTick is executed.
         positionHistory.Add(timestamp, transform.localPosition);
         rotationHistory.Add(timestamp, transform.localRotation);
