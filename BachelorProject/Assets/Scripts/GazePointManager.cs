@@ -83,17 +83,16 @@ public class GazePointManager : MonoBehaviour
     private void EvaluateRaycastHit(RaycastHit hit)
     {
         if (hit.collider.gameObject.TryGetComponent<DynamicObject>(out DynamicObject dynObj))
-            CreatePointAt(hit.point, hit.normal, dynObj);
+            CreatePointAtPosition(hit.point, hit.normal, dynObj);
         else
-            CreatePointAt(hit.point, hit.normal);
+            CreatePointAtPosition(hit.point, hit.normal);
     }
 
-    private void CreatePointAt(Vector3 pointPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
+    private void CreatePointAtPosition(Vector3 pointPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
     {
         DateTime timeStamp = Timer.latestTimestamp;  //?: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
 
-        GazePoint point = SetPoint(currentIndex, timeStamp, pointPosition, hitNormal, connectedDynObj);
-        OnPointCreated.Invoke(point);
+        SetPoint(timeStamp, pointPosition, hitNormal, connectedDynObj);
         currentIndex++;
 
         //> Automatically increase GazePoint list size whenever necessary.
@@ -111,22 +110,25 @@ public class GazePointManager : MonoBehaviour
                 points.Add(new GazePoint());
         }
     }
-
-    private GazePoint SetPoint(int index, DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject dynObj = null)
+    private GazePoint SetPoint(DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject dynObj = null) => SetPoint(currentIndex, timeStamp, position, surfaceNormal, dynObj);
+    private GazePoint SetPoint(int index, DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject dynObj = null) //< This overload allows for setting / overwriting a specific index.
     {
+        GazePoint point;
+
         if (dynObj == null)
         {
-            points[index].Set(timeStamp, position, surfaceNormal, dynObj);
+            point = points[index].Set(timeStamp, position, surfaceNormal, dynObj);
             // Debug.Log($"{timeStamp.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
         }
         else
         {
             Vector3 relativePosition = position - dynObj.transform.position;
-            points[index].Set(timeStamp, relativePosition, surfaceNormal, dynObj);
+            point = points[index].Set(timeStamp, relativePosition, surfaceNormal, dynObj);
             // Debug.Log($"{timeStamp.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)} | Created Local Point at {position}, which is attached to \"{dynObj.name}\" with an offset of {relativePosition}", dynObj.gameObject);
         }
 
-        return points[index];
+        OnPointCreated.Invoke(point);
+        return point;
     }
     #endregion
 
