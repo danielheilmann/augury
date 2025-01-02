@@ -26,7 +26,7 @@ public class GazePointManager : MonoBehaviour
 
     private void OnEnable()
     {
-        RayProvider.OnHit.AddListener(EvaluateRaycastHit);
+        // RayProvider.OnHit.AddListener(EvaluateRaycastHit);
         SessionManager.OnRecordStart.AddListener(OnRecordSessionStart);
         SessionManager.OnRecordStop.AddListener(OnRecordSessionStop);
     }
@@ -47,8 +47,17 @@ public class GazePointManager : MonoBehaviour
     #endregion
 
     #region Event Hooks
-    private void OnRecordSessionStart() => Initialize();
-    private void OnRecordSessionStop() => SaveGazePoints();
+    private void OnRecordSessionStart()
+    {
+        Initialize();
+        RayProvider.OnHit.AddListener(EvaluateRaycastHit);
+    }
+
+    private void OnRecordSessionStop()
+    {
+        RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
+        SaveGazePoints();
+    }
     #endregion
 
     private void Initialize()   //< Cannot be named "Reset()" as that is a Monobehaviour method which is run between OnEnable and Start.
