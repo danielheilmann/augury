@@ -27,12 +27,19 @@ public class SessionManager : MonoBehaviour
     private void OnApplicationQuit() => StopCurrentSession(); //< Is executed before OnDestroy and will therefore close the session before the OnDestroy-Fallbacks of DynamicObject and GazePointManager activate.
     private void OnDestroy() //< Will be triggered OnSceneChange to make sure the current scene data is saved.
     {
-        wasRecordingInterrupted = true;
+        if (currentMode == DataMode.Record)
+            wasRecordingInterrupted = true;
         StopCurrentSession();
     }
 
     public void StartRecordSession()
     {
+        if (currentMode != DataMode.Idle)
+        {
+            Debug.LogWarning($"Already in {currentMode} Mode. Please stop the current session before starting a new one.");
+            return;
+        }
+
         wasRecordingInterrupted = false;
         Debug.Log($"Starting Record Mode.");
         currentMode = DataMode.Record;
@@ -41,6 +48,12 @@ public class SessionManager : MonoBehaviour
 
     public void StartReplaySession()
     {
+        if (currentMode != DataMode.Idle)
+        {
+            Debug.LogWarning($"Already in {currentMode} Mode. Please stop the current session before starting a new one.");
+            return;
+        }
+
         Debug.Log($"Starting Replay Mode.");
         currentMode = DataMode.Replay;
         OnReplayStart?.Invoke();
