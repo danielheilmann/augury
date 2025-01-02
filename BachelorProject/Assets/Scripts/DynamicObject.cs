@@ -4,28 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class DynamicObjectManager
-{
-    [SerializeField, ReadOnly] public static Dictionary<int, DynamicObject> dynObjects = new Dictionary<int, DynamicObject>();    //< Should also be turned into a (public get, private set) field to limit access
-    public static void Register(DynamicObject dynObject)
-    {
-        int dynObjID = dynObject.meshName.GetHashCode();    //TODO: Decouple ID from MeshName, as this is likely to lead to a lot of overlaps in an actual application!
-        if (dynObjects.TryAdd(dynObjID, dynObject))
-            dynObject.id = dynObjID;
-        else
-            Debug.LogWarning($"There is already a dynamic object with the ID \"{dynObjID}\".");
-    }
-
-    public static void Unregister(DynamicObject dynObject)
-    {
-        dynObjects.Remove(dynObject.id);
-    }
-}
-
+//TODO: Decouple ID from MeshName, as this causes to a lot of overlaps in an actual application!
 public class DynamicObject : MonoBehaviour
 {
     [SerializeField, ReadOnly] public int id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
-    [SerializeField, ReadOnly] public string meshName;
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> scaleHistory = new();
