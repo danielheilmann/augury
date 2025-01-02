@@ -7,6 +7,7 @@ using SimpleJSON;
 using System.Globalization;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using System.Linq;
 
 //TODO Make sure to implement failsaves for corrupted or scrambled files
 public static class FileSystemHandler
@@ -15,24 +16,27 @@ public static class FileSystemHandler
     private const string FileExtension = ".json";
     private const string DataDirectoryName = "RecordedSessionData";
     private const string KEY_SESSION_ID = "session";
+    private const string KEY_SCENE_ID = "scene";
     private const string KEY_APP_VERSION = "appVersion";
-    private const string KEY_SCENE_ID = "inScene";
-    public const string KEY_TIMESTAMP = "timestamp";
+    private const string KEY_DATATYPE = "dataType";
+    private const string KEY_DATAIDENTIFIER_DYNOBJ = "DynamicObjectData";
+    private const string KEY_DATAIDENTIFIER_GAZEPOINT = "GazePointData";
+    private const string KEY_TIMESTAMP = "timestamp";
     private const string KEY_POSITION = "position";
     private const string KEY_SURFACENORMAL = "surfaceNormal";
     private const string KEY_DYNOBJ_ID = "dynObjID";
     private const string KEY_GAZEPOINTS = "gazepoints";
-    private static char dirSeperator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
-    
+    private static char directorySeparator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
+
     private static string dataDir { get { if (!Directory.Exists(DataDirectoryName)) Directory.CreateDirectory(DataDirectoryName); return DataDirectoryName; } }
     private static string currentSceneName => SceneManager.GetActiveScene().name;
 
     #region Writing Data
     /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
-    /// <param name="fileTitle"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
+    /// <param name="label"> The title of the created file, WITHOUT the file extension (e.g. ".txt") </param>
     /// <param name="fileContent"> The content of the file in the form of a single string. It may also be JSON, as it is nothing but text. </param>
     /// <returns> The full file path of the file that was created. If saving to file was skipped through global setting flag, return will be empty. </returns>
-    private static string CreateFile(string fileTitle, string fileContent)
+    private static string CreateFile(string label, string fileContent)
     {
         if (Settings.skipSavingDataToFile)
         {
@@ -40,7 +44,12 @@ public static class FileSystemHandler
             return "";
         }
 
-        string filePath = $"{dataDir}{dirSeperator}{fileTitle}{FileExtension}";
+        string sessionDir = $"{dataDir}{directorySeparator}{RecordManager.sessionIdentifier}";
+        if (!Directory.Exists(sessionDir))
+            Directory.CreateDirectory(sessionDir);
+
+        string fileName = $"{RecordManager.sessionIdentifier}_{currentSceneName}_{label}{FileExtension}";
+        string filePath = $"{sessionDir}{directorySeparator}{fileName}";
         File.WriteAllText(filePath, fileContent);
         Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
 
@@ -53,7 +62,7 @@ public static class FileSystemHandler
         if (gazePoints.Count == 0)  //< There is no reason to save a file from a session without any point entries, as that was most likely a start-stop situation.
             return;
 
-        string filepath = CreateFile(fileTitle: $"{RecordManager.sessionIdentifier} - GazePoints_{currentSceneName}", fileContent: ParseListToJSONString(gazePoints));
+        string filepath = CreateFile(label: $"GazePoints", fileContent: ParseListToJSONString(gazePoints));
 
         if (Settings.openExplorerOnSave)
             OpenFileExplorerAt(filepath);
@@ -63,9 +72,10 @@ public static class FileSystemHandler
     {
         JSONObject output = new JSONObject();
 
-        output.Add(KEY_SESSION_ID, RecordManager.sessionIdentifier);
         output.Add(KEY_APP_VERSION, Application.version);
-        output.Add(KEY_SCENE_ID, SceneManager.GetActiveScene().name);
+        output.Add(KEY_SESSION_ID, RecordManager.sessionIdentifier);
+        output.Add(KEY_SCENE_ID, currentSceneName);
+        output.Add(KEY_DATATYPE, KEY_DATAIDENTIFIER_GAZEPOINT);
 
         JSONArray points = new JSONArray();
         foreach (GazePoint gp in gazePoints)
@@ -86,7 +96,7 @@ public static class FileSystemHandler
         output.Add(KEY_GAZEPOINTS, points);
         if (Settings.prettyJSONExport)
             return output.ToString(1);
-        else 
+        else
             return output.ToString();
     }
     #endregion
@@ -94,16 +104,17 @@ public static class FileSystemHandler
     #region Saving DynamicObjects
     public static void SaveDynamicObject(DynamicObject dynamicObject)
     {
-        CreateFile(fileTitle: $"{RecordManager.sessionIdentifier} - DynObj_{currentSceneName}_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
+        CreateFile(label: $"DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
     }
 
     private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject) //?< This could be moved into the DynamicObject class to serve as a simple ".ToJSON()" method
     {
         JSONObject output = new JSONObject();
 
-        output.Add(KEY_SESSION_ID, RecordManager.sessionIdentifier);
         output.Add(KEY_APP_VERSION, Application.version);
+        output.Add(KEY_SESSION_ID, RecordManager.sessionIdentifier);
         output.Add(KEY_SCENE_ID, currentSceneName);
+        output.Add(KEY_DATATYPE, KEY_DATAIDENTIFIER_DYNOBJ);
         output.Add(KEY_DYNOBJ_ID, dynamicObject.id);
 
         #region Position History
@@ -160,10 +171,10 @@ public static class FileSystemHandler
         }
         output.Add("scaleHistory", scaleHist);
         #endregion
-        
+
         if (Settings.prettyJSONExport)
             return output.ToString(1);
-        else 
+        else
             return output.ToString();
     }
 
@@ -207,44 +218,33 @@ public static class FileSystemHandler
     #endregion
 
     #region Reading Data
-    public static List<KeyValuePair<string, string>> FetchSessions()
+    public static List<SessionFileReference> FetchAllSessions()
     {
+        Debug.Log($"Reading data directory to fetch sessions...");
+        Dictionary<string, SessionFileReference> sessionCollection = new();
+        
         string[] filePaths = Directory.GetFiles(DataDirectoryName, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
-        Debug.Log(filePaths.ToCommaSeparatedString());
-
-        List<KeyValuePair<string, string>> sessionIdentifiers = new(); //identifier, filepath
-        //TODO: Maybe this could be improved by implementing the saving in a way where each session gets it's own session subfolder. That way, the reading system would only have to read the folder name. This way, the user would also be able to name the folder any way they want and it would come up in the app this way. Furthermore, it would enable the storage of an additional session meta file, containing information about start and end times, session duration, participant number, etc.
-        foreach (string filePath in filePaths)
-        {
-            string fileContent = File.ReadAllText(filePath);
-            JSONNode data = JSONNode.Parse(fileContent);
-
-            // Debug.Log($"{data[KEY_SESSION_ID]}");
-            string sessionIdentifier = data[KEY_SESSION_ID];
-            sessionIdentifiers.Add(new(sessionIdentifier, filePath));
-        }
-        return sessionIdentifiers;
-    }
-
-    public static Dictionary<string, string> GetSessionContents(string sessionIdentifier)
-    {
-        Dictionary<string, string> output = new(); // fileIdentifier, content
-
-        string[] filePaths = Directory.GetFiles(dataDir, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
         foreach (string filePath in filePaths)
         {
             string fileContentString = File.ReadAllText(filePath);
-            JSONNode fileConstentNode = JSONNode.Parse(fileContentString);
-            if (fileConstentNode[KEY_SESSION_ID] != sessionIdentifier)
-                continue;
-            if (fileConstentNode[KEY_APP_VERSION] != Application.version)
-                continue;
-            string fileIdentifier = fileConstentNode[KEY_DYNOBJ_ID];
-            if (string.IsNullOrEmpty(fileIdentifier))
-                fileIdentifier = "gazepoints";
-            output.TryAdd(fileIdentifier, fileContentString);
+            JSONNode fileContentNode = JSONNode.Parse(fileContentString);
+
+            string appVersion = fileContentNode[KEY_APP_VERSION];
+            string sessionIdentifier = fileContentNode[KEY_SESSION_ID];
+            string sceneName = fileContentNode[KEY_SCENE_ID];
+            bool isDynamicObjectData = fileContentNode[KEY_DATATYPE] == KEY_DATAIDENTIFIER_DYNOBJ;
+
+            if (sessionCollection.ContainsKey(sessionIdentifier)) //< The dictionary simplifies this check. A list would require a loop to check for duplicates.
+            {
+                sessionCollection[sessionIdentifier].AddEntry(fileContentNode, isDynamicObjectData);
+            }
+            else
+            {
+                SessionFileReference newSessionReference = new(sessionIdentifier, appVersion, sceneName, filePath);
+                sessionCollection.TryAdd(sessionIdentifier, newSessionReference);
+            }
         }
-        return output;
+        return sessionCollection.Values.ToList();
     }
     #endregion
 }

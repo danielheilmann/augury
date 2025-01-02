@@ -561,7 +561,7 @@ MonoBehaviour:
   _skipSavingDataToFile: 0
   _openExplorerOnSave: 0
   _expectedSessionRuntimeInMinutes: 1
-  _prettyJSONExportIndent: 0
+  _prettyJSONExport: 0
 --- !u!114 &194419862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -989,7 +989,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1408582485
 MonoBehaviour:
   m_ObjectHideFlags: 0

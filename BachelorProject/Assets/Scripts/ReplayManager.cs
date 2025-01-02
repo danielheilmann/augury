@@ -2,10 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
+//TODO | Feature List:
+// 1. Think about how to handle scene changes to accurately apply the correct data from each session
 
 public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager Instance { get; private set; }
+    public List<SessionFileReference> validSessions { get; private set; }
+    public SessionFileReference selectedSession { get; private set; } = null;
+    public ReplayTimeline timeline { get; private set; }
 
     private void Awake()
     {
@@ -18,33 +25,60 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable() => SessionManager.OnReplayStart.AddListener(Initialize);
+
+    private void OnDisable() => SessionManager.OnReplayStart.RemoveListener(Initialize);
+
+    void Initialize()
     {
-        FetchUniqueSessionIDs();
+        validSessions = new List<SessionFileReference>();
+        selectedSession = null;
+        timeline = null;
+        FetchValidSessions();
     }
 
-    private void FetchUniqueSessionIDs()
+    private void FetchValidSessions()
     {
         //TODO: Make sure to catch null exceptions here in case there are no recorded sessions yet.
-        var sessions = FileSystemHandler.FetchSessions();
-        List<string> sessionIDs = new();
-        foreach (var session in sessions)
-        {
-            if (!sessionIDs.Contains(session.Key))
-                sessionIDs.Add(session.Key);
-        }
-        Debug.Log($"{sessionIDs.ToCommaSeparatedString()}");
+        var allSessions = FileSystemHandler.FetchAllSessions();
 
-        LoadSession(sessionIDs[0]);
+        foreach (var session in allSessions)
+        {
+            if (session.appVersion != Application.version)
+                continue;
+            else if (session.sceneName != SceneManager.GetActiveScene().name)
+                continue;
+
+            validSessions.Add(session);
+            Debug.Log($"{session}");
+        }
     }
 
-    private void LoadSession(string sessionID)
+    private void SelectSession(int index)
     {
-        var sessionData = FileSystemHandler.GetSessionContents(sessionID);
-        foreach (var item in sessionData)
+        if (validSessions.Count == 0)
         {
-            Debug.Log($"{item.Key}: {item.Value}");
+            Debug.LogWarning("No valid sessions available.");
+            return;
         }
+        if (index < 0 || index >= validSessions.Count)
+        {
+            Debug.LogError("Invalid index.");
+            return;
+        }
+
+        selectedSession = validSessions[index];
+        Debug.Log($"Selected Session: {selectedSession}");
+    }
+
+    private void LoadSelectedSession()
+    {
+        if (selectedSession == null)
+        {
+            Debug.LogWarning("No session selected.");
+            return;
+        }
+
+        timeline = new ReplayTimeline();
     }
 }
