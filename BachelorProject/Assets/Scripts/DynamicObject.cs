@@ -21,6 +21,15 @@ public class DynamicObject : MonoBehaviour
         Timer.OnTick.AddListener(OnTimerTick);
         SessionManager.OnRecordStart.AddListener(OnSessionStart);
         SessionManager.OnRecordStop.AddListener(OnSessionStop);
+
+        //> Just in case for if this object was disabled (or not instantiated yet) when the recording session was started.
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+            OnSessionStart();
+    }
+
+    private void Start()
+    {
+        DynamicObjectManager.Register(this);
     }
 
     private void OnDisable()
@@ -29,15 +38,6 @@ public class DynamicObject : MonoBehaviour
         //!> Should still listen to the SessionStart and -Stop events, even if it is inactive, so the following two lines are supposed to be "missing".
         // SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
         // SessionManager.OnRecordStop.RemoveListener(OnSessionStop); 
-    }
-
-    private void Start()
-    {
-        DynamicObjectManager.Register(this);
-
-        //> If this object is instantiated after a recording session was started, it should still perform the initialization.
-        if (SessionManager.currentMode == SessionManager.DataMode.Record)
-            Initialize();
     }
 
     private void OnDestroy()

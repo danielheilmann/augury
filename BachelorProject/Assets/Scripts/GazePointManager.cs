@@ -29,6 +29,10 @@ public class GazePointManager : MonoBehaviour
         // RayProvider.OnHit.AddListener(EvaluateRaycastHit);
         SessionManager.OnRecordStart.AddListener(OnRecordSessionStart);
         SessionManager.OnRecordStop.AddListener(OnRecordSessionStop);
+
+        //> Just in case for if this object was disabled when the recording session was started.
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+            OnRecordSessionStart();
     }
 
     private void OnDisable()
