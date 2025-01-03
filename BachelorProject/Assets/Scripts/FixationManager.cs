@@ -14,15 +14,18 @@ public class FixationManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float distanceThreshold = 0.3f;
     [SerializeField] private int pointCountThresholdForFixationCreation = 5;  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
-    
-    [Header("Visualization of Private Lists")]
-    [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new(); //< Only serialized for visualization in editor
-    [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new List<Fixation>(); //< Only serialized for visualization in editor
+
+    [Header("Visualization of Private Lists")]  //> Only serialized for visualization in editor
+    [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new();
+    [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new();
 
     private void OnEnable()
     {
-        SessionManager.OnRecordStart.AddListener(OnSessionStart);
-        SessionManager.OnRecordStop.AddListener(OnSessionStop);
+        if (Settings.visualizeInRecordMode)  //< No need to evaluate fixations if they are not going to be visualized.
+        {
+            SessionManager.OnRecordStart.AddListener(OnSessionStart);
+            SessionManager.OnRecordStop.AddListener(OnSessionStop);
+        }
 
         SessionManager.OnReplayStart.AddListener(OnSessionStart);
         SessionManager.OnReplayStop.AddListener(OnSessionStop);
@@ -33,7 +36,7 @@ public class FixationManager : MonoBehaviour
         GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
     }
 
-    private void OnDestroy() //?< Actually, there should never be a case where the manager would be destroyed before a session stop.
+    private void OnDestroy() //> Unsubscribe from all events to prevent null reference exceptions
     {
         SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
         SessionManager.OnRecordStop.RemoveListener(OnSessionStop);
@@ -49,7 +52,15 @@ public class FixationManager : MonoBehaviour
 
     private void OnSessionStop()
     {
+        Clear();
         GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
+    }
+
+    private void Clear()
+    {
+        //?> Maybe using .Clear() is better than creating a new list every time in terms of memory management?
+        activeGazePointGroup.Clear();
+        fixations.Clear();
     }
 
     #region Create Fixation
