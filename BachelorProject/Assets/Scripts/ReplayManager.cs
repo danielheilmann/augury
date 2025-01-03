@@ -12,6 +12,11 @@ public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager Instance { get; private set; }
     public static UnityEvent OnReplayBegin = new();
+    public static UnityEvent OnReplayPause = new();
+    public static UnityEvent OnReplayUnpause = new();
+
+    public bool isActivelyReplaying { get; private set; } = false;
+    public bool isPaused { get; private set; } = false;
 
     public List<SessionFileReference> validSessions { get; private set; }
     public SessionFileReference selectedSession { get; private set; } = null;
@@ -40,9 +45,13 @@ public class ReplayManager : MonoBehaviour
 
     void Initialize()
     {
+        isActivelyReplaying = false;
+        isPaused = false;
+
         validSessions = new List<SessionFileReference>();
         selectedSession = null;
         timeline = null;
+
         FetchValidSessions();
     }
 
@@ -63,7 +72,7 @@ public class ReplayManager : MonoBehaviour
 
     }
 
-    private void SelectSession(int index)
+    public void SelectSession(int index)
     {
         if (validSessions.Count == 0)
         {
@@ -80,7 +89,7 @@ public class ReplayManager : MonoBehaviour
         Debug.Log($"Selected Session: {selectedSession}");
     }
 
-    private void LoadSelectedSession()
+    public void LoadSelectedSession()
     {
         if (selectedSession == null)
         {
@@ -94,12 +103,24 @@ public class ReplayManager : MonoBehaviour
     [ContextMenu("Begin Replay")]
     public void BeginReplay()
     {
-        //TODO: ONLY FOR DEBUG, remove this later!
-        SelectSession(validSessions.Count - 1);
-        LoadSelectedSession();
-        //TODO: ^^^^
-
         Debug.Log($"Beginning Replay of Session {selectedSession}.");
+        isActivelyReplaying = true;
         // OnReplayBegin?.Invoke();
+    }
+
+    [ContextMenu("Pause Replay")]
+    public void PauseReplay()
+    {
+        Debug.Log("Pausing Replay.");
+        isPaused = true;
+        // OnReplayPause?.Invoke();
+    }
+
+    [ContextMenu("Unpause Replay")]
+    public void UnpauseReplay()
+    {
+        Debug.Log("Unpausing Replay.");
+        isPaused = false;
+        // OnReplayUnpause?.Invoke();
     }
 }

@@ -8,26 +8,25 @@ public class GenerationHandlerEditor : Editor
     {
         base.OnInspectorGUI();
         var handler = target as SessionManager;
-        if (handler != null)
+        
+        if (handler == null) return;
+        if (!Application.isPlaying) return;
+
+        if (SessionManager.currentMode == SessionManager.DataMode.Idle)
         {
-            if (SessionManager.currentMode == SessionManager.DataMode.Idle)
-            {
-                GUILayout.BeginHorizontal();
+            GUILayout.BeginHorizontal();
 
-                if (GUILayout.Button("Start Recording"))
-                    handler.StartRecordSession();
-                if (GUILayout.Button("Start Replaying"))
-                    handler.StartReplaySession();
+            if (GUILayout.Button("Start Recording"))
+                handler.StartRecordSession();
+            if (GUILayout.Button("Start Replaying"))
+                handler.StartReplaySession();
 
-                GUILayout.EndHorizontal();
-            }
-            else
-            {
-                if (GUILayout.Button($"Stop Current ({SessionManager.currentMode})"))
-                    handler.StopCurrentSession();
-            }
-
+            GUILayout.EndHorizontal();
         }
-
+        else
+        {
+            if (GUILayout.Button($"Stop Current ({SessionManager.currentMode})"))
+                handler.StopCurrentSession();
+        }
     }
 }
