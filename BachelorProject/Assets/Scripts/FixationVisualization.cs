@@ -27,6 +27,9 @@ public class FixationVisualization : MonoBehaviour
         SetLineDestination(Vector3.zero); //< This way, if both pos 0 and 1 are Vector3.zero (the origin of this gameobject), resulting in no line being drawn.
     }
 
+    private void OnDisable() => RequestNextFixationLineUpdate(); //< To remove the line to the next fixation when this one is disabled.
+    private void OnEnable() => RequestNextFixationLineUpdate(); //< To re-enable the line to the next fixation when this one is enabled again.
+
     private void FixedUpdate() //TODO: Rework this to only run whenever the position of the gameobject has changed, not always on Update. (event-based whenever one of the fixations is moved.)
     {
         if (fixation.dynamicObject == null) return; //< No need to check for position updates if this object is not intended to move anyways
@@ -39,10 +42,8 @@ public class FixationVisualization : MonoBehaviour
         //> Connection from this fixation to previous fixation
         UpdateLineToPrecedingFixation();
 
-        //> Connection from next fixation to this fixation
-        FixationVisualization nextFixation = FixationVisualizer.Instance.GetFixationVisualization(fixation.gfid + 1);
-        if (nextFixation.isActiveAndEnabled)
-            nextFixation.UpdateLineToPrecedingFixation(); //< To propagate the changes to the next one as well (but only if there is another visualization after the current one)
+        //> Connection from next fixation to this fixation}
+        RequestNextFixationLineUpdate();
     }
 
     public FixationVisualization Configure(Fixation fixation, int listIndex)
@@ -75,8 +76,24 @@ public class FixationVisualization : MonoBehaviour
             return;
         }
         FixationVisualization precedingFixation = FixationVisualizer.Instance.GetFixationVisualization(fid - 1);
+
+        if (!precedingFixation.isActiveAndEnabled)  //< If the preceding fixation is not active, do not draw a line to it.
+        {
+            SetLineDestination(Vector3.zero);
+            return;
+        }
+
         Vector3 vectorToPrecedingFixation = precedingFixation.transform.position - this.transform.position;
         SetLineDestination(vectorToPrecedingFixation);
+    }
+
+    private void RequestNextFixationLineUpdate()
+    {
+        if (fixation == null) return; //< If this object is not configured yet, skip this step.
+
+        FixationVisualization nextFixation = FixationVisualizer.Instance.GetFixationVisualization(fid + 1);
+        if (nextFixation != null && nextFixation.isActiveAndEnabled)
+            nextFixation.UpdateLineToPrecedingFixation(); //< To propagate the changes to the next one as well (but only if there is another visualization after the current one)
     }
 
     private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination);

@@ -113,7 +113,7 @@ public class FixationVisualizer : MonoBehaviour
         //> Looping around index to work with the pool 
         //TODO: This does not account for disabled & overwritten objects in the pool yet
         if (index < 0) index = pool.Count - 1;
-        else if (index > pool.Count - 1) index %= poolSize;
+        else if (index > pool.Count - 1) index %= poolSize; //TODO: This so needs to be reworked!
         //> Alternative:
         // if (index <= 0 || index >= fixationVisualizations.Count - 1) return null; //< To prevent trying to access out-of-bounds values
 
