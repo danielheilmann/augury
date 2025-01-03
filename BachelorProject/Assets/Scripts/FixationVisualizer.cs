@@ -30,14 +30,25 @@ public class FixationVisualizer : MonoBehaviour
     {
         SessionManager.OnRecordStart.AddListener(Initialize);
         SessionManager.OnReplayStart.AddListener(Initialize);
+
+        SessionManager.OnRecordStop.AddListener(DeleteAllVisualizations);
+        SessionManager.OnReplayStop.AddListener(DeleteAllVisualizations);
+
         FixationManager.OnFixationCreated.AddListener(Visualize);
     }
 
     private void OnDisable()
     {
         FixationManager.OnFixationCreated.RemoveListener(Visualize);
+    }
+
+    private void OnDestroy()
+    {
         SessionManager.OnRecordStart.RemoveListener(Initialize);
         SessionManager.OnReplayStart.RemoveListener(Initialize);
+
+        SessionManager.OnRecordStop.RemoveListener(DeleteAllVisualizations);
+        SessionManager.OnReplayStop.RemoveListener(DeleteAllVisualizations);
     }
 
     private void Initialize()
@@ -48,14 +59,21 @@ public class FixationVisualizer : MonoBehaviour
             return;
         }
 
-        if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
-            for (int i = pool.Count - 1; i >= 0 ; i--)
-                Destroy(pool[i]);
+        DeleteAllVisualizations();
 
         visualizations = new List<FixationVisualization>(poolSize);
         pool = new List<GameObject>(poolSize);
         for (int i = 0; i < poolSize; i++)
             IncreasePool();
+
+        currentIndex = 0;
+    }
+
+    private void DeleteAllVisualizations()
+    {
+        if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
+            for (int i = pool.Count - 1; i >= 0; i--)
+                Destroy(pool[i]);
     }
 
     public void IncreasePool() // This setup should ensure that the two lists (pool & FixationVisualizations) should be in sync in terms of indeces.
