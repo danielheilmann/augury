@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DynamicObject : MonoBehaviour
 {
-    [SerializeField, ReadOnly] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
+    [SerializeField] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
     public bool hasID => !string.IsNullOrEmpty(id);
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
