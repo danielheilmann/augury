@@ -1,17 +1,39 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-//TODO: This has been reduced to a mere ID-assigner.
-[ExecuteAlways]
-public class DynamicObjectManager : MonoBehaviour   //< Only a Monobehaviour for the utility methods at the very bottom
+public class DynamicObjectManager : MonoBehaviour
 {
-    public static Dictionary<string, DynamicObject> dynObjects { get; private set; } = new();
+    public static DynamicObjectManager Instance
+    {
+        get
+        {
+            if (_Instance == null)
+                _Instance = FindObjectOfType<DynamicObjectManager>();
+            return _Instance;
+        }
+    }
+    private static DynamicObjectManager _Instance;
+    public Dictionary<string, DynamicObject> dynObjects { get; private set; } = new();  //< For some reason, this is not session-persistent and gets cleared on every reload
+
+    private void Awake()
+    {
+        if (_Instance == null)
+            _Instance = this;
+        else
+        {
+            Debug.LogError($"{this} cannot set itself as instance as one has already been set by {_Instance.gameObject}. Deleting self.");
+            foreach (var item in this.dynObjects)   //> Transfer all the entries from this manager object onto the already existing singleton instance before deleting self.
+                _Instance.dynObjects.TryAdd(item.Key, item.Value);
+            Destroy(this);
+        }
+    }
 
     public static DynamicObject GetByID(string id)
     {
+        Dictionary<string, DynamicObject> dynObjects = Instance.dynObjects;
+
         if (dynObjects.ContainsKey(id))
         {
             DynamicObject dynObject = dynObjects[id];
@@ -27,6 +49,8 @@ public class DynamicObjectManager : MonoBehaviour   //< Only a Monobehaviour for
     }
     public static void Register(DynamicObject dynObject)
     {
+        Dictionary<string, DynamicObject> dynObjects = Instance.dynObjects;
+
         //> We do not need to check for ID overlaps, as the IDs are checked for uniqueness during the initial assignment.
         if (dynObjects.TryAdd(dynObject.id, dynObject))
             return;
@@ -36,11 +60,15 @@ public class DynamicObjectManager : MonoBehaviour   //< Only a Monobehaviour for
 
     public static void Unregister(DynamicObject dynObject)
     {
+        Dictionary<string, DynamicObject> dynObjects = Instance.dynObjects;
+
         dynObjects.Remove(dynObject.id);
     }
 
-    public static string GenerateID()
+    public static string GenerateUniqueID()
     {
+        Dictionary<string, DynamicObject> dynObjects = Instance.dynObjects;
+
         string id = Guid.NewGuid().ToString();
         while (dynObjects.ContainsKey(id))
             id = Guid.NewGuid().ToString();
@@ -48,27 +76,19 @@ public class DynamicObjectManager : MonoBehaviour   //< Only a Monobehaviour for
         return id;
     }
 
-#if UNITY_EDITOR
-    // [ContextMenu("Register all unregistered DynamicObjects in scene")]
-    // private void RegisterAllDynamicObjectsInScene()  //< Would require DynamicObject class to also be set to [ExecuteAlways], which would be overkill as the IDs can also be assigned via bulk-select in the editor.
-    // {
-    //     DynamicObject[] dynObjectsInScene = FindObjectsOfType<DynamicObject>(true);
-    //     foreach (DynamicObject dynObj in dynObjectsInScene)
-    //     {
-    //         if (!dynObj.isRegistered)
-    //             dynObj.GetUniqueID();
-    //     }
-    // }
-
-    [ContextMenu("List all registered DynamicObjects")]
-    private void ListAllRegistered()
+    [ContextMenu("Register all unregistered DynamicObjects in scene")]
+    public void RegisterAllDynamicObjectsInScene()
     {
-        Debug.Log($"Now listing all registered DynamicObjects:");
-        foreach (var entry in dynObjects)
+        DynamicObject[] dynObjectsInScene = FindObjectsOfType<DynamicObject>(true);
+        foreach (DynamicObject dynObj in dynObjectsInScene)
         {
-            DynamicObject dynamicObject = entry.Value;
-            Debug.Log($"{dynamicObject.gameObject.name}", dynamicObject);
+            if (dynObj.hasID)
+            {
+                if (!dynObjects.ContainsKey(dynObj.id)) //< If the object has an ID already but is not yet registered.
+                    Register(dynObj);
+            }
+            else
+                dynObj.RequestNewID();
         }
     }
-#endif
 }

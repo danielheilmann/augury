@@ -7,10 +7,15 @@ using UnityEngine;
 public class DynamicObject : MonoBehaviour
 {
     [SerializeField, ReadOnly] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
-    public bool isRegistered => string.IsNullOrEmpty(id);
+    public bool hasID => !string.IsNullOrEmpty(id);
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> scaleHistory = new();
+
+    private void Start()
+    {
+        DynamicObjectManager.Register(this); //< To re-register in case this object was deleted or the manager had changed scenes.
+    }
 
     private void OnEnable()
     {
@@ -71,13 +76,13 @@ public class DynamicObject : MonoBehaviour
             scaleHistory.Add(timestamp, transform.localScale);
     }
 
-    [ContextMenu("Get new Unique ID")]
-    public void GetUniqueID()
+    [ContextMenu("Request new Unique ID")]
+    public void RequestNewID()
     {
-        if (isRegistered)
+        if (hasID)
             DynamicObjectManager.Unregister(this);  //< Unregister old ID before getting a new one.
 
-        id = DynamicObjectManager.GenerateID();
+        id = DynamicObjectManager.GenerateUniqueID();
         DynamicObjectManager.Register(this);
     }
 

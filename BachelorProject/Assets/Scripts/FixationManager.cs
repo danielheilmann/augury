@@ -75,7 +75,7 @@ public class FixationManager : MonoBehaviour
         OnFixationCreated.Invoke(newFixation);
     }
 
-    private bool IsDifferentIDthanLastEntry(int id)
+    private bool IsDifferentIDthanLastEntry(string id)
     {
         if (activeGazePointGroup.Count > 0)
             return id != activeGazePointGroup[activeGazePointGroup.Count - 1].dynObjID;
