@@ -12,24 +12,38 @@ using System.Linq;
 //TODO Make sure to implement failsaves for corrupted or scrambled files
 public static class FileSystemHandler
 {
-    public const string TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
-    private const string FileExtension = ".json";
+    //> File-Related Constants
     private const string DataDirectoryName = "RecordedSessionData";
+    private const string FileExtension = ".json";
+
+    //> Session-Related Constants
     private const string KEY_SESSION_ID = "session";
     private const string KEY_SCENE_ID = "scene";
     private const string KEY_APP_VERSION = "appVersion";
+
+    //> DataType-Related Constants
     private const string KEY_DATATYPE = "dataType";
     private const string KEY_DATAIDENTIFIER_DYNOBJ = "DynamicObjectData";
     private const string KEY_DATAIDENTIFIER_GAZEPOINT = "GazePointData";
-    private const string KEY_TIMESTAMP = "timestamp";
-    private const string KEY_POSITION = "position";
-    private const string KEY_SURFACENORMAL = "surfaceNormal";
-    private const string KEY_DYNOBJ_ID = "dynObjID";
-    private const string KEY_GAZEPOINTS = "gazepoints";
+
+    //> Content-Related Constants
+    public const string KEY_TIMESTAMP = "timestamp";
+    public const string TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+    public const string KEY_DYNOBJ_ID = "dynObjID";
+    public const string KEY_SURFACENORMAL = "surfaceNormal";
+    public const string KEY_POSITION = "position";
+
+    //> JSON-Array Identification Constants
+    public const string KEY_GAZEPOINTS = "gazepoints";
+    public const string KEY_POSITIONHISTORY = "positionHistory";
+    public const string KEY_ROTATIONHISTORY = "rotationHistory";
+    public const string KEY_SCALEHISTORY = "scaleHistory";
+
+    //> Parameters to simplify access to certain values
     private static char directorySeparator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
+    private static string currentSceneName => SceneManager.GetActiveScene().name;
 
     private static string dataDir { get { if (!Directory.Exists(DataDirectoryName)) Directory.CreateDirectory(DataDirectoryName); return DataDirectoryName; } }
-    private static string currentSceneName => SceneManager.GetActiveScene().name;
 
     #region Writing Data
     /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
@@ -131,7 +145,7 @@ public static class FileSystemHandler
 
             positionHist.Add(timestampedPosition);
         }
-        output.Add("positionHistory", positionHist);
+        output.Add(KEY_POSITIONHISTORY, positionHist);
         #endregion
 
         #region Rotation History
@@ -152,7 +166,7 @@ public static class FileSystemHandler
 
             rotationHist.Add(timestampedPosition);
         }
-        output.Add("rotationHistory", rotationHist);
+        output.Add(KEY_ROTATIONHISTORY, rotationHist);
         #endregion
 
         #region Scale History
@@ -169,7 +183,7 @@ public static class FileSystemHandler
 
             scaleHist.Add(timestampedPosition);
         }
-        output.Add("scaleHistory", scaleHist);
+        output.Add(KEY_SCALEHISTORY, scaleHist);
         #endregion
 
         if (Settings.prettyJSONExport)
@@ -190,6 +204,18 @@ public static class FileSystemHandler
         array.Add(vector.z);
 
         return array;
+    }
+    
+    /// <summary></summary>
+    /// <param name="array">A JSONArray containing x,y,z values for a Vector3</param>
+    /// <returns>A Vector3 constructed from the first three values in the JSONArray</returns>
+    public static Vector3 JSONArrayToVector3(JSONArray array)   //< Ended up not being used as this conversion can be done implicitly by the JSONArray class.
+    {
+        return new Vector3(
+            array[0].AsFloat,
+            array[1].AsFloat,
+            array[2].AsFloat
+        );
     }
 
     private static string RemoveInvalidFileNameChars(this string input)
@@ -231,17 +257,17 @@ public static class FileSystemHandler
     {
         Debug.Log($"Reading data directory to fetch sessions...");
         Dictionary<string, SessionFileReference> sessionCollection = new();
-        
+
         string[] filePaths = Directory.GetFiles(DataDirectoryName, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
         foreach (string filePath in filePaths)
         {
             string fileContentString = File.ReadAllText(filePath);
             JSONNode fileContentNode = JSONNode.Parse(fileContentString);
 
-            string appVersion = fileContentNode[KEY_APP_VERSION];
-            string sessionIdentifier = fileContentNode[KEY_SESSION_ID];
-            string sceneName = fileContentNode[KEY_SCENE_ID];
-            bool isDynamicObjectData = fileContentNode[KEY_DATATYPE] == KEY_DATAIDENTIFIER_DYNOBJ;
+            string appVersion = fileContentNode[KEY_APP_VERSION].Value;
+            string sessionIdentifier = fileContentNode[KEY_SESSION_ID].Value;
+            string sceneName = fileContentNode[KEY_SCENE_ID].Value;
+            bool isDynamicObjectData = fileContentNode[KEY_DATATYPE].Value == KEY_DATAIDENTIFIER_DYNOBJ;
 
             if (sessionCollection.ContainsKey(sessionIdentifier)) //< The dictionary simplifies this check. A list would require a loop to check for duplicates.
             {
