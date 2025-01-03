@@ -11,7 +11,7 @@ public class GazePoint  //!< For some reason, having this as structs makes it so
     public Vector3 surfaceNormal { get; private set; }
     public DynamicObject dynamicObject { get; private set; } = null;
     public bool isLocal => dynamicObject != null;
-    public int dynObjID => isLocal ? dynamicObject.id : -1;
+    public string dynObjID => isLocal ? dynamicObject.id : "";
     public Vector3 position => isLocal ? dynamicObject.transform.position + _position : _position;
     public Vector3 rawPosition => _position;
     private Vector3 _position;

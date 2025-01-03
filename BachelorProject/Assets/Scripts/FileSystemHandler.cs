@@ -104,7 +104,7 @@ public static class FileSystemHandler
     #region Saving DynamicObjects
     public static void SaveDynamicObject(DynamicObject dynamicObject)
     {
-        CreateFile(label: $"DynObj_{dynamicObject.id}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
+        CreateFile(label: $"DynObj_{dynamicObject.name.RemoveInvalidFileNameChars()}", fileContent: ParseDynamicObjectToJSONString(dynamicObject));
     }
 
     private static string ParseDynamicObjectToJSONString(DynamicObject dynamicObject) //?< This could be moved into the DynamicObject class to serve as a simple ".ToJSON()" method
@@ -190,6 +190,15 @@ public static class FileSystemHandler
         array.Add(vector.z);
 
         return array;
+    }
+
+    private static string RemoveInvalidFileNameChars(this string input)
+    {
+        string output = input;
+        foreach (char c in Path.GetInvalidFileNameChars())
+            output = output.Replace(c, '_');
+
+        return output;
     }
     #endregion
 

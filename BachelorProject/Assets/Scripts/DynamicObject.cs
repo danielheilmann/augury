@@ -4,17 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-//TODO: Decouple ID from MeshName, as this causes to a lot of overlaps in an actual application!
 public class DynamicObject : MonoBehaviour
 {
-    [SerializeField, ReadOnly] public int id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
+    [SerializeField, ReadOnly] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
+    public bool isRegistered => string.IsNullOrEmpty(id);
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> scaleHistory = new();
-
-    #region Monobehaviour Methods
-    private void Awake() => UpdatePropertyValues();
-    private void OnValidate() => UpdatePropertyValues();
 
     private void OnEnable()
     {
@@ -27,11 +23,6 @@ public class DynamicObject : MonoBehaviour
             OnSessionStart();
     }
 
-    private void Start()
-    {
-        DynamicObjectManager.Register(this);
-    }
-
     private void OnDisable()
     {
         Timer.OnTick.RemoveListener(OnTimerTick);
@@ -42,16 +33,13 @@ public class DynamicObject : MonoBehaviour
 
     private void OnDestroy()
     {
-        DynamicObjectManager.Unregister(this);
-
         SessionManager.OnRecordStart.RemoveListener(OnSessionStart);  //< To prevent null exceptions
         SessionManager.OnRecordStop.RemoveListener(OnSessionStop);  //< To prevent null exceptions
 
         //> If this object is deleted (e.g. as part of the game mechanics) while a recording session is still in progress, save to file immediately
-        if (SessionManager.currentMode == SessionManager.DataMode.Record)  
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
             OnSessionStop();
     }
-    #endregion
 
     private void OnSessionStart() => Initialize();
     private void OnSessionStop() => FileSystemHandler.SaveDynamicObject(this);
@@ -83,9 +71,20 @@ public class DynamicObject : MonoBehaviour
             scaleHistory.Add(timestamp, transform.localScale);
     }
 
-    private void UpdatePropertyValues()
+    [ContextMenu("Get new Unique ID")]
+    public void GetUniqueID()
     {
-        string meshName = GetComponent<MeshFilter>().sharedMesh.name;
-        id = meshName.GetHashCode();
+        if (isRegistered)
+            DynamicObjectManager.Unregister(this);  //< Unregister old ID before getting a new one.
+
+        id = DynamicObjectManager.GenerateID();
+        DynamicObjectManager.Register(this);
+    }
+
+    [ContextMenu("Clear ID")]
+    public void Unregister()
+    {
+        DynamicObjectManager.Unregister(this);
+        id = string.Empty;
     }
 }
