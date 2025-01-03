@@ -14,10 +14,7 @@ public class RecordManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null)
-        {
-            DontDestroyOnLoad(this);    //! This actually does not make any sense as it would (if implemented correctly, which it isn't here) cause file name overlaps when returning to earlier scenes. So I actually HAVE TO implement it in a way where each scene starts a new recording.
             Instance = this;
-        }
         else
         {
             Debug.LogError($"{this} cannot set itself as instance as one has already been set by {Instance.gameObject}. Deleting self.");
