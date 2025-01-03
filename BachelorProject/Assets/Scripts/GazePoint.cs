@@ -16,6 +16,12 @@ public class GazePoint  //!< For some reason, having this as structs makes it so
     public Vector3 rawPosition => _position;
     private Vector3 _position;
 
+    public GazePoint() { }
+    public GazePoint(DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject connectedDynObj = null)
+    {
+        Set(timeStamp, position, surfaceNormal, connectedDynObj);
+    }
+
     public GazePoint Set(DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject connectedDynObj = null)
     {
         this.timeStamp = timeStamp;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 //TODO | Feature List:
 // 1. Think about how to handle scene changes to accurately apply the correct data from each session
@@ -10,6 +11,8 @@ using UnityEngine.SceneManagement;
 public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager Instance { get; private set; }
+    public static UnityEvent OnReplayBegin = new();
+
     public List<SessionFileReference> validSessions { get; private set; }
     public SessionFileReference selectedSession { get; private set; } = null;
     public ReplayTimeline timeline { get; private set; }
@@ -25,9 +28,15 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
-    private void OnEnable() => SessionManager.OnReplayStart.AddListener(Initialize);
+    private void OnEnable()
+    {
+        SessionManager.OnReplayStart.AddListener(Initialize);
+    }
 
-    private void OnDisable() => SessionManager.OnReplayStart.RemoveListener(Initialize);
+    private void OnDisable()
+    {
+        SessionManager.OnReplayStart.RemoveListener(Initialize);
+    }
 
     void Initialize()
     {
@@ -39,7 +48,6 @@ public class ReplayManager : MonoBehaviour
 
     private void FetchValidSessions()
     {
-        //TODO: Make sure to catch null exceptions here in case there are no recorded sessions yet.
         var allSessions = FileSystemHandler.FetchAllSessions();
 
         foreach (var session in allSessions)
@@ -50,8 +58,9 @@ public class ReplayManager : MonoBehaviour
                 continue;
 
             validSessions.Add(session);
-            Debug.Log($"{session}");
         }
+        Debug.Log($"Valid Sessions:\n{validSessions.ToSeparatedString("\n")}");
+
     }
 
     private void SelectSession(int index)
@@ -79,6 +88,18 @@ public class ReplayManager : MonoBehaviour
             return;
         }
 
-        timeline = new ReplayTimeline();
+        GazePointManager.Instance.LoadGazePoints(selectedSession.GetGazePoints());
+    }
+
+    [ContextMenu("Begin Replay")]
+    public void BeginReplay()
+    {
+        //TODO: ONLY FOR DEBUG, remove this later!
+        SelectSession(validSessions.Count - 1);
+        LoadSelectedSession();
+        //TODO: ^^^^
+
+        Debug.Log($"Beginning Replay of Session {selectedSession}.");
+        // OnReplayBegin?.Invoke();
     }
 }

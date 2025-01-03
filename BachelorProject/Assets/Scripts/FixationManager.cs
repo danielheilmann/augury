@@ -5,7 +5,6 @@ using UnityEngine.Events;
 //TODO | Feature List:
 // 1. Distance check before creation of fixations to make sure fixations are not created right next to each other.
 // 2. Adaptive circle size based on amount of gazepoints in active group before fixation creation
-
 public class FixationManager : MonoBehaviour
 {
     //#> Static Variables 
@@ -15,16 +14,40 @@ public class FixationManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float distanceThreshold = 0.3f;
     [SerializeField] private int pointCountThresholdForFixationCreation = 5;  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
+    
     [Header("Visualization of Private Lists")]
     [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new(); //< Only serialized for visualization in editor
     [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new List<Fixation>(); //< Only serialized for visualization in editor
 
     private void OnEnable()
     {
-        GazePointManager.OnPointCreated.AddListener(EvaluateFixation);
+        SessionManager.OnRecordStart.AddListener(OnSessionStart);
+        SessionManager.OnRecordStop.AddListener(OnSessionStop);
+
+        SessionManager.OnReplayStart.AddListener(OnSessionStart);
+        SessionManager.OnReplayStop.AddListener(OnSessionStop);
     }
 
     private void OnDisable()
+    {
+        GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
+    }
+
+    private void OnDestroy() //?< Actually, there should never be a case where the manager would be destroyed before a session stop.
+    {
+        SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
+        SessionManager.OnRecordStop.RemoveListener(OnSessionStop);
+
+        SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
+        SessionManager.OnRecordStop.RemoveListener(OnSessionStop);
+    }
+
+    private void OnSessionStart()
+    {
+        GazePointManager.OnPointCreated.AddListener(EvaluateFixation);
+    }
+
+    private void OnSessionStop()
     {
         GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
     }

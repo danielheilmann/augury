@@ -40,7 +40,7 @@ public class GazePointManager : MonoBehaviour
         RayProvider.OnHit.RemoveListener(EvaluateRaycastHit);
     }
 
-    private void OnDestroy() //?< Actually, there should never be a case where the manager would be destroyed before a session stop.
+    private void OnDestroy() //?< Actually, there should never be a case where the manager would be destroyed before a session stop, but still.
     {
         SessionManager.OnRecordStart.RemoveListener(OnRecordSessionStart);
         SessionManager.OnRecordStop.RemoveListener(OnRecordSessionStop);
@@ -131,6 +131,18 @@ public class GazePointManager : MonoBehaviour
         return point;
     }
     #endregion
+
+    public void LoadGazePoint(DateTime timeStamp, Vector3 position, Vector3 surfaceNormal, DynamicObject dynObj = null)
+    {
+        SetPoint(timeStamp, position, surfaceNormal, dynObj);
+    }
+
+    public void LoadGazePoints(List<GazePoint> points)
+    {
+        this.points = points;
+        foreach (var point in points)
+            OnPointCreated.Invoke(point);
+    }
 
     /// <summary>
     /// Callback to draw gizmos that are pickable and always drawn.

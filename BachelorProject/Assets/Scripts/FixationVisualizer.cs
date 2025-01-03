@@ -9,7 +9,7 @@ public class FixationVisualizer : MonoBehaviour
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
     [SerializeField, ReadOnly] private List<GameObject> pool;
-    [SerializeField, ReadOnly] private List<FixationVisualization> fixationVisualizations; //< Could be converted into Dictionary<Fixation, Visualizer> if I do need the search capability later.
+    [SerializeField, ReadOnly] private List<FixationVisualization> visualizations; //< Could be converted into Dictionary<Fixation, Visualizer> if I do need the search capability later.
     private int currentIndex = 0;
 
     private void Awake()
@@ -26,11 +26,21 @@ public class FixationVisualizer : MonoBehaviour
             Debug.LogError($"No Prefab has been assigned to variable PointPrefab. Skipping creation of pool.");
     }
 
-    private void OnEnable() => FixationManager.OnFixationCreated.AddListener(Visualize);
+    private void OnEnable()
+    {
+        SessionManager.OnRecordStart.AddListener(Initialize);
+        SessionManager.OnReplayStart.AddListener(Initialize);
+        FixationManager.OnFixationCreated.AddListener(Visualize);
+    }
 
-    private void OnDisable() => FixationManager.OnFixationCreated.RemoveListener(Visualize);
+    private void OnDisable()
+    {
+        FixationManager.OnFixationCreated.RemoveListener(Visualize);
+        SessionManager.OnRecordStart.RemoveListener(Initialize);
+        SessionManager.OnReplayStart.RemoveListener(Initialize);
+    }
 
-    void Start()
+    private void Initialize()
     {
         if (prefab == null)
         {
@@ -38,7 +48,11 @@ public class FixationVisualizer : MonoBehaviour
             return;
         }
 
-        fixationVisualizations = new List<FixationVisualization>(poolSize);
+        if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
+            for (int i = pool.Count - 1; i >= 0 ; i--)
+                Destroy(pool[i]);
+
+        visualizations = new List<FixationVisualization>(poolSize);
         pool = new List<GameObject>(poolSize);
         for (int i = 0; i < poolSize; i++)
             IncreasePool();
@@ -48,7 +62,7 @@ public class FixationVisualizer : MonoBehaviour
     {
         GameObject go = Instantiate(prefab);
         pool.Add(go);
-        fixationVisualizations.Add(go.GetComponent<FixationVisualization>()); //< Caches the references to the FixationVisualizations immediately when the pool is created.
+        visualizations.Add(go.GetComponent<FixationVisualization>()); //< Caches the references to the FixationVisualizations immediately when the pool is created.
         go.transform.SetParent(this.transform);
         go.SetActive(false);
     }
@@ -72,6 +86,7 @@ public class FixationVisualizer : MonoBehaviour
         visualizationGO.SetActive(false);
         visualization.Configure(fixation, currentIndex);
         visualizationGO.SetActive(true);
+        // visualization.SetVisible(false);
     }
 
     //**~> Is already implemented to not use the pool.
@@ -86,6 +101,6 @@ public class FixationVisualizer : MonoBehaviour
 
         // if (!fixationVisualizations[index].isActiveAndEnabled) Debug.LogWarning($"Fetched disabled visualization do not proceed.");
         // if (fixationVisualizations[index] == null) Debug.LogWarning($"Fetched null visualization do not proceed.");
-        return fixationVisualizations[index];
+        return visualizations[index];
     }
 }
