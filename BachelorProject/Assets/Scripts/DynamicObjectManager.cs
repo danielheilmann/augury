@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class DynamicObjectManager : MonoBehaviour
 {
-    public static DynamicObjectManager Instance
+    public static DynamicObjectManager Instance //< To allow for DynamicObjects to generate unique IDs (in the editor) without having to start the application.
     {
         get
         {
@@ -20,15 +20,19 @@ public class DynamicObjectManager : MonoBehaviour
     private void Awake()
     {
         if (_Instance == null)
+        {
+            DontDestroyOnLoad(this);
             _Instance = this;
+        }
         else
         {
             Debug.LogError($"{this} cannot set itself as instance as one has already been set by {_Instance.gameObject}. Deleting self.");
-            foreach (var item in this.dynObjects)   //> Transfer all the entries from this manager object onto the already existing singleton instance before deleting self.
-                _Instance.dynObjects.TryAdd(item.Key, item.Value);
+            _Instance.RegisterAllDynamicObjectsInScene();
             Destroy(this);
         }
     }
+
+    private void Start() => RegisterAllDynamicObjectsInScene(); //< To make sure that all dynamic objects in the scene are registered, even ones that are currently inactive. While this cannot account for not-yet-instantiated DOs, these register themselves upon instantiation.
 
     public static DynamicObject GetByID(string id)
     {
