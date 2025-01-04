@@ -27,10 +27,13 @@ public class GazePointVisualizer : MonoBehaviour
 
     private void OnEnable()
     {
-        SessionManager.OnRecordStart.AddListener(Initialize);
-        SessionManager.OnReplayStart.AddListener(Initialize);
+        if (Settings.visualizeInRecordMode)
+        {
+            SessionManager.OnRecordStart.AddListener(Initialize);
+            SessionManager.OnRecordStop.AddListener(DeleteAllVisualizations);
+        }
 
-        SessionManager.OnRecordStop.AddListener(DeleteAllVisualizations);
+        SessionManager.OnReplayStart.AddListener(Initialize);
         SessionManager.OnReplayStop.AddListener(DeleteAllVisualizations);
 
         GazePointManager.OnPointCreated.AddListener(VisualizePoint);
@@ -44,9 +47,9 @@ public class GazePointVisualizer : MonoBehaviour
     private void OnDestroy()
     {
         SessionManager.OnRecordStart.RemoveListener(Initialize);
-        SessionManager.OnReplayStart.RemoveListener(Initialize);
-
         SessionManager.OnRecordStop.RemoveListener(DeleteAllVisualizations);
+
+        SessionManager.OnReplayStart.RemoveListener(Initialize);
         SessionManager.OnReplayStop.RemoveListener(DeleteAllVisualizations);
     }
 
