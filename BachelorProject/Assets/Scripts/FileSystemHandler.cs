@@ -270,15 +270,13 @@ public static class FileSystemHandler
             string sceneName = fileContentNode[KEY_SCENE_ID].Value;
             bool isDynamicObjectData = fileContentNode[KEY_DATATYPE].Value == KEY_DATAIDENTIFIER_DYNOBJ;
 
-            if (sessionCollection.ContainsKey(sessionIdentifier)) //< The dictionary simplifies this check. A list would require a loop to check for duplicates.
-            {
-                sessionCollection[sessionIdentifier].AddEntry(fileContentNode, isDynamicObjectData);
-            }
-            else
+            if (!sessionCollection.ContainsKey(sessionIdentifier)) //< Create a new session only if the collection does not contain one with that identifier already.
             {
                 SessionFileReference newSessionReference = new(sessionIdentifier, appVersion, sceneName, filePath);
-                sessionCollection.TryAdd(sessionIdentifier, newSessionReference);
+                sessionCollection.Add(sessionIdentifier, newSessionReference);
             }
+            //> Store entries in the respective session. This allows for multiple entries per session.
+            sessionCollection[sessionIdentifier].StoreJSONEntry((JSONObject)fileContentNode, isDynamicObjectData);
         }
         return sessionCollection.Values.ToList();
     }
