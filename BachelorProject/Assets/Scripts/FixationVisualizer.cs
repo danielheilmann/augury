@@ -2,17 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO: Instead of a Reuse-ObjectPool, this class should use the ObjectPool as a pregenerated cache to reduce frame overhead from constant instantiation. This one should expand automatically whenever it is full. Though maybe the cache isn't even necessary because fixations are not generated that often?
 //? This class is very similar to the GazePointVisualizer. Maybe they should be unified into one class? Or at least derive from a common base class?
 public class FixationVisualizer : MonoBehaviour
 {
     public static FixationVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
-    [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
-    [SerializeField, ReadOnly] private List<GameObject> pool;
-    [SerializeField, ReadOnly] private List<FixationVisualization> visualizations; //< Could be converted into Dictionary<Fixation, Visualizer> if I do need the search capability later.
+    [SerializeField] private int startingCapacity = 60; //< Is also used as the increment size for the pool.
+    [SerializeField, ReadOnly] private List<FixationVisualization> visualizations;
     private int currentIndex = 0;
 
+    #region Monobehaviour Methods
     private void Awake()
     {
         if (Instance == null)
@@ -54,6 +53,7 @@ public class FixationVisualizer : MonoBehaviour
         SessionManager.OnReplayStart.RemoveListener(Initialize);
         SessionManager.OnReplayStop.RemoveListener(DeleteAllVisualizations);
     }
+    #endregion
 
     private void Initialize()
     {
@@ -65,64 +65,59 @@ public class FixationVisualizer : MonoBehaviour
 
         DeleteAllVisualizations();
 
-        visualizations = new List<FixationVisualization>(poolSize);
-        pool = new List<GameObject>(poolSize);
-        for (int i = 0; i < poolSize; i++)
-            IncreasePool();
+        visualizations = new List<FixationVisualization>(startingCapacity);
+        FillPool();
 
         currentIndex = 0;
     }
 
     private void DeleteAllVisualizations()
     {
-        if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
-            for (int i = pool.Count - 1; i >= 0; i--)
-                Destroy(pool[i]);
+        if (visualizations.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
+            for (int i = visualizations.Count - 1; i >= 0; i--)
+                Destroy(visualizations[i].gameObject);
     }
 
-    public void IncreasePool() // This setup should ensure that the two lists (pool & FixationVisualizations) should be in sync in terms of indeces.
+    public void FillPool() //< This setup should ensure that the two lists (pool & FixationVisualizations) are always in sync in terms of indices.
     {
-        GameObject go = Instantiate(prefab);
-        pool.Add(go);
-        visualizations.Add(go.GetComponent<FixationVisualization>()); //< Caches the references to the FixationVisualizations immediately when the pool is created.
-        go.transform.SetParent(this.transform);
-        go.SetActive(false);
+        int emptyCapacity = visualizations.Capacity - visualizations.Count;
+        for (int i = 0; i < emptyCapacity; i++)
+        {
+            GameObject go = Instantiate(prefab);
+            visualizations.Add(go.GetComponent<FixationVisualization>()); //< Caches the references to the FixationVisualizations immediately when the pool is created.
+            go.transform.SetParent(this.transform);
+            go.SetActive(false);
+        }
     }
 
-    public void Visualize(Fixation fixation)
+    public void IncreasePoolSize(int amount)
     {
-        if (!this.gameObject.activeInHierarchy) //< Allows for the pool to be deactivated by disabling it in the hierarchy
-            return;
-
-        ConfigureVisualization(GetFixationVisualization(currentIndex), fixation);
-
-        if (currentIndex < poolSize - 1) currentIndex++;
-        else currentIndex = 0;  //< To loop back and overwrite old entries once the pool is full
+        Debug.Log($"Increasing pool size from {visualizations.Capacity} to {visualizations.Capacity + amount}.");
+        visualizations.Capacity += amount;
+        FillPool();
     }
 
     //TODO: Implement a way to adapt the scale of the fixation circle based on the amount of fixations points / fixation duration.
-    private void ConfigureVisualization(FixationVisualization visualization, Fixation fixation)
+    public void Visualize(Fixation fixation)
     {
-        GameObject visualizationGO = visualization.gameObject;
+        visualizations[currentIndex]
+            .Configure(fixation, currentIndex)
+            .gameObject.SetActive(true);
 
-        visualizationGO.SetActive(false);
-        visualization.Configure(fixation, currentIndex);
-        visualizationGO.SetActive(true);
-        // visualization.SetVisible(false);
+        currentIndex++;
+
+        if (currentIndex >= visualizations.Capacity - 1)
+            IncreasePoolSize(startingCapacity);
     }
 
-    //**~> Is already implemented to not use the pool.
     public FixationVisualization GetFixationVisualization(int index)
     {
-        //> Looping around index to work with the pool 
-        //TODO: This does not account for disabled & overwritten objects in the pool yet
-        if (index < 0) index = pool.Count - 1;
-        else if (index > pool.Count - 1) index %= poolSize; //TODO: This so needs to be reworked!
-        //> Alternative:
-        // if (index <= 0 || index >= fixationVisualizations.Count - 1) return null; //< To prevent trying to access out-of-bounds values
+        if (index < 0 || index > visualizations.Count - 1)  //< To prevent trying to access out-of-bounds values
+        {
+            Debug.LogWarning($"Index {index} is out of bounds. Returning null.");
+            return null;
+        }
 
-        // if (!fixationVisualizations[index].isActiveAndEnabled) Debug.LogWarning($"Fetched disabled visualization do not proceed.");
-        // if (fixationVisualizations[index] == null) Debug.LogWarning($"Fetched null visualization do not proceed.");
         return visualizations[index];
     }
 }

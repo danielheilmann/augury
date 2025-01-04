@@ -556,7 +556,7 @@ MonoBehaviour:
   _deviceMode: 0
   _expectedSessionRuntimeInMinutes: 4
   _visualizeInRecordMode: 1
-  _skipSavingDataToFile: 0
+  _skipSavingDataToFile: 1
   _openExplorerOnSave: 0
   _prettyJSONExport: 0
 --- !u!114 &194419862
@@ -1519,8 +1519,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 3505965556154532284, guid: 3ac6886de6fe7744899ae101c8c9067a, type: 3}
-  poolSize: 60
-  pool: []
+  startingCapacity: 60
   visualizations: []
 --- !u!114 &1758472402
 MonoBehaviour:

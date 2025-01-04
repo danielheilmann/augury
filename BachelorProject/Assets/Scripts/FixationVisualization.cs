@@ -24,7 +24,7 @@ public class FixationVisualization : MonoBehaviour
 
         line.positionCount = 2;
         line.SetPosition(0, Vector3.zero);
-        SetLineDestination(Vector3.zero); //< This way, if both pos 0 and 1 are Vector3.zero (the origin of this gameobject), resulting in no line being drawn.
+        line.SetPosition(1, Vector3.zero); //< This way, if both pos 0 and 1 are Vector3.zero (the origin of this gameobject), resulting in no line being drawn.
     }
 
     private void OnDisable() => RequestNextFixationLineUpdate(); //< To remove the line to the next fixation when this one is disabled.
@@ -70,21 +70,22 @@ public class FixationVisualization : MonoBehaviour
 
     private void UpdateLineToPrecedingFixation()
     {
-        if (fid <= 0)  //< Reset line to zero if this is the first fixation or if the fixation is not set.
+        if (fid <= 0)  //< Simply reset line to zero if this is the first fixation or if the fixation is not set.
         {
-            SetLineDestination(Vector3.zero);
+            line.SetPosition(1, Vector3.zero);
             return;
         }
         FixationVisualization precedingFixation = FixationVisualizer.Instance.GetFixationVisualization(fid - 1);
 
-        if (!precedingFixation.isActiveAndEnabled)  //< If the preceding fixation is not active, do not draw a line to it.
+        //> If the preceding fixation is not active, do not draw a line to it. 
+        //  The null check should not be necessary, as the only FixationVisualization with a null predecessor should be the first one, which is already covered by the guard clause above. But just in case a FixationVisualization gets obliterated, this should prevent any errors.
+        if (precedingFixation == null || !precedingFixation.isActiveAndEnabled)
         {
             SetLineDestination(Vector3.zero);
             return;
         }
 
-        Vector3 vectorToPrecedingFixation = precedingFixation.transform.position - this.transform.position;
-        SetLineDestination(vectorToPrecedingFixation);
+        SetLineDestination(precedingFixation.transform.position);
     }
 
     private void RequestNextFixationLineUpdate()
@@ -96,5 +97,7 @@ public class FixationVisualization : MonoBehaviour
             nextFixation.UpdateLineToPrecedingFixation(); //< To propagate the changes to the next one as well (but only if there is another visualization after the current one)
     }
 
-    private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination);
+    /// <summary> Configures the line renderer so it points towards the given destination. </summary>
+    /// <param name="destination"> The position vector of the target location. </param>
+    private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination - this.transform.position);
 }
