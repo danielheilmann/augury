@@ -64,9 +64,14 @@ public class GazePointManager : MonoBehaviour
     }
     #endregion
 
-    private void Initialize()   //< Cannot be named "Reset()" as that is a Monobehaviour method which is run between OnEnable and Start.
+    private void Initialize()
     {
-        pointCapacity = Mathf.RoundToInt(Settings.expectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
+        int expectedRequiredCapacity = Mathf.RoundToInt(Settings.expectedSessionRuntimeInMinutes * 60 * Timer.ticksPerSecond); //< e.g. a capacity of 6000 corresponds to 5 Minutes at 20 Ticks/s.
+        InitializeWithCustomCapacity(expectedRequiredCapacity);
+    }
+    public void InitializeWithCustomCapacity(int capacity)
+    {
+        pointCapacity = capacity;
         points = new List<GazePoint>(pointCapacity);
         for (int i = 0; i < pointCapacity; i++)
             points.Add(new GazePoint());
@@ -93,7 +98,6 @@ public class GazePointManager : MonoBehaviour
         DateTime timeStamp = Timer.latestTimestamp;  //?: Maybe I should store the realtimesincestartup instead, as it would be less data (probably) and is definitely more relevant for the replay feature.
 
         SetPoint(timeStamp, globalPosition, hitNormal, connectedDynObj);
-        currentIndex++;
 
         //> Automatically increase GazePoint list size whenever necessary.
         if (currentIndex >= pointCapacity)
@@ -120,8 +124,10 @@ public class GazePointManager : MonoBehaviour
         GazePoint point;
 
         point = points[index].Set(timeStamp, globalPosition, surfaceNormal, dynObj);
-            // Debug.Log($"{timeStamp.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
+        // Debug.Log($"{timeStamp.ToString(FileSystemHandler.TimestampFormat, System.Globalization.CultureInfo.InvariantCulture)} | Created Global Point at {position}.");
         OnPointCreated.Invoke(point);
+
+        currentIndex++;
         return point;
     }
     #endregion
@@ -130,31 +136,4 @@ public class GazePointManager : MonoBehaviour
     {
         SetPoint(timeStamp, position, surfaceNormal, dynObj);
     }
-
-    public void LoadGazePoints(List<GazePoint> points)
-    {
-        this.points = points;
-        foreach (var point in points)
-            OnPointCreated.Invoke(point);
-    }
-
-    /// <summary>
-    /// Callback to draw gizmos that are pickable and always drawn.
-    /// </summary>
-    // private void OnDrawGizmos()
-    // {
-    //     foreach (var point in points)
-    //     {
-    //         if (point.attachedToDynObj)
-    //         {
-    //             Gizmos.color = Color.blue;
-    //             Gizmos.DrawSphere(point.position + point.attachedToDynObj.transform.position, 0.2f);
-    //         }
-    //         else
-    //         {
-    //             Gizmos.color = Color.yellow;
-    //             Gizmos.DrawSphere(point.position, 0.2f);
-    //         }
-    //     }
-    // }
 }

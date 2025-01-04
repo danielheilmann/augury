@@ -5,7 +5,7 @@ using UnityEngine;
 [DefaultExecutionOrder(1)]
 public class RecordManager : MonoBehaviour
 {
-    private const string FileNameSafeTimeFormat = "yyyy-MM-dd_HH-mm-ss"; //< Ensures system file name compliance by using dashes as delimiter characters.
+    public const string FileNameSafeTimeFormat = "yyyy-MM-dd_HH-mm-ss"; //< Ensures system file name compliance by using dashes as delimiter characters.
 
     public static RecordManager Instance { get; private set; } //< To ensure sessionStartTime is not accidentally overwritten during e.g. a scene change (into a scene that also contains a SessionManager).
     public static DateTime sessionStartTime { get; private set; }

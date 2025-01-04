@@ -36,40 +36,47 @@ public class ReplayManager : MonoBehaviour
     private void OnEnable()
     {
         SessionManager.OnReplayStart.AddListener(Initialize);
+        SessionManager.OnReplayStop.AddListener(Clear);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         SessionManager.OnReplayStart.RemoveListener(Initialize);
+        SessionManager.OnReplayStop.RemoveListener(Clear);
     }
 
-    void Initialize()
+    private void Clear()
     {
         isActivelyReplaying = false;
         isPaused = false;
 
-        validSessions = new List<SessionFileReference>();
         selectedSession = null;
-        timeline = null;
+        if (timeline != null)
+            Destroy(timeline);
 
-        FetchValidSessions();
+        validSessions = null;
     }
 
-    private void FetchValidSessions()
+    void Initialize()
     {
-        var allSessions = FileSystemHandler.FetchAllSessions();
+        Clear();
+        validSessions = FetchValidSessions();
+    }
 
+    private List<SessionFileReference> FetchValidSessions()
+    {
+        List<SessionFileReference> onlyValidSessions = new();
+
+        var allSessions = FileSystemHandler.FetchAllSessions();
         foreach (var session in allSessions)
         {
-            if (session.appVersion != Application.version)
-                continue;
-            else if (session.sceneName != SceneManager.GetActiveScene().name)
-                continue;
+            if (session.appVersion != Application.version) continue;
+            if (session.sceneName != SceneManager.GetActiveScene().name) continue;
 
-            validSessions.Add(session);
+            onlyValidSessions.Add(session);
         }
-        Debug.Log($"Valid Sessions:\n{validSessions.ToSeparatedString("\n")}");
-
+        Debug.Log($"Fetched the following valid sessions:\n{onlyValidSessions.ToSeparatedString("\n")}");
+        return onlyValidSessions;
     }
 
     public void SelectSession(int index)
@@ -93,25 +100,44 @@ public class ReplayManager : MonoBehaviour
     {
         if (selectedSession == null)
         {
-            Debug.LogWarning("No session selected.");
+            Debug.LogWarning("No session selected. Please select a session and try again.");
             return;
         }
 
-        GazePointManager.Instance.LoadGazePoints(selectedSession.GetGazePoints());
+        timeline = gameObject.AddComponent<ReplayTimeline>();
+
+        timeline.GenerateActionsFromGazePointsJSON(selectedSession.gazePointsJSON);
+
+        foreach (var dynObjJSON in selectedSession.dynamicObjectJSONs)
+            timeline.GenerateActionsFromDynamicObjectJSON(dynObjJSON);
+
+        timeline.Initialize(selectedSession.sessionStartTime);
+        timeline.OnTimelineFinished.AddListener(OnReplayFinished);
+
+        Debug.Log($"Loaded Session: {selectedSession}");
     }
 
     [ContextMenu("Begin Replay")]
     public void BeginReplay()
     {
-        Debug.Log($"Beginning Replay of Session {selectedSession}.");
+        Debug.Log($"Beginning Replay of Session \"{selectedSession}\"");
         isActivelyReplaying = true;
+        timeline.Play();
         // OnReplayBegin?.Invoke();
+    }
+
+    private void OnReplayFinished()
+    {
+        Debug.Log($"Finished Replay of Session \"{selectedSession}\"");
+        timeline.OnTimelineFinished.RemoveListener(OnReplayFinished);
+        Clear();  //< Delete Timeline and reset all values once the replay has finished.
     }
 
     [ContextMenu("Pause Replay")]
     public void PauseReplay()
     {
         Debug.Log("Pausing Replay.");
+        timeline.Pause();
         isPaused = true;
         // OnReplayPause?.Invoke();
     }
@@ -121,6 +147,7 @@ public class ReplayManager : MonoBehaviour
     {
         Debug.Log("Unpausing Replay.");
         isPaused = false;
+        timeline.Play();
         // OnReplayUnpause?.Invoke();
     }
 }
