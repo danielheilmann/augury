@@ -7,7 +7,8 @@ public class Timer : MonoBehaviour
 {
     public static Timer Instance { get; private set; }  //< To prevent multiple timers triggering the OnTick event in a single scene.
     public static UnityEvent OnTick { get; private set; } = new();
-    public static float ticksPerSecond { get; private set; } = 10;
+    [SerializeField] private float _ticksPerSecond = 10;
+    public static float ticksPerSecond => Instance._ticksPerSecond;  //< To allow for readonly access from other classes.
     public static DateTime latestTimestamp { get; private set; }
 
     private float waitTime;
@@ -26,7 +27,7 @@ public class Timer : MonoBehaviour
 
     public void Begin()
     {
-        waitTime = 1 / ticksPerSecond;
+        waitTime = 1 / _ticksPerSecond;
         coroutine = StartCoroutine(Tick());
     }
 
