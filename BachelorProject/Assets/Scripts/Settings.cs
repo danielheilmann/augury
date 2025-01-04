@@ -19,7 +19,6 @@ public class Settings : MonoBehaviour
     /// <summary> Turning this off disables pretty formatting in all generated JSON files, which will reduce file size and is therefore recommended. Possible values: 0 (off), 1 (on) </summary>
     public static bool prettyJSONExport { get; private set; } = false;
 
-#if UNITY_EDITOR    //! I am not sure, but this may completely remove any overrides from the build, which is not the intention.
     [Header("Global Setting Overrides")]
     [SerializeField] private DeviceMode _deviceMode = DeviceMode.XR;
     [Tooltip("Enabling this skips the \"writing to file\" step of the saving system. Mostly for debug purposes so that the application does not constantly create new files while running tests for unrelated features.")]
@@ -56,5 +55,4 @@ public class Settings : MonoBehaviour
         expectedSessionRuntimeInMinutes = _expectedSessionRuntimeInMinutes;
         prettyJSONExport = _prettyJSONExport;
     }
-#endif
 }
