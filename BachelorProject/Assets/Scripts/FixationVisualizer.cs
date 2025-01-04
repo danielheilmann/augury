@@ -9,7 +9,7 @@ public class FixationVisualizer : MonoBehaviour
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 60; //< Determines how many datapoints will be visible at the same time / concurrently
     [SerializeField, ReadOnly] private List<GameObject> pool;
-    [SerializeField, ReadOnly] private List<FixationVisualization> fixationVisualizations; //< Could be converted into Dictionary<Fixation, Visualizer> if I do need the search capability later.
+    [SerializeField, ReadOnly] private List<FixationVisualization> visualizations; //< Could be converted into Dictionary<Fixation, Visualizer> if I do need the search capability later.
     private int currentIndex = 0;
 
     private void Awake()
@@ -26,11 +26,35 @@ public class FixationVisualizer : MonoBehaviour
             Debug.LogError($"No Prefab has been assigned to variable PointPrefab. Skipping creation of pool.");
     }
 
-    private void OnEnable() => FixationManager.OnFixationCreated.AddListener(Visualize);
+    private void OnEnable()
+    {
+        if (Settings.visualizeInRecordMode)
+        {
+            SessionManager.OnRecordStart.AddListener(Initialize);
+            SessionManager.OnRecordStop.AddListener(DeleteAllVisualizations);
+        }
 
-    private void OnDisable() => FixationManager.OnFixationCreated.RemoveListener(Visualize);
+        SessionManager.OnReplayStart.AddListener(Initialize);
+        SessionManager.OnReplayStop.AddListener(DeleteAllVisualizations);
 
-    void Start()
+        FixationManager.OnFixationCreated.AddListener(Visualize);
+    }
+
+    private void OnDisable()
+    {
+        FixationManager.OnFixationCreated.RemoveListener(Visualize);
+    }
+
+    private void OnDestroy()
+    {
+        SessionManager.OnRecordStart.RemoveListener(Initialize);
+        SessionManager.OnRecordStop.RemoveListener(DeleteAllVisualizations);
+
+        SessionManager.OnReplayStart.RemoveListener(Initialize);
+        SessionManager.OnReplayStop.RemoveListener(DeleteAllVisualizations);
+    }
+
+    private void Initialize()
     {
         if (prefab == null)
         {
@@ -38,17 +62,28 @@ public class FixationVisualizer : MonoBehaviour
             return;
         }
 
-        fixationVisualizations = new List<FixationVisualization>(poolSize);
+        DeleteAllVisualizations();
+
+        visualizations = new List<FixationVisualization>(poolSize);
         pool = new List<GameObject>(poolSize);
         for (int i = 0; i < poolSize; i++)
             IncreasePool();
+
+        currentIndex = 0;
+    }
+
+    private void DeleteAllVisualizations()
+    {
+        if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
+            for (int i = pool.Count - 1; i >= 0; i--)
+                Destroy(pool[i]);
     }
 
     public void IncreasePool() // This setup should ensure that the two lists (pool & FixationVisualizations) should be in sync in terms of indeces.
     {
         GameObject go = Instantiate(prefab);
         pool.Add(go);
-        fixationVisualizations.Add(go.GetComponent<FixationVisualization>()); //< Caches the references to the FixationVisualizations immediately when the pool is created.
+        visualizations.Add(go.GetComponent<FixationVisualization>()); //< Caches the references to the FixationVisualizations immediately when the pool is created.
         go.transform.SetParent(this.transform);
         go.SetActive(false);
     }
@@ -72,6 +107,7 @@ public class FixationVisualizer : MonoBehaviour
         visualizationGO.SetActive(false);
         visualization.Configure(fixation, currentIndex);
         visualizationGO.SetActive(true);
+        // visualization.SetVisible(false);
     }
 
     //**~> Is already implemented to not use the pool.
@@ -80,12 +116,12 @@ public class FixationVisualizer : MonoBehaviour
         //> Looping around index to work with the pool 
         //TODO: This does not account for disabled & overwritten objects in the pool yet
         if (index < 0) index = pool.Count - 1;
-        else if (index > pool.Count - 1) index %= poolSize;
+        else if (index > pool.Count - 1) index %= poolSize; //TODO: This so needs to be reworked!
         //> Alternative:
         // if (index <= 0 || index >= fixationVisualizations.Count - 1) return null; //< To prevent trying to access out-of-bounds values
 
         // if (!fixationVisualizations[index].isActiveAndEnabled) Debug.LogWarning($"Fetched disabled visualization do not proceed.");
         // if (fixationVisualizations[index] == null) Debug.LogWarning($"Fetched null visualization do not proceed.");
-        return fixationVisualizations[index];
+        return visualizations[index];
     }
 }

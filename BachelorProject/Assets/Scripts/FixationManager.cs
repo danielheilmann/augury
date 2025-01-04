@@ -2,22 +2,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+//TODO | Feature List:
+// 1. Distance check before creation of fixations to make sure fixations are not created right next to each other.
+// 2. Adaptive circle size based on amount of gazepoints in active group before fixation creation
 public class FixationManager : MonoBehaviour
 {
-    //#> Constants 
-    [SerializeField] private const float distanceThreshold = 0.3f;  //< Tweakable
-    [SerializeField] private const int pointCountThresholdForFixationCreation = 5;  //< Tweakable  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
-
     //#> Static Variables 
     public static UnityEvent<Fixation> OnFixationCreated = new();
 
     //#> Private Variables 
-    [SerializeField] private List<GazePoint> activeGazePointGroup = new(); //< Only serialized for visualization in editor
-    [SerializeField] private List<Fixation> fixations = new List<Fixation>(); //< Only serialized for visualization in editor
+    [Header("Settings")]
+    [SerializeField] private float distanceThreshold = 0.3f;
+    [SerializeField] private int pointCountThresholdForFixationCreation = 5;  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
+
+    [Header("Visualization of Private Lists")]  //> Only serialized for visualization in editor
+    [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new();
+    [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new();
 
     private void OnEnable()
     {
-        GazePointManager.OnPointCreated.AddListener(EvaluateFixation);
+        if (Settings.visualizeInRecordMode)  //< No need to evaluate fixations if they are not going to be visualized.
+        {
+            SessionManager.OnRecordStart.AddListener(OnSessionStart);
+            SessionManager.OnRecordStop.AddListener(OnSessionStop);
+        }
+
+        SessionManager.OnReplayStart.AddListener(OnSessionStart);
+        SessionManager.OnReplayStop.AddListener(OnSessionStop);
     }
 
     private void OnDisable()
@@ -25,12 +36,40 @@ public class FixationManager : MonoBehaviour
         GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
     }
 
+    private void OnDestroy() //> Unsubscribe from all events to prevent null reference exceptions
+    {
+        SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
+        SessionManager.OnRecordStop.RemoveListener(OnSessionStop);
+
+        SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
+        SessionManager.OnRecordStop.RemoveListener(OnSessionStop);
+    }
+
+    private void OnSessionStart()
+    {
+        GazePointManager.OnPointCreated.AddListener(EvaluateFixation);
+    }
+
+    private void OnSessionStop()
+    {
+        Clear();
+        GazePointManager.OnPointCreated.RemoveListener(EvaluateFixation);
+    }
+
+    private void Clear()
+    {
+        //?> Maybe using .Clear() is better than creating a new list every time in terms of memory management?
+        activeGazePointGroup.Clear();
+        fixations.Clear();
+    }
+
     #region Create Fixation
     private void EvaluateFixation(GazePoint gazePoint)
     {
         Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
+        bool evaluationTerminationCondition = Vector3.Distance(gazePoint.globalPosition, currentFixationGroupAveragePosition) > distanceThreshold || IsOnDifferentDynObj(gazePoint.dynObjID);
 
-        if (Vector3.Distance(gazePoint.position, currentFixationGroupAveragePosition) > distanceThreshold || IsDifferentIDthanLastEntry(gazePoint.dynObjID))
+        if (evaluationTerminationCondition)
         {
             if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active newFixation group into a newFixation, but only if it contains enough points.
             {
@@ -49,7 +88,7 @@ public class FixationManager : MonoBehaviour
         Vector3 sum = Vector3.zero;
 
         foreach (GazePoint point in gazePoints)
-            sum += point.position;
+                sum += point.globalPosition;
 
         return sum /= gazePoints.Count;
     }
@@ -64,14 +103,14 @@ public class FixationManager : MonoBehaviour
         return sum /= gazePoints.Count;
     }
 
-    private void CreateFixation(Vector3 fixationPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj = null)
+    private void CreateFixation(Vector3 globalPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj = null)
     {
-        Fixation newFixation = new Fixation(fixationPosition, surfaceNormal, fixationIndex, dynamicObject: dynObj);
+        Fixation newFixation = new Fixation(globalPosition, surfaceNormal, fixationIndex, dynamicObject: dynObj);
         fixations.Add(newFixation);
         OnFixationCreated.Invoke(newFixation);
     }
 
-    private bool IsDifferentIDthanLastEntry(int id)
+    private bool IsOnDifferentDynObj(string id)
     {
         if (activeGazePointGroup.Count > 0)
             return id != activeGazePointGroup[activeGazePointGroup.Count - 1].dynObjID;

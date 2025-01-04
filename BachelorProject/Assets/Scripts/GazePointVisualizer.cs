@@ -24,8 +24,18 @@ public class GazePointVisualizer : MonoBehaviour
             Debug.LogError($"No Prefab has been assigned to variable PointPrefab. Skipping creation of pool.");
     }
 
+
     private void OnEnable()
     {
+        if (Settings.visualizeInRecordMode)
+        {
+            SessionManager.OnRecordStart.AddListener(Initialize);
+            SessionManager.OnRecordStop.AddListener(DeleteAllVisualizations);
+        }
+
+        SessionManager.OnReplayStart.AddListener(Initialize);
+        SessionManager.OnReplayStop.AddListener(DeleteAllVisualizations);
+
         GazePointManager.OnPointCreated.AddListener(VisualizePoint);
     }
 
@@ -34,15 +44,37 @@ public class GazePointVisualizer : MonoBehaviour
         GazePointManager.OnPointCreated.RemoveListener(VisualizePoint);
     }
 
-    void Start()
+    private void OnDestroy()
+    {
+        SessionManager.OnRecordStart.RemoveListener(Initialize);
+        SessionManager.OnRecordStop.RemoveListener(DeleteAllVisualizations);
+
+        SessionManager.OnReplayStart.RemoveListener(Initialize);
+        SessionManager.OnReplayStop.RemoveListener(DeleteAllVisualizations);
+    }
+
+    private void Initialize()
     {
         if (prefab == null)
-            return;
-
-        for (int i = 0; i < poolSize; i++)
         {
-            IncreasePool();
+            Debug.LogError($"{this} does not contain a valid prefab. Please stop the application and assign a prefab.");
+            return;
         }
+
+        DeleteAllVisualizations();
+
+        pool = new List<GameObject>(poolSize);
+        for (int i = 0; i < poolSize; i++)
+            IncreasePool();
+
+        currentIndex = 0;
+    }
+
+    private void DeleteAllVisualizations()
+    {
+        if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
+            for (int i = pool.Count - 1; i >= 0; i--)
+                Destroy(pool[i]);
     }
 
     public void IncreasePool()
@@ -63,7 +95,7 @@ public class GazePointVisualizer : MonoBehaviour
         string goName = point.isLocal ? $"{point.dynamicObject.name} {point.position.ToString()}" : point.position.ToString();
 
         visualizerGO.transform.SetParent(null);
-        visualizerGO.transform.position = point.position;
+        visualizerGO.transform.position = point.globalPosition;
         visualizerGO.transform.localScale = Vector3.one;    //< To reset scale in case a dynamic object was scaled after this point was attached (which leads to the point itself being scaled as well).
         visualizerGO.transform.SetParent(goParent, true);
         visualizerGO.name = goName;

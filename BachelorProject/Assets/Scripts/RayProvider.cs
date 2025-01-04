@@ -9,9 +9,10 @@ public class RayProvider : MonoBehaviour
 {
     public static UnityEvent<RaycastHit> OnHit = new();
 
-    private void OnEnable() => Timer.OnTick.AddListener(ShootRay);
-
-    private void OnDisable() => Timer.OnTick.RemoveListener(ShootRay);
+    private void OnEnable() => SessionManager.OnRecordStart.AddListener(OnRecordSessionStart);
+    private void OnDisable() => SessionManager.OnRecordStart.RemoveListener(OnRecordSessionStart);
+    private void OnRecordSessionStart() => Timer.OnTick.AddListener(ShootRay);
+    private void OnRecordSessionStop() => Timer.OnTick.RemoveListener(ShootRay);
 
     private void ShootRay()
     {
