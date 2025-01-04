@@ -32,6 +32,8 @@ public static class FileSystemHandler
     public const string KEY_DYNOBJ_ID = "dynObjID";
     public const string KEY_SURFACENORMAL = "surfaceNormal";
     public const string KEY_POSITION = "position";
+    public const string KEY_ROTATION = "rotation";
+    public const string KEY_SCALE = "scale";
 
     //> JSON-Array Identification Constants
     public const string KEY_GAZEPOINTS = "gazepoints";
@@ -138,10 +140,10 @@ public static class FileSystemHandler
         {
             JSONObject timestampedPosition = new JSONObject();
 
-            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
-            JSONArray position = Vector3ToJSONArray(entry.Value);
+            timestampedPosition.Add(KEY_TIMESTAMP, entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture));
 
-            timestampedPosition.Add(timestamp, position);
+            JSONArray position = Vector3ToJSONArray(entry.Value);
+            timestampedPosition.Add(KEY_POSITION, position);
 
             positionHist.Add(timestampedPosition);
         }
@@ -153,18 +155,18 @@ public static class FileSystemHandler
         Dictionary<DateTime, Quaternion> rotationDictionary = dynamicObject.rotationHistory;
         foreach (var entry in rotationDictionary) //< Are they even sorted in this case?
         {
-            JSONObject timestampedPosition = new JSONObject();
+            JSONObject timestampedRotation = new JSONObject();
 
-            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
+            timestampedRotation.Add(KEY_TIMESTAMP, entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture));
+
             JSONArray rotation = new JSONArray();
             rotation.Add(entry.Value.x);
             rotation.Add(entry.Value.y);
             rotation.Add(entry.Value.z);
             rotation.Add(entry.Value.w);
+            timestampedRotation.Add(KEY_ROTATION, rotation);
 
-            timestampedPosition.Add(timestamp, rotation);
-
-            rotationHist.Add(timestampedPosition);
+            rotationHist.Add(timestampedRotation);
         }
         output.Add(KEY_ROTATIONHISTORY, rotationHist);
         #endregion
@@ -174,14 +176,14 @@ public static class FileSystemHandler
         Dictionary<DateTime, Vector3> scaleDictionary = dynamicObject.scaleHistory;
         foreach (var entry in scaleDictionary) //< Are they even sorted in this case?
         {
-            JSONObject timestampedPosition = new JSONObject();
+            JSONObject timestampedScale = new JSONObject();
 
-            string timestamp = entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture);
+            timestampedScale.Add(KEY_TIMESTAMP, entry.Key.ToString(TimestampFormat, CultureInfo.InvariantCulture));
+
             JSONArray scale = Vector3ToJSONArray(entry.Value);
+            timestampedScale.Add(KEY_SCALE, scale);
 
-            timestampedPosition.Add(timestamp, scale);
-
-            scaleHist.Add(timestampedPosition);
+            scaleHist.Add(timestampedScale);
         }
         output.Add(KEY_SCALEHISTORY, scaleHist);
         #endregion
@@ -205,7 +207,7 @@ public static class FileSystemHandler
 
         return array;
     }
-    
+
     /// <summary></summary>
     /// <param name="array">A JSONArray containing x,y,z values for a Vector3</param>
     /// <returns>A Vector3 constructed from the first three values in the JSONArray</returns>
@@ -255,7 +257,6 @@ public static class FileSystemHandler
     #region Reading Data
     public static List<SessionFileReference> FetchAllSessions()
     {
-        Debug.Log($"Reading data directory to fetch sessions...");
         Dictionary<string, SessionFileReference> sessionCollection = new();
 
         string[] filePaths = Directory.GetFiles(DataDirectoryName, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
