@@ -12,6 +12,15 @@ public class DynamicObject : MonoBehaviour
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> scaleHistory = new();
 
+    //> Rigidbody Data & References
+    Rigidbody rb;
+    private bool wasKinematicByDefault = false; //< To store the default state of the Rigidbody to revert to after replaying.
+
+    private void Awake()
+    {
+        rb = GetComponentInChildren<Rigidbody>();
+    }
+
     private void Start()
     {
         DynamicObjectManager.Register(this); //< To re-register in case this object was deleted or the manager had changed scenes.
@@ -20,12 +29,15 @@ public class DynamicObject : MonoBehaviour
     private void OnEnable()
     {
         Timer.OnTick.AddListener(OnTimerTick);
-        SessionManager.OnRecordStart.AddListener(OnSessionStart);
-        SessionManager.OnRecordStop.AddListener(OnSessionStop);
+        SessionManager.OnRecordStart.AddListener(OnRecordSessionStart);
+        SessionManager.OnRecordStop.AddListener(OnRecordSessionStop);
+
+        SessionManager.OnReplayStart.AddListener(OnReplaySessionStart);
+        SessionManager.OnReplayStop.AddListener(OnReplaySessionStop);
 
         //> Just in case for if this object was disabled (or not instantiated yet) when the recording session was started.
         if (SessionManager.currentMode == SessionManager.DataMode.Record)
-            OnSessionStart();
+            OnRecordSessionStart();
     }
 
     private void OnDisable()
@@ -38,16 +50,29 @@ public class DynamicObject : MonoBehaviour
 
     private void OnDestroy()
     {
-        SessionManager.OnRecordStart.RemoveListener(OnSessionStart);  //< To prevent null exceptions
-        SessionManager.OnRecordStop.RemoveListener(OnSessionStop);  //< To prevent null exceptions
+        //> To prevent null exceptions
+        SessionManager.OnRecordStart.RemoveListener(OnRecordSessionStart);
+        SessionManager.OnRecordStop.RemoveListener(OnRecordSessionStop);
+
+        SessionManager.OnReplayStart.RemoveListener(OnReplaySessionStart);
+        SessionManager.OnReplayStop.RemoveListener(OnReplaySessionStop);
 
         //> If this object is deleted (e.g. as part of the game mechanics) while a recording session is still in progress, save to file immediately
         if (SessionManager.currentMode == SessionManager.DataMode.Record)
-            OnSessionStop();
+            OnRecordSessionStop();
     }
 
-    private void OnSessionStart() => Initialize();
-    private void OnSessionStop() => FileSystemHandler.SaveDynamicObject(this);
+    private void OnRecordSessionStart() => Initialize();
+    private void OnRecordSessionStop() => FileSystemHandler.SaveDynamicObject(this);
+    private void OnReplaySessionStart()
+    {
+        wasKinematicByDefault = rb.isKinematic;
+        rb.isKinematic = true; //< To prevent physics from interfering with the replay movement.
+    }
+    private void OnReplaySessionStop()
+    {
+        rb.isKinematic = wasKinematicByDefault;
+    }
 
     private void Initialize()
     {
