@@ -65,7 +65,7 @@ public class ReplayTimeline : MonoBehaviour
         JSONArray JSONScaleHistory = dynamicObjectJSON[FileSystemHandler.KEY_SCALEHISTORY].AsArray;
         timeline.Capacity += JSONPositionHistory.Count + JSONRotationHistory.Count + JSONScaleHistory.Count; //< Pre-allocate memory for the timeline to avoid resizing during playback.
 
-        #region Position Actions
+        #region Load Position Actions
         foreach (KeyValuePair<string, JSONNode> entry in JSONPositionHistory)
         {
             JSONNode item = entry.Value;
@@ -77,7 +77,7 @@ public class ReplayTimeline : MonoBehaviour
         }
         #endregion
 
-        #region Rotation Actions
+        #region Load Rotation Actions
         foreach (KeyValuePair<string, JSONNode> entry in JSONRotationHistory)
         {
             JSONNode item = entry.Value;
@@ -89,7 +89,7 @@ public class ReplayTimeline : MonoBehaviour
         }
         #endregion
 
-        #region Scale Actions
+        #region Load Scale Actions
         foreach (KeyValuePair<string, JSONNode> entry in JSONScaleHistory)
         {
             JSONNode item = entry.Value;
@@ -189,7 +189,7 @@ public class ReplayTimeline : MonoBehaviour
 
     private void ProcessDOAction(ReplayActionDO action)
     {
-        DynamicObject dynamicObject = action.referenceDynObj;
+        DynamicObject dynamicObject = action.dynamicObjectReference;
 
         //> Only update the respective transform variable if the action actually contains a new value.
         if (action.updatedPosition.HasValue)
