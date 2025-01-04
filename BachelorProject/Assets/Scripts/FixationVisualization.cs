@@ -74,7 +74,11 @@ public class FixationVisualization : MonoBehaviour
     #region DynamicObject Update Event Handlers
     private void OnDynamicObjectPositionUpdate() => UpdateLine();
     private void OnDynamicObjectRotationUpdate() => UpdateLine();
-    private void OnDynamicObjectScaleUpdate() => Debug.LogWarning("Not implemented yet.");
+    private void OnDynamicObjectScaleUpdate()
+    {
+        UpdateLine(); //< Because changing the scale of the object will likely change the position of the fixation point attached to its surface.
+        //TODO: Implement counter-scaling of canvas here to keep the visualization bubble the same size, even when the DynamicObject is scaled. 
+    }
     #endregion
 
     #region Line Update Methods
