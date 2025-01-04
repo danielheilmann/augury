@@ -583,6 +583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ee2532a1954ac4449ea96cc3f6ae934, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _ticksPerSecond: 20
 --- !u!114 &194419865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1190,6 +1191,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6558446377ef29e4a9d912fa1c3a86b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnPositionUpdate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRotationUpdate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnScaleUpdate:
+    m_PersistentCalls:
+      m_Calls: []
   id: 43a64f30-02c1-44c6-b45a-9fcf2861c49f
 --- !u!1 &1655249613
 GameObject:
@@ -1325,6 +1335,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6558446377ef29e4a9d912fa1c3a86b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnPositionUpdate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRotationUpdate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnScaleUpdate:
+    m_PersistentCalls:
+      m_Calls: []
   id: ad5057f5-dbf2-4da9-b40d-10ce038ed1f0
 --- !u!65 &1696863236
 BoxCollider:

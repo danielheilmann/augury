@@ -13,7 +13,7 @@ public class FixationVisualization : MonoBehaviour
     public int fid => fixation != null ? fixation.gfid : -1;
     [SerializeField, ReadOnly] private Canvas canvas;
     [SerializeField, ReadOnly] private TextMeshProUGUI textField;
-    [SerializeField, ReadOnly] private LineRenderer line;
+    [SerializeField, ReadOnly] private LineRenderer line;  //!< Line positions are in world space.
     // private Color lineColor;
 
     private void Awake()
@@ -23,8 +23,6 @@ public class FixationVisualization : MonoBehaviour
         line = GetComponentInChildren<LineRenderer>();
 
         line.positionCount = 2;
-        line.SetPosition(0, Vector3.zero);
-        line.SetPosition(1, Vector3.zero); //< This way, if both pos 0 and 1 are Vector3.zero (the origin of this gameobject), resulting in no line being drawn.
     }
 
     private void OnDisable() => RequestNextFixationLineUpdate(); //< To remove the line to the next fixation when this one is disabled.
@@ -58,11 +56,15 @@ public class FixationVisualization : MonoBehaviour
         Vector3 surfaceNormal = fixation.surfaceNormal;
         DynamicObject dynObj = fixation.dynamicObject;
 
+        //> Set up the GameObject
         gameObject.name = $"Fixation {fid + 1} {fixation.globalPosition}";
         gameObject.transform.position = position + (surfaceNormal * offsetFactor);  //< surfaceNormal is added here to prevent Z-Fighting
         gameObject.transform.SetParent(fixation.isLocal ? dynObj.transform : FixationVisualizer.Instance.transform, true);
+
+        //> Set up the canvas and line
         canvas.transform.LookAt(position - surfaceNormal);
         textField.text = (fid + 1).ToString(); //< To display the numbers starting from 1 instead of 0.
+        line.SetPosition(0, this.transform.position); //< Set the line to start at the current position.
         UpdateLineToPrecedingFixation();
 
         return this;
@@ -70,18 +72,19 @@ public class FixationVisualization : MonoBehaviour
 
     private void UpdateLineToPrecedingFixation()
     {
-        if (fid <= 0)  //< Simply reset line to zero if this is the first fixation or if the fixation is not set.
+        if (fid <= 0)  //< Retract line if this is the first fixation or if the fixation is not set.
         {
-            line.SetPosition(1, Vector3.zero);
+            RetractLine();
             return;
         }
+
         FixationVisualization precedingFixation = FixationVisualizer.Instance.GetFixationVisualization(fid - 1);
 
         //> If the preceding fixation is not active, do not draw a line to it. 
         //  The null check should not be necessary, as the only FixationVisualization with a null predecessor should be the first one, which is already covered by the guard clause above. But just in case a FixationVisualization gets obliterated, this should prevent any errors.
         if (precedingFixation == null || !precedingFixation.isActiveAndEnabled)
         {
-            SetLineDestination(Vector3.zero);
+            RetractLine();
             return;
         }
 
@@ -98,6 +101,7 @@ public class FixationVisualization : MonoBehaviour
     }
 
     /// <summary> Configures the line renderer so it points towards the given destination. </summary>
-    /// <param name="destination"> The position vector of the target location. </param>
-    private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination - this.transform.position);
+    /// <param name="destination"> The global position vector of the target location. </param>
+    private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination); //< The line positions use world space coordinates.
+    private void RetractLine() => line.SetPosition(1, this.transform.position); //< To retract the line to the current position.
 }
