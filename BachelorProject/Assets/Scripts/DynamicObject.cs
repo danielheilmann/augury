@@ -3,9 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DynamicObject : MonoBehaviour
 {
+    public UnityEvent OnPositionUpdate { get; private set; } = new();
+    public UnityEvent OnRotationUpdate { get; private set; } = new();
+    public UnityEvent OnScaleUpdate { get; private set; } = new();
     [SerializeField] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
     public bool hasID => !string.IsNullOrEmpty(id);
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
@@ -94,11 +98,38 @@ public class DynamicObject : MonoBehaviour
     {
         DateTime timestamp = Timer.latestTimestamp;
         if (transform.localPosition != positionHistory.ElementAt(positionHistory.Count - 1).Value)
+        {
             positionHistory.Add(timestamp, transform.localPosition);
+            OnPositionUpdate.Invoke();
+        }
         if (transform.localRotation != rotationHistory.ElementAt(rotationHistory.Count - 1).Value)
+        {
             rotationHistory.Add(timestamp, transform.localRotation);
+            OnRotationUpdate.Invoke();
+        }
         if (transform.localScale != scaleHistory.ElementAt(scaleHistory.Count - 1).Value)
+        {
             scaleHistory.Add(timestamp, transform.localScale);
+            OnScaleUpdate.Invoke();
+        }
+    }
+
+    public void OverwritePosition(Vector3 position)
+    {
+        transform.position = position;
+        OnPositionUpdate.Invoke();
+    }
+
+    public void OverwriteRotation(Quaternion rotation)
+    {
+        transform.rotation = rotation;
+        OnRotationUpdate.Invoke();
+    }
+
+    public void OverwriteScale(Vector3 scale)
+    {
+        transform.localScale = scale;
+        OnScaleUpdate.Invoke();
     }
 
     [ContextMenu("Request new Unique ID")]

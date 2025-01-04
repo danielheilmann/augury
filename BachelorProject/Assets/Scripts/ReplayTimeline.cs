@@ -189,14 +189,15 @@ public class ReplayTimeline : MonoBehaviour
 
     private void ProcessDOAction(ReplayActionDO action)
     {
-        Transform refDynObjTransform = action.referenceDynObj.transform;
+        DynamicObject dynamicObject = action.referenceDynObj;
 
-        if (action.updatedPosition.HasValue)    //< Only update the transform values if the action actually contains a new value.
-            refDynObjTransform.position = action.updatedPosition.Value;
+        //> Only update the respective transform variable if the action actually contains a new value.
+        if (action.updatedPosition.HasValue)
+            dynamicObject.OverwritePosition(action.updatedPosition.Value);
         if (action.updatedRotation.HasValue)
-            refDynObjTransform.rotation = action.updatedRotation.Value;
+            dynamicObject.OverwriteRotation(action.updatedRotation.Value);
         if (action.updatedScale.HasValue)
-            refDynObjTransform.localScale = action.updatedScale.Value;
+            dynamicObject.OverwriteScale(action.updatedScale.Value);
     }
     #endregion
 }

@@ -8,7 +8,7 @@ public class FixationVisualizer : MonoBehaviour
     public static FixationVisualizer Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private int startingCapacity = 60; //< Is also used as the increment size for the pool.
-    [SerializeField, ReadOnly] private List<FixationVisualization> visualizations;
+    [SerializeField, ReadOnly] private List<FixationVisualization> visualizations = new List<FixationVisualization>();
     private int currentIndex = 0;
 
     #region Monobehaviour Methods
@@ -59,13 +59,12 @@ public class FixationVisualizer : MonoBehaviour
     {
         if (prefab == null)
         {
-            Debug.LogError($"{this} does not contain a valid prefab. Please stop the application and assign a prefab.");
+            Debug.LogError($"{this} does not contain a valid prefab. Cannot initialize object pool without valid prefab. Please stop the application, assign a prefab, and try again.");
             return;
         }
 
         DeleteAllVisualizations();
-
-        visualizations = new List<FixationVisualization>(startingCapacity);
+        visualizations.Capacity = startingCapacity; //< Will throw exception if list is not cleared of old entries first. -> "If you try to set the capacity to a value lower than the current count, an ArgumentOutOfRangeException will be thrown"
         FillPool();
 
         currentIndex = 0;
@@ -73,9 +72,14 @@ public class FixationVisualizer : MonoBehaviour
 
     private void DeleteAllVisualizations()
     {
-        if (visualizations.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
-            for (int i = visualizations.Count - 1; i >= 0; i--)
-                Destroy(visualizations[i].gameObject);
+        if (visualizations.Count == 0) //< If pool is empty, there is no need to delete anything.
+            return;
+
+        //> But if a pool from a previous session exists, delete all the gameobjects that the visualizations are attached to and then clear the list.
+        for (int i = visualizations.Count - 1; i >= 0; i--)
+            Destroy(visualizations[i].gameObject);
+
+        visualizations.Clear(); //< Should be more memory efficient than creating a new list every time.
     }
 
     public void FillPool() //< This setup should ensure that the two lists (pool & FixationVisualizations) are always in sync in terms of indices.
@@ -106,7 +110,7 @@ public class FixationVisualizer : MonoBehaviour
 
         currentIndex++;
 
-        if (currentIndex >= visualizations.Capacity - 1)
+        if (currentIndex >= visualizations.Capacity - 1) //< The "-1" makes this trigger one index earlier than necessary to buffer for possible delays in the instantiation process.
             IncreasePoolSize(startingCapacity);
     }
 
@@ -114,7 +118,9 @@ public class FixationVisualizer : MonoBehaviour
     {
         if (index < 0 || index > visualizations.Count - 1)  //< To prevent trying to access out-of-bounds values
         {
-            Debug.LogWarning($"Index {index} is out of bounds. Returning null.");
+            // Debug.LogWarning($"Index {index} is out of bounds. Returning null."); 
+            //< Due to the way the pool is set up now, this case happens occasionally. 
+            //  But it does not lead to issues because all places where this is called already do null-checks. Therefore I commented out this warning to reduce spam.
             return null;
         }
 
