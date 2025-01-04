@@ -67,8 +67,9 @@ public class FixationManager : MonoBehaviour
     private void EvaluateFixation(GazePoint gazePoint)
     {
         Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
+        bool evaluationTerminationCondition = Vector3.Distance(gazePoint.globalPosition, currentFixationGroupAveragePosition) > distanceThreshold || IsOnDifferentDynObj(gazePoint.dynObjID);
 
-        if (Vector3.Distance(gazePoint.position, currentFixationGroupAveragePosition) > distanceThreshold || IsDifferentIDthanLastEntry(gazePoint.dynObjID))
+        if (evaluationTerminationCondition)
         {
             if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active newFixation group into a newFixation, but only if it contains enough points.
             {
@@ -87,7 +88,7 @@ public class FixationManager : MonoBehaviour
         Vector3 sum = Vector3.zero;
 
         foreach (GazePoint point in gazePoints)
-            sum += point.position;
+                sum += point.globalPosition;
 
         return sum /= gazePoints.Count;
     }
@@ -102,14 +103,14 @@ public class FixationManager : MonoBehaviour
         return sum /= gazePoints.Count;
     }
 
-    private void CreateFixation(Vector3 fixationPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj = null)
+    private void CreateFixation(Vector3 globalPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj = null)
     {
-        Fixation newFixation = new Fixation(fixationPosition, surfaceNormal, fixationIndex, dynamicObject: dynObj);
+        Fixation newFixation = new Fixation(globalPosition, surfaceNormal, fixationIndex, dynamicObject: dynObj);
         fixations.Add(newFixation);
         OnFixationCreated.Invoke(newFixation);
     }
 
-    private bool IsDifferentIDthanLastEntry(string id)
+    private bool IsOnDifferentDynObj(string id)
     {
         if (activeGazePointGroup.Count > 0)
             return id != activeGazePointGroup[activeGazePointGroup.Count - 1].dynObjID;

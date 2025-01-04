@@ -102,7 +102,7 @@ public static class FileSystemHandler
             JSONArray surfaceNormal = Vector3ToJSONArray(gp.surfaceNormal);
             point.Add(KEY_SURFACENORMAL, surfaceNormal);
 
-            JSONArray position = Vector3ToJSONArray(gp.position);
+            JSONArray position = Vector3ToJSONArray(gp.globalPosition);
             point.Add(KEY_POSITION, position);
 
             points.Add(point);

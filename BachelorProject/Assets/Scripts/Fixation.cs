@@ -4,24 +4,22 @@ using UnityEngine;
 
 public class Fixation
 {
-    /// <summary> Global Fixation ID </summary>
-    public int gfid { get; private set; }
-    /// <summary> Local Fixation ID </summary>
-    public int lfid { get; private set; }   //TODO: Not implemented yet
+    private int globalFixationID;
+    private int localFixationID;   //TODO: Not implemented yet
+    public int gfid => globalFixationID;
+    public int lfid => localFixationID;
     public Vector3 surfaceNormal { get; private set; }
     public DynamicObject dynamicObject { get; private set; } = null;
-    public Vector3 position => isLocal ? dynamicObject.transform.position + _position : _position;
     public bool isLocal => dynamicObject != null;
-    public Vector3 rawPosition => _position;
-    private Vector3 _position;
+    public Vector3 globalPosition { get; private set; }
+    public Vector3 localPosition => isLocal ? globalPosition - dynamicObject.transform.position : globalPosition;
 
-    public Fixation(Vector3 position, Vector3 surfaceNormal, int gfid, int lfid = -1, DynamicObject dynamicObject = null)
+    public Fixation(Vector3 globalPosition, Vector3 surfaceNormal, int gfid, int lfid = -1, DynamicObject dynamicObject = null)
     {
         this.surfaceNormal = surfaceNormal;
         this.dynamicObject = dynamicObject;
-        _position = position;
-        this.gfid = gfid;
-
-        this.lfid = isLocal ? lfid : gfid;
+        this.globalPosition = globalPosition;
+        this.globalFixationID = gfid;
+        this.localFixationID = isLocal ? lfid : gfid;
     }
 }

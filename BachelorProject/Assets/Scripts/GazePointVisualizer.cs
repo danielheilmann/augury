@@ -92,7 +92,7 @@ public class GazePointVisualizer : MonoBehaviour
         string goName = point.isLocal ? $"{point.dynamicObject.name} {point.position.ToString()}" : point.position.ToString();
 
         visualizerGO.transform.SetParent(null);
-        visualizerGO.transform.position = point.position;
+        visualizerGO.transform.position = point.globalPosition;
         visualizerGO.transform.localScale = Vector3.one;    //< To reset scale in case a dynamic object was scaled after this point was attached (which leads to the point itself being scaled as well).
         visualizerGO.transform.SetParent(goParent, true);
         visualizerGO.name = goName;

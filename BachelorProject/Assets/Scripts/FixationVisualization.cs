@@ -54,11 +54,11 @@ public class FixationVisualization : MonoBehaviour
         this.fixation = fixation;
 
         //> Take apart Fixation for better readability down below
-        Vector3 position = fixation.rawPosition;
+        Vector3 position = fixation.globalPosition;
         Vector3 surfaceNormal = fixation.surfaceNormal;
         DynamicObject dynObj = fixation.dynamicObject;
 
-        gameObject.name = $"Fixation {fid + 1} {fixation.rawPosition}";
+        gameObject.name = $"Fixation {fid + 1} {fixation.globalPosition}";
         gameObject.transform.position = position + (surfaceNormal * offsetFactor);  //< surfaceNormal is added here to prevent Z-Fighting
         gameObject.transform.SetParent(fixation.isLocal ? dynObj.transform : FixationVisualizer.Instance.transform, true);
         canvas.transform.LookAt(position - surfaceNormal);
