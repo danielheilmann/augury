@@ -78,3 +78,4 @@ BachelorProject/[Aa]ssets/[Ss]treamingAssets/aa.meta
 
 # Manual, project-specific Exclusions
 !BachelorProject/[Aa]ssets/**/XR_APILAYER_MBUCCHIA_eye_trackers.pdb
+BachelorProject/RecordedSessionData/

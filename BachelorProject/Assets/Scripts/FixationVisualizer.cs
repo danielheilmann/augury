@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //TODO: Instead of a Reuse-ObjectPool, this class should use the ObjectPool as a pregenerated cache to reduce frame overhead from constant instantiation. This one should expand automatically whenever it is full. Though maybe the cache isn't even necessary because fixations are not generated that often?
+//? This class is very similar to the GazePointVisualizer. Maybe they should be unified into one class? Or at least derive from a common base class?
 public class FixationVisualizer : MonoBehaviour
 {
     public static FixationVisualizer Instance { get; private set; }

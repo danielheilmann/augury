@@ -71,7 +71,7 @@ public class FixationManager : MonoBehaviour
 
         if (evaluationTerminationCondition)
         {
-            if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< Collapse current active newFixation group into a newFixation, but only if it contains enough points.
+            if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< If current PointGroup contains enough points, collapse into a new Fixation.
             {
                 Vector3 averageSurfaceNormal = CalculateAverageSurfaceNormal(activeGazePointGroup);
                 int fixationID = fixations.Count;
@@ -81,26 +81,27 @@ public class FixationManager : MonoBehaviour
         }
 
         activeGazePointGroup.Add(gazePoint);
-    }
 
-    private Vector3 CalculateAveragePosition(List<GazePoint> gazePoints)
-    {
-        Vector3 sum = Vector3.zero;
+        //> Local Functions
+        Vector3 CalculateAveragePosition(List<GazePoint> gazePoints)
+        {
+            Vector3 sum = Vector3.zero;
 
-        foreach (GazePoint point in gazePoints)
+            foreach (GazePoint point in gazePoints)
                 sum += point.globalPosition;
 
-        return sum /= gazePoints.Count;
-    }
+            return sum /= gazePoints.Count;
+        }
 
-    private Vector3 CalculateAverageSurfaceNormal(List<GazePoint> gazePoints)
-    {
-        Vector3 sum = Vector3.zero;
+        Vector3 CalculateAverageSurfaceNormal(List<GazePoint> gazePoints)
+        {
+            Vector3 sum = Vector3.zero;
 
-        foreach (GazePoint point in gazePoints)
-            sum += point.surfaceNormal;
+            foreach (GazePoint point in gazePoints)
+                sum += point.surfaceNormal;
 
-        return sum /= gazePoints.Count;
+            return sum /= gazePoints.Count;
+        }
     }
 
     private void CreateFixation(Vector3 globalPosition, Vector3 surfaceNormal, int fixationIndex, DynamicObject dynObj = null)

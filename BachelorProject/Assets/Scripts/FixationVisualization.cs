@@ -49,7 +49,7 @@ public class FixationVisualization : MonoBehaviour
     public FixationVisualization Configure(Fixation fixation, int listIndex)
     {
         if (listIndex != fixation.gfid)
-            Debug.LogError($"ListIndex and GFID do not match. Something must have gone wrong.");
+            Debug.LogError($"ListIndex ({listIndex}) and GFID ({fixation.gfid}) do not match. Something must have gone wrong.");
 
         this.fixation = fixation;
 
@@ -62,7 +62,7 @@ public class FixationVisualization : MonoBehaviour
         gameObject.transform.position = position + (surfaceNormal * offsetFactor);  //< surfaceNormal is added here to prevent Z-Fighting
         gameObject.transform.SetParent(fixation.isLocal ? dynObj.transform : FixationVisualizer.Instance.transform, true);
         canvas.transform.LookAt(position - surfaceNormal);
-        textField.text = (fid + 1).ToString();
+        textField.text = (fid + 1).ToString(); //< To display the numbers starting from 1 instead of 0.
         UpdateLineToPrecedingFixation();
 
         return this;

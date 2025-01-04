@@ -92,7 +92,7 @@ public class GazePointVisualizer : MonoBehaviour
 
         GameObject visualizerGO = pool[currentIndex];
         Transform goParent = point.isLocal ? point.dynamicObject.transform : this.transform;
-        string goName = point.isLocal ? $"{point.dynamicObject.name} {point.position.ToString()}" : point.position.ToString();
+        string goName = $"GazePoint {point.localPosition}";
 
         visualizerGO.transform.SetParent(null);
         visualizerGO.transform.position = point.globalPosition;
