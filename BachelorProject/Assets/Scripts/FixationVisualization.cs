@@ -25,23 +25,17 @@ public class FixationVisualization : MonoBehaviour
         line.positionCount = 2;
     }
 
-    private void OnDisable() => RequestNextFixationLineUpdate(); //< To remove the line to the next fixation when this one is disabled.
     private void OnEnable() => RequestNextFixationLineUpdate(); //< To re-enable the line to the next fixation when this one is enabled again.
+    private void OnDisable() => RequestNextFixationLineUpdate(); //< To remove the line to the next fixation when this one is disabled.
 
-    private void FixedUpdate() //TODO: Rework this to only run whenever the position of the gameobject has changed, not always on Update. (event-based whenever one of the fixations is moved.)
+    private void OnDestroy()
     {
-        if (fixation.dynamicObject == null) return; //< No need to check for position updates if this object is not intended to move anyways
-
-        //TODO: Maybe I should rework the line system completely to be handled by the FixationVisualizer itself. This way, there would only be one Line Renderer for all the (global), which would probably be more efficient. This way, FixationVisualizations could always just send a notification to the Visualizer that they've moved and the Visualizer would handle the rest.
-        //** The current implementation should allow for better flexibility for local gazeplots though, as it does not require all Fixations to be connected with each other (with lines). Local gazeplots require multiple line renderers anyways.
-
-        //> To update lines between the 3 points (previous, this & next) whenever this fixation point is moved:
-
-        //> Connection from this fixation to previous fixation
-        UpdateLineToPrecedingFixation();
-
-        //> Connection from next fixation to this fixation}
-        RequestNextFixationLineUpdate();
+        if (fixation != null && fixation.isLocal) //< The fixation reference will still be null for all preloaded FixationVisualizations that were never configured / used.
+        {
+            fixation.dynamicObject.OnPositionUpdate.RemoveListener(OnDynamicObjectPositionUpdate);
+            fixation.dynamicObject.OnRotationUpdate.RemoveListener(OnDynamicObjectRotationUpdate);
+            fixation.dynamicObject.OnScaleUpdate.RemoveListener(OnDynamicObjectScaleUpdate);
+        }
     }
 
     public FixationVisualization Configure(Fixation fixation, int listIndex)
@@ -64,10 +58,32 @@ public class FixationVisualization : MonoBehaviour
         //> Set up the canvas and line
         canvas.transform.LookAt(position - surfaceNormal);
         textField.text = (fid + 1).ToString(); //< To display the numbers starting from 1 instead of 0.
-        line.SetPosition(0, this.transform.position); //< Set the line to start at the current position.
-        UpdateLineToPrecedingFixation();
+
+        UpdateLine();
+
+        if (fixation.isLocal)
+        {
+            fixation.dynamicObject.OnPositionUpdate.AddListener(OnDynamicObjectPositionUpdate);
+            fixation.dynamicObject.OnRotationUpdate.AddListener(OnDynamicObjectRotationUpdate);
+            fixation.dynamicObject.OnScaleUpdate.AddListener(OnDynamicObjectScaleUpdate);
+        }
 
         return this;
+    }
+
+    #region DynamicObject Update Event Handlers
+    private void OnDynamicObjectPositionUpdate() => UpdateLine();
+    private void OnDynamicObjectRotationUpdate() => UpdateLine();
+    private void OnDynamicObjectScaleUpdate() => Debug.LogWarning("Not implemented yet.");
+    #endregion
+
+    #region Line Update Methods
+    private void UpdateLine()
+    {
+        //> To update lines between the 3 points (previous, this & next) whenever this fixation point is moved:
+        UpdateLineOrigin();
+        UpdateLineToPrecedingFixation();
+        RequestNextFixationLineUpdate();
     }
 
     private void UpdateLineToPrecedingFixation()
@@ -93,15 +109,29 @@ public class FixationVisualization : MonoBehaviour
 
     private void RequestNextFixationLineUpdate()
     {
-        if (fixation == null) return; //< If this object is not configured yet, skip this step.
+        if (this.fixation == null) return; //< If this object is not configured yet, skip this step. (This is necessary because this method is called by OnEnable and OnDisable as well.)
 
         FixationVisualization nextFixation = FixationVisualizer.Instance.GetFixationVisualization(fid + 1);
         if (nextFixation != null && nextFixation.isActiveAndEnabled)
             nextFixation.UpdateLineToPrecedingFixation(); //< To propagate the changes to the next one as well (but only if there is another visualization after the current one)
     }
+    #endregion
 
-    /// <summary> Configures the line renderer so it points towards the given destination. </summary>
+    #region Line Modification Methods
+    /// <summary> 
+    /// Configures the line renderer so it points towards the given destination. 
+    /// </summary>
     /// <param name="destination"> The global position vector of the target location. </param>
-    private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination); //< The line positions use world space coordinates.
-    private void RetractLine() => line.SetPosition(1, this.transform.position); //< To retract the line to the current position.
+    private void SetLineDestination(Vector3 destination) => line.SetPosition(1, destination);
+
+    /// <summary>
+    /// Updates line origin to equal current transform position. 
+    /// </summary>
+    private void UpdateLineOrigin() => line.SetPosition(0, this.transform.position);
+
+    /// <summary> 
+    /// Retracts the line by setting current transform position as the destination. 
+    /// </summary>
+    private void RetractLine() => SetLineDestination(this.transform.position);
+    #endregion
 }
