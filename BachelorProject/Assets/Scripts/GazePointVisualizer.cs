@@ -36,7 +36,6 @@ public class GazePointVisualizer : MonoBehaviour
         SessionManager.OnReplayStart.AddListener(Initialize);
         SessionManager.OnReplayStop.AddListener(DeleteAllVisualizations);
 
-        GazePointManager.OnPointCreated.AddListener(VisualizePoint);
     }
 
     private void OnDisable()
@@ -68,10 +67,14 @@ public class GazePointVisualizer : MonoBehaviour
             IncreasePool();
 
         currentIndex = 0;
+
+        GazePointManager.OnPointCreated.AddListener(VisualizePoint);
     }
 
     private void DeleteAllVisualizations()
     {
+        GazePointManager.OnPointCreated.RemoveListener(VisualizePoint);
+
         if (pool.Count != 0)   //< If a pool from a previous session exists, discard the entire pool.
             for (int i = pool.Count - 1; i >= 0; i--)
                 Destroy(pool[i]);

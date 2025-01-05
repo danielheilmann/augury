@@ -553,9 +553,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46f825a19797ae84d99df92616978991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _deviceMode: 0
+  _deviceMode: 1
   _expectedSessionRuntimeInMinutes: 4
-  _visualizeInRecordMode: 1
+  _visualizeInRecordMode: 0
   _skipSavingDataToFile: 1
   _openExplorerOnSave: 0
   _prettyJSONExport: 0
@@ -992,7 +992,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9012231364935764959, guid: ca9bea526f8f0e3449a142970e46ac4c, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1191,15 +1191,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6558446377ef29e4a9d912fa1c3a86b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnPositionUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  OnRotationUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  OnScaleUpdate:
-    m_PersistentCalls:
-      m_Calls: []
   id: 43a64f30-02c1-44c6-b45a-9fcf2861c49f
 --- !u!1 &1655249613
 GameObject:
@@ -1335,15 +1326,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6558446377ef29e4a9d912fa1c3a86b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnPositionUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  OnRotationUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  OnScaleUpdate:
-    m_PersistentCalls:
-      m_Calls: []
   id: ad5057f5-dbf2-4da9-b40d-10ce038ed1f0
 --- !u!65 &1696863236
 BoxCollider:
@@ -1770,7 +1752,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6262188348482191834, guid: d62242d80d214234691830ad4ed5e29f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8674991686112894278, guid: d62242d80d214234691830ad4ed5e29f, type: 3}
