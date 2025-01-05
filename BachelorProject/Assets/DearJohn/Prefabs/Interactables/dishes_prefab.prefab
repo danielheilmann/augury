@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7308402829064047225}
   - component: {fileID: 6076979799386197114}
   - component: {fileID: -8211892409825977517}
+  - component: {fileID: 3076130956225663964}
   m_Layer: 0
   m_Name: dishes_prefab
   m_TagString: Untagged
@@ -214,6 +215,18 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 1
+--- !u!114 &3076130956225663964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5047364019199305345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78abe768495c8e54180dbbcab07866ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &971300779447052228
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 109a815d701251e4bbf4876563d5b3b6
+guid: 2bb38e98a1099234c8fe29a387ae7d3a
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,7 +7,7 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: BaseShader
+      name: Base
     second: {fileID: 2100000, guid: 6e43ce47e44aa8c40b7cd6a79f0f7cbe, type: 2}
   materials:
     materialImportMode: 2

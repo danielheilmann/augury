@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4784315153413602634}
-  - component: {fileID: -4011728637970447544}
   m_Layer: 0
   m_Name: cushion_bed_prefab
   m_TagString: Untagged
@@ -33,28 +32,6 @@ Transform:
   - {fileID: 181284755483131301}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &-4011728637970447544
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7136241361514422549}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
 --- !u!1001 &364427610857314894
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -114,10 +91,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2010caffb8c70b74fa2d9395f70c0440, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1265390947019682081}
   m_SourcePrefab: {fileID: 100100000, guid: 2010caffb8c70b74fa2d9395f70c0440, type: 3}
 --- !u!4 &181284755483131301 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2010caffb8c70b74fa2d9395f70c0440, type: 3}
   m_PrefabInstance: {fileID: 364427610857314894}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &707026842593503007 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2010caffb8c70b74fa2d9395f70c0440, type: 3}
+  m_PrefabInstance: {fileID: 364427610857314894}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1265390947019682081
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 707026842593503007}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 979369429618918727, guid: 2010caffb8c70b74fa2d9395f70c0440, type: 3}
