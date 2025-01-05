@@ -349,7 +349,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 17065560276a551449482e7a822dccba, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4740325854273055315}
+      addedObject: {fileID: 227206899432392254}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 17065560276a551449482e7a822dccba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4178259928981624778}
   m_SourcePrefab: {fileID: 100100000, guid: 17065560276a551449482e7a822dccba, type: 3}
 --- !u!4 &3486893984061058709 stripped
 Transform:
@@ -361,8 +364,8 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 17065560276a551449482e7a822dccba, type: 3}
   m_PrefabInstance: {fileID: 4028846895418476926}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &4740325854273055315
-MeshCollider:
+--- !u!136 &227206899432392254
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -379,7 +382,31 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3135542016272228033, guid: 17065560276a551449482e7a822dccba, type: 3}
+  serializedVersion: 2
+  m_Radius: 0.0015
+  m_Height: 0.009
+  m_Direction: 2
+  m_Center: {x: 0.0000000013969834, y: -0.000000011408704, z: 0.003}
+--- !u!136 &4178259928981624778
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4262726549336732719}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.001
+  m_Height: 0.03
+  m_Direction: 2
+  m_Center: {x: 0.0000000013969834, y: -0.000000011408704, z: 0.021}

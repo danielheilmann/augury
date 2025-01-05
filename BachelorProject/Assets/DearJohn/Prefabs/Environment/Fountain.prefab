@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5363539788284489308}
   - component: {fileID: 270345014136084102}
   - component: {fileID: 1496499613685027506}
-  - component: {fileID: 5214706860940437225}
   m_Layer: 0
   m_Name: Hole Fix
   m_TagString: Untagged
@@ -84,29 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &5214706860940437225
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645149736763553730}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.5000003
-  m_Height: 2.0000007
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: -4.0941866e-22, z: -0.000000089406996}
 --- !u!1 &7764782919245736231
 GameObject:
   m_ObjectHideFlags: 0
@@ -118,7 +94,6 @@ GameObject:
   - component: {fileID: 10307367827272600}
   - component: {fileID: 7977907547454657733}
   - component: {fileID: 7819072224101251065}
-  - component: {fileID: 7028082280998237201}
   m_Layer: 0
   m_Name: Hole Fix (1)
   m_TagString: Untagged
@@ -191,29 +166,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &7028082280998237201
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7764782919245736231}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.5000003
-  m_Height: 2.0000007
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: -4.0941866e-22, z: -0.000000089406996}
 --- !u!1 &9197380003751236745
 GameObject:
   m_ObjectHideFlags: 0
