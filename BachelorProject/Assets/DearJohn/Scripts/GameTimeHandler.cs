@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimeHandler : MonoBehaviour
+public class GameTimeHandler : MonoBehaviour
 {
-    public static TimeHandler Instance { get; private set; }
-    public float currentTime = 0;
+    public static GameTimeHandler Instance { get; private set; }
+    public float currentGameTime = 0;
 
     private void Awake()
     {
@@ -17,6 +17,6 @@ public class TimeHandler : MonoBehaviour
 
     private void Update()
     {
-        currentTime += Time.deltaTime;
+        currentGameTime += Time.deltaTime;
     }
 }
