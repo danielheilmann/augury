@@ -22,7 +22,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 6e43ce47e44aa8c40b7cd6a79f0f7cbe, type: 2}
     - target: {fileID: 3909013268345281811, guid: 4b34c12fcbe948c4d8164b75993ac848, type: 3}
       propertyPath: m_Drag
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3909013268345281811, guid: 4b34c12fcbe948c4d8164b75993ac848, type: 3}
       propertyPath: m_Mass

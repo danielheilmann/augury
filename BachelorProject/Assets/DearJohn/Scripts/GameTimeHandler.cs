@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class GameTimeHandler : MonoBehaviour
 {
+    public static float EndGameAfterSeconds = 4 * 60; //< Game ends automatically after exactly 4 minutes.
     public static GameTimeHandler Instance { get; private set; }
-    public float currentGameTime = 0;
+    public static float currentGameTimeInSeconds = 0;
+    private bool isPaused = true;
 
     private void Awake()
     {
@@ -14,9 +16,50 @@ public class GameTimeHandler : MonoBehaviour
         else
             Destroy(this);
     }
+    
+    private void OnEnable()
+    {
+        GameManager.OnGameStart.AddListener(Begin);
+        GameManager.OnGamePause.AddListener(Pause);
+        GameManager.OnGameEnd.AddListener(Stop);
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnGameStart.RemoveListener(Begin);
+        GameManager.OnGamePause.RemoveListener(Pause);
+        GameManager.OnGameEnd.RemoveListener(Stop);
+    }
 
     private void Update()
     {
-        currentGameTime += Time.deltaTime;
+        if (isPaused)
+            return;
+
+        currentGameTimeInSeconds += Time.deltaTime;
+        // Debug.Log($"Current Game Time: {currentGameTimeInSeconds}");
+
+        if (currentGameTimeInSeconds >= EndGameAfterSeconds)
+        {
+            GameManager.Instance.RollCredits();
+        }
+    }
+
+    public void Begin()
+    {
+        isPaused = false;
+    }
+
+    public void Pause() => isPaused = true;
+
+    public void Stop()
+    {
+        CustomReset();
+    }
+
+    public void CustomReset()
+    {
+        isPaused = true;
+        currentGameTimeInSeconds = 0;
     }
 }
