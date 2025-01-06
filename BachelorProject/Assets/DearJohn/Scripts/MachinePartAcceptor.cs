@@ -39,18 +39,18 @@ public class MachinePartAcceptor : MonoBehaviour
         QuestItem questItem = other.transform.parent?.GetComponent<QuestItem>();
         if (questItem == null) return;
 
-        Debug.Log($"QuestItem {questItem.type} entered the MachinePartAcceptor.");
+        // Debug.Log($"QuestItem {questItem.type} entered the MachinePartAcceptor.");
 
         GameObject selectedPreview;
 
         switch (questItem.type)
         {
             case QuestItem.Type.CardboardBox:
+                if (!previewCardboardBox.activeInHierarchy) break;
                 selectedPreview = previewCardboardBox;
-                if (!selectedPreview.activeInHierarchy) break;
-                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview, new GameObject[] { previewBrokenMicrowave, previewHamsterWheel, previewAntennaTV }));
                 isCardboardBoxPlaced = true;
-                Debug.Log("Cardboard Box accepted!");
+                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview, previewBrokenMicrowave, previewHamsterWheel, previewAntennaTV));
+                // Debug.Log("Cardboard Box accepted!");
                 break;
             case QuestItem.Type.FixedMicrowave:
                 Debug.Log($"Microwave is not broken yet.");
@@ -59,41 +59,41 @@ public class MachinePartAcceptor : MonoBehaviour
                 if (!previewBrokenMicrowave.activeInHierarchy) break;
                 selectedPreview = previewBrokenMicrowave;
                 isBrokenMicrowavePlaced = true;
-                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview, new GameObject[] { previewBattery }));
-                Debug.Log("Broken Microwave accepted!");
+                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview, previewBattery));
+                // Debug.Log("Broken Microwave accepted!");
                 break;
             case QuestItem.Type.HamsterWheel:
                 if (!previewHamsterWheel.activeInHierarchy) break;
                 selectedPreview = previewHamsterWheel;
                 isHamsterWheelPlaced = true;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
-                Debug.Log("Hamster Wheel accepted!");
+                // Debug.Log("Hamster Wheel accepted!");
                 break;
             case QuestItem.Type.Battery:
                 if (!previewBattery.activeInHierarchy) break;
                 selectedPreview = previewBattery;
                 isBatteryPlaced = true;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
-                Debug.Log("Battery accepted!");
+                // Debug.Log("Battery accepted!");
                 break;
             case QuestItem.Type.AntennaTV:
                 if (!previewAntennaTV.activeInHierarchy) break;
                 selectedPreview = previewAntennaTV;
                 isAntennaTVPlaced = true;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
-                Debug.Log("Antenna TV accepted!");
+                // Debug.Log("Antenna TV accepted!");
                 break;
             case QuestItem.Type.Lever:
                 if (!previewLever.activeInHierarchy || isMachineComplete) break; //< Second argument was added to prevent a second coroutine from being started for some reason.
                 isMachineComplete = true;
                 selectedPreview = previewLever;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
-                Debug.Log("Lever accepted!");
+                // Debug.Log("Lever accepted!");
                 break;
         }
     }
 
-    private IEnumerator LerpQuestItemToPreview(QuestItem questItem, GameObject selectedPreview, GameObject[] previewsToEnableAfterLerp = null)
+    private IEnumerator LerpQuestItemToPreview(QuestItem questItem, GameObject selectedPreview, params GameObject[] previewsToEnableAfterLerp)
     {
         questItem.Strip(); //< To prevent the quest item from being grabbed while lerping.
 

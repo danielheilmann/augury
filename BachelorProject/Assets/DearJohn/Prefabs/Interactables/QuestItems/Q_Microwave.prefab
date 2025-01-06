@@ -274,7 +274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a262febb9a34a54192f767e1e2dc21c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  type: 1
   fixedMicrowaveModel: {fileID: 6852464549209027227}
   brokenMicrowaveModel: {fileID: 3396120031134989580}
 --- !u!65 &6609435009375113063

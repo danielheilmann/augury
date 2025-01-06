@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.PlayerLoop;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,7 +15,7 @@ public class GameManager : MonoBehaviour
     public static UnityEvent OnGamePause = new UnityEvent();
     public static UnityEvent OnGameResume = new UnityEvent();
     public static UnityEvent OnGameEnd = new UnityEvent();
-    public GameObject activePlayerCharacter;
+    public GameObject activePlayerCharacter {get; private set;}
     public static GameStage currentGameStage = GameStage.Menu;
     public static bool hasGameStarted = false;
     public static bool isGamePaused = false;
@@ -32,16 +31,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        Initialize(); // Will eventually be called by another class else.
+    }
+
     [ContextMenu("Initialize")]
-    private void Initialize()
+    public void Initialize()
     {
         hasGameStarted = false;
         isGamePaused = false;
-        activePlayerCharacter = DiscoverActivePlayerCharacter();
         currentGameStage = GameStage.WaitingForPlayerInput;
+        activePlayerCharacter = DiscoverActivePlayerCharacter();
         OnReadyForGameStart.Invoke();
-
-        FindObjectOfType<StartGameUponLeavingArea>(true).enabled = true;
     }
 
     [ContextMenu("Start Game")]
@@ -49,6 +51,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Game Started!");
         hasGameStarted = true;
+        currentGameStage = GameStage.InGame;
         OnGameStart.Invoke();
     }
 
@@ -78,6 +81,7 @@ public class GameManager : MonoBehaviour
 
         // If (SessionManager.mode == Replay) clean up and then do nothing. Do not reset the scene.
         Debug.Log("Game Ended!");
+        currentGameStage = GameStage.PostGame;
         OnGameEnd.Invoke();
     }
 
