@@ -19,6 +19,13 @@ public class TeleportOnCollision : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        other.gameObject.transform.position = teleportDestination.position;
+        if (other.TryGetComponent(out Rigidbody otherRB))
+        {
+            otherRB.transform.position = teleportDestination.position;
+        }
+        else if (other.transform.parent != null && other.transform.parent.TryGetComponent(out Rigidbody otherParentRB))
+        {
+            otherParentRB.transform.position = teleportDestination.position;
+        }
     }
 }
