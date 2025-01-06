@@ -257,6 +257,12 @@ public static class FileSystemHandler
     #region Reading Data
     public static List<SessionFileReference> FetchAllSessions()
     {
+        if (!Directory.Exists(DataDirectoryName))
+        {
+            Debug.LogWarning($"The data directory is empty, there are no sessions to fetch.");
+            return null;
+        }
+        
         Dictionary<string, SessionFileReference> sessionCollection = new();
 
         string[] filePaths = Directory.GetFiles(DataDirectoryName, "*" + FileExtension, searchOption: SearchOption.AllDirectories);

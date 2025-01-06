@@ -9,11 +9,18 @@ public class TeleportSpecificGO : MonoBehaviour
 
     public void Teleport()
     {
+        if (SessionManager.currentMode == SessionManager.DataMode.Replay)
+        {
+            Debug.LogWarning("Teleportation is not permitted in Replay mode");
+            return;
+        }
+
+        GameObject objectToTeleport = GameManager.Instance.PlayerCharacter;
         if (objectToTeleport == null)
         {
             Debug.LogError("Either no object has been assigned or the assigned object was deleted.");
             return;
         }
-        objectToTeleport.transform.position = this.transform.position;
+        GameManager.Instance.PlayerCharacter.transform.position = this.transform.position;
     }
 }

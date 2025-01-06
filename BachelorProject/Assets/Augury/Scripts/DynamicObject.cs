@@ -70,11 +70,13 @@ public class DynamicObject : MonoBehaviour
     private void OnRecordSessionStop() => FileSystemHandler.SaveDynamicObject(this);
     private void OnReplaySessionStart()
     {
+        if (rb == null) return; //< Which is the case for dynamic objects without a Rigidbody. (e.g. a Lazy Follower)
         wasKinematicByDefault = rb.isKinematic;
         rb.isKinematic = true; //< To prevent physics from interfering with the replay movement.
     }
     private void OnReplaySessionStop()
     {
+        if (rb == null) return;
         rb.isKinematic = wasKinematicByDefault;
     }
 

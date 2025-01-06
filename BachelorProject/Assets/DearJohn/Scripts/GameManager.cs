@@ -15,7 +15,9 @@ public class GameManager : MonoBehaviour
     public static UnityEvent OnGamePause = new UnityEvent();
     public static UnityEvent OnGameResume = new UnityEvent();
     public static UnityEvent OnGameEnd = new UnityEvent();
-    public GameObject activePlayerCharacter {get; private set;}
+    public GameObject PlayerCharacter => SessionManager.currentMode == SessionManager.DataMode.Replay ? Fakeplayer : XRRig;
+    [SerializeField] private GameObject XRRig;
+    [SerializeField] private GameObject Fakeplayer;
     public static GameStage currentGameStage = GameStage.Menu;
     public static bool hasGameStarted = false;
     public static bool isGamePaused = false;
@@ -31,9 +33,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        Initialize(); // Will eventually be called by another class else.
+        SessionManager.OnRecordStart.AddListener(Initialize);
+    }
+
+    private void OnDisable()
+    {
+        SessionManager.OnRecordStart.RemoveListener(Initialize);
     }
 
     [ContextMenu("Initialize")]
@@ -42,7 +49,7 @@ public class GameManager : MonoBehaviour
         hasGameStarted = false;
         isGamePaused = false;
         currentGameStage = GameStage.WaitingForPlayerInput;
-        activePlayerCharacter = DiscoverActivePlayerCharacter();
+        // PlayerCharacter = DiscoverActivePlayerCharacter();
         OnReadyForGameStart.Invoke();
     }
 
@@ -79,10 +86,15 @@ public class GameManager : MonoBehaviour
     {
         if (!hasGameStarted) { Debug.Log($"Game has not started yet!"); return; }
 
-        // If (SessionManager.mode == Replay) clean up and then do nothing. Do not reset the scene.
+        if (SessionManager.currentMode == SessionManager.DataMode.Replay)
+            // Do not proceed to post-game
+            return;
         Debug.Log("Game Ended!");
         currentGameStage = GameStage.PostGame;
         OnGameEnd.Invoke();
+
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+            SessionManager.StopCurrentSession();
     }
 
     private GameObject DiscoverActivePlayerCharacter()

@@ -18,12 +18,9 @@ public class StartGameUponLeavingArea : MonoBehaviour
         // if (GameManager.currentGameStage != GameManager.GameStage.WaitingForPlayerInput)
         //     return;
 
-        if (playerCharacter == null)
-            playerCharacter = GameManager.Instance.activePlayerCharacter;
-
         //< All of this is not needed any more, because this object stays inactive until the GameManager enables it.
 
-        if (Vector3.Distance(playerCharacter.transform.position, transform.position) > areaRadiusInMeters)
+        if (Vector3.Distance(GameManager.Instance.PlayerCharacter.transform.position, transform.position) > areaRadiusInMeters)
             GameManager.Instance.StartGame();
     }
 

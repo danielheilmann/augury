@@ -26,7 +26,7 @@ public class GenerationHandlerEditor : Editor
         else
         {
             if (GUILayout.Button($"Stop Current ({SessionManager.currentMode})"))
-                handler.StopCurrentSession();
+                SessionManager.StopCurrentSession();
         }
     }
 }

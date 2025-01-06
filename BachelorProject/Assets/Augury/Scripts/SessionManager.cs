@@ -59,7 +59,7 @@ public class SessionManager : MonoBehaviour
         OnReplayStart?.Invoke();
     }
 
-    public void StopCurrentSession()
+    public static void StopCurrentSession()
     {
         switch (currentMode)
         {
@@ -75,14 +75,14 @@ public class SessionManager : MonoBehaviour
         }
     }
 
-    public void StopRecording()
+    public static void StopRecording()
     {
         Debug.Log($"Stopping Record Mode.");
         currentMode = DataMode.Idle;
         OnRecordStop?.Invoke();
     }
 
-    public void StopReplaying()
+    public static void StopReplaying()
     {
         Debug.Log($"Stopping Replay Mode.");
         currentMode = DataMode.Idle;
