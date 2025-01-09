@@ -32,7 +32,7 @@ public class TransitionFade : MonoBehaviour
     {
         if (_done) return;
 
-        material.color = new Color(color.r, color.g, color.b, _alpha);
+        SetColorAlpha(_alpha);
 
         _time += Time.deltaTime;
 
@@ -42,7 +42,7 @@ public class TransitionFade : MonoBehaviour
         _alpha = FadeCurve.Evaluate(_time / duration);
         if (_alpha >= 1 && !hasTriggeredObscuredAlready) OnObscured.Invoke();
 
-        if (_alpha < 0) 
+        if (_alpha < 0)
         {
             _done = true;
             this.gameObject.SetActive(false);
@@ -51,6 +51,11 @@ public class TransitionFade : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        material.color = new Color(color.r, color.g, color.b, 0);
+        SetColorAlpha(0f);
+    }
+
+    private void SetColorAlpha(float alpha)
+    {
+        material.color = new Color(color.r, color.g, color.b, alpha);
     }
 }

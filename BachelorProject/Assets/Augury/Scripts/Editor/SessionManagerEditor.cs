@@ -17,9 +17,14 @@ public class GenerationHandlerEditor : Editor
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Start Recording"))
+            {
                 handler.StartRecordSession();
+                GameManager.Instance?.Initialize();
+            }
             if (GUILayout.Button("Start Replaying"))
+            {
                 handler.StartReplaySession();
+            }
 
             GUILayout.EndHorizontal();
         }
@@ -28,5 +33,9 @@ public class GenerationHandlerEditor : Editor
             if (GUILayout.Button($"Stop Current ({SessionManager.currentMode})"))
                 SessionManager.StopCurrentSession();
         }
+
+        GUILayout.Space(10);
+        if (GUILayout.Button($"Only Start Game (without Session)"))
+                GameManager.Instance?.Initialize();
     }
 }

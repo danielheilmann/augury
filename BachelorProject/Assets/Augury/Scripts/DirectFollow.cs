@@ -33,14 +33,14 @@ public class DirectFollow : MonoBehaviour
 
     private void Update()
     {
-        if (SessionManager.currentMode != SessionManager.DataMode.Record)
-            return;
-
         if (target == null)
             return;
 
-        transform.position = target.position;
-        transform.rotation = target.rotation;
-        transform.localScale = target.localScale;
+        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+        {
+            transform.position = target.position;
+            transform.rotation = target.rotation;
+            transform.localScale = target.localScale;
+        }
     }
 }

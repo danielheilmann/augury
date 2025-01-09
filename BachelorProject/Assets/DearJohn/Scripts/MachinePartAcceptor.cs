@@ -23,12 +23,6 @@ public class MachinePartAcceptor : MonoBehaviour
     private void Start()
     {
         GetComponent<Collider>().isTrigger = true;
-
-        previewCardboardBox.SetActive(true);
-        previewBrokenMicrowave.SetActive(false);
-        previewHamsterWheel.SetActive(false);
-        previewBattery.SetActive(false);
-        previewAntennaTV.SetActive(false);
         previewLever.SetActive(false);
     }
 
@@ -46,38 +40,38 @@ public class MachinePartAcceptor : MonoBehaviour
         switch (questItem.type)
         {
             case QuestItem.Type.CardboardBox:
-                if (!previewCardboardBox.activeInHierarchy) break;
+                if (isCardboardBoxPlaced) break;
                 selectedPreview = previewCardboardBox;
                 isCardboardBoxPlaced = true;
-                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview, previewBrokenMicrowave, previewHamsterWheel, previewAntennaTV));
+                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
                 // Debug.Log("Cardboard Box accepted!");
                 break;
             case QuestItem.Type.FixedMicrowave:
                 Debug.Log($"Microwave is not broken yet.");
                 break;
             case QuestItem.Type.BrokenMicrowave:
-                if (!previewBrokenMicrowave.activeInHierarchy) break;
+                if (isBrokenMicrowavePlaced) break;
                 selectedPreview = previewBrokenMicrowave;
                 isBrokenMicrowavePlaced = true;
-                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview, previewBattery));
+                StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
                 // Debug.Log("Broken Microwave accepted!");
                 break;
             case QuestItem.Type.HamsterWheel:
-                if (!previewHamsterWheel.activeInHierarchy) break;
+                if (isHamsterWheelPlaced) break;
                 selectedPreview = previewHamsterWheel;
                 isHamsterWheelPlaced = true;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
                 // Debug.Log("Hamster Wheel accepted!");
                 break;
             case QuestItem.Type.Battery:
-                if (!previewBattery.activeInHierarchy) break;
+                if (isBatteryPlaced) break;
                 selectedPreview = previewBattery;
                 isBatteryPlaced = true;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
                 // Debug.Log("Battery accepted!");
                 break;
             case QuestItem.Type.AntennaTV:
-                if (!previewAntennaTV.activeInHierarchy) break;
+                if (isAntennaTVPlaced) break;
                 selectedPreview = previewAntennaTV;
                 isAntennaTVPlaced = true;
                 StartCoroutine(LerpQuestItemToPreview(questItem, selectedPreview));
@@ -93,7 +87,7 @@ public class MachinePartAcceptor : MonoBehaviour
         }
     }
 
-    private IEnumerator LerpQuestItemToPreview(QuestItem questItem, GameObject selectedPreview, params GameObject[] previewsToEnableAfterLerp)
+    private IEnumerator LerpQuestItemToPreview(QuestItem questItem, GameObject selectedPreview)
     {
         questItem.Strip(); //< To prevent the quest item from being grabbed while lerping.
 
@@ -122,18 +116,13 @@ public class MachinePartAcceptor : MonoBehaviour
 
         if (isMachineComplete)
         {
+            Debug.Log($"Machine has been assembled.");
             yield return new WaitForSeconds(2f);
             questItem.GetComponent<Rigidbody>().isKinematic = false;  //< Lever falls to the ground, comically.
             yield return new WaitForSeconds(2f);
             GameManager.Instance.RollCredits();
             yield break;
         }
-
-        if (previewsToEnableAfterLerp != null)
-            foreach (GameObject preview in previewsToEnableAfterLerp)
-            {
-                preview.SetActive(true);
-            }
 
         if (isCardboardBoxPlaced && isBrokenMicrowavePlaced && isHamsterWheelPlaced && isBatteryPlaced && isAntennaTVPlaced) //< Once everything else was placed, allow the lever to be placed.
             previewLever.SetActive(true);

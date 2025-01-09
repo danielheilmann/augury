@@ -48,6 +48,8 @@ public class ReplayManagerEditor : Editor
                 {
                     handler.LoadSelectedSession();
                     handler.BeginReplay();
+
+                    // GameManager.Instance?.Initialize(); //TODO Temporary Solution
                 }
         }
     }

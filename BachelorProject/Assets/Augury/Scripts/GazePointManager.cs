@@ -87,10 +87,22 @@ public class GazePointManager : MonoBehaviour
     #region Evaluation of Raycast into of GazePoint
     private void EvaluateRaycastHit(RaycastHit hit)
     {
-        if (hit.collider.gameObject.TryGetComponent<DynamicObject>(out DynamicObject dynObj))
+        DynamicObject dynObj;
+        if (hit.collider.gameObject.TryGetComponent<DynamicObject>(out dynObj))
+        {
             CreatePointAtPosition(hit.point, hit.normal, dynObj);
-        else
-            CreatePointAtPosition(hit.point, hit.normal);
+            return;
+        }
+
+        if (hit.collider.transform.parent != null)
+        {
+            if (hit.collider.transform.parent.TryGetComponent<DynamicObject>(out dynObj))
+                CreatePointAtPosition(hit.point, hit.normal, dynObj);
+            else
+                CreatePointAtPosition(hit.point, hit.normal);
+        }
+
+        CreatePointAtPosition(hit.point, hit.normal);
     }
 
     private void CreatePointAtPosition(Vector3 globalPosition, Vector3 hitNormal, DynamicObject connectedDynObj = null)
