@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     // public enum GameStage { Menu, WaitingForPlayerInput, InGame, PostGame }
     // public enum GameStatus { NotStarted, Paused, Running, Ended }
 
-    public static GameManager Instance;
+    public static GameManager Instance { get; private set; }
     public static UnityEvent OnReadyForGameStart = new UnityEvent();
     public static UnityEvent OnGameStart = new UnityEvent();
     public static UnityEvent OnGamePause = new UnityEvent();

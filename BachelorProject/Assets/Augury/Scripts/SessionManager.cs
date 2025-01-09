@@ -7,6 +7,8 @@ using UnityEngine.Events;
 public class SessionManager : MonoBehaviour
 {
     public enum DataMode { Idle, Record, Replay }
+
+    public static SessionManager Instance {get; private set;}
     public static UnityEvent OnRecordStart = new();
     public static UnityEvent OnRecordStop = new();
     public static UnityEvent OnReplayStart = new();
@@ -15,10 +17,14 @@ public class SessionManager : MonoBehaviour
     public static DataMode currentMode = DataMode.Idle;
     private static bool wasRecordingInterrupted = false; //< As a check when entering a new scene. If the earlier session was interrupted by SceneChange, a new one should be started right after the scene change is complete. 
 
-    /// <summary>
-    /// Start is called on the frame when a script is enabled just before
-    /// any of the Update methods is called the first time.
-    /// </summary>
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
     private void Start()
     {
         if (wasRecordingInterrupted)
@@ -59,7 +65,7 @@ public class SessionManager : MonoBehaviour
         OnReplayStart.Invoke();
     }
 
-    public static void StopCurrentSession()
+    public void StopCurrentSession()
     {
         switch (currentMode)
         {
@@ -75,14 +81,14 @@ public class SessionManager : MonoBehaviour
         }
     }
 
-    private static void StopRecording()
+    private void StopRecording()
     {
         Debug.Log($"Stopping Record Mode.");
         currentMode = DataMode.Idle;
         OnRecordStop.Invoke();
     }
 
-    private static void StopReplaying()
+    private void StopReplaying()
     {
         Debug.Log($"Stopping Replay Mode.");
         currentMode = DataMode.Idle;
