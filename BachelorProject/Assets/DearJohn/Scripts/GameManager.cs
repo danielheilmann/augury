@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
-    public enum GameStage { Menu, WaitingForPlayerInput, InGame, PostGame }
+    // public enum GameStage { Menu, WaitingForPlayerInput, InGame, PostGame }
     // public enum GameStatus { NotStarted, Paused, Running, Ended }
 
     public static GameManager Instance;
@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public static UnityEvent OnGamePause = new UnityEvent();
     public static UnityEvent OnGameResume = new UnityEvent();
     public static UnityEvent OnGameEnd = new UnityEvent();
-    public static GameStage currentGameStage = GameStage.Menu;
+    // public static GameStage currentGameStage = GameStage.Menu;
     public static bool hasGameStarted = false;
     public static bool isGamePaused = false;
     [SerializeField] private GameObject XRRig;
@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Initialized!");
         hasGameStarted = false;
         isGamePaused = false;
-        currentGameStage = GameStage.WaitingForPlayerInput;
+        // currentGameStage = GameStage.WaitingForPlayerInput;
         // PlayerCharacter = DiscoverActivePlayerCharacter();
         OnReadyForGameStart.Invoke();
     }
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Game Started!");
         hasGameStarted = true;
-        currentGameStage = GameStage.InGame;
+        // currentGameStage = GameStage.InGame;
         OnGameStart.Invoke();
     }
 
@@ -80,13 +80,13 @@ public class GameManager : MonoBehaviour
             return;
 
         Debug.Log("Game Ended!");
-        currentGameStage = GameStage.PostGame;
+        // currentGameStage = GameStage.PostGame;
         OnGameEnd.Invoke();
     }
 
-    public GameObject GetCurrentPlayerCharacter()
+    public GameObject GetCurrentPlayerCharacter()   //< Could be implemented better (performance-wise) but it's okay for now
     {
-        if (SessionManager.Instance.currentMode == SessionManager.DataMode.Replay)
+        if (SessionManager.currentMode == SessionManager.DataMode.Replay)
             return Fakeplayer; //< The representation of the player that is driven by DynamicObject-Updates on the ReplayTimeline.
         else
             return XRRig;

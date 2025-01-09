@@ -35,8 +35,5 @@ public class GenerationHandlerEditor : Editor
                 SessionManager.StopCurrentSession();
         }
         #endregion
-        GUILayout.Space(10);
-        if (GUILayout.Button($"Only Start Game (without Session)"))
-                GameManager.Instance?.Initialize();
     }
 }
