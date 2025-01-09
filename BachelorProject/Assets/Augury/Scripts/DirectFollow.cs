@@ -22,7 +22,7 @@ public class DirectFollow : MonoBehaviour
     private void InReplayMode()
     {
         visualRepresentation.SetActive(true);
-        // this.enabled = false;
+        // this.enabled = false; //< Because this object will be driven by the DynamicObject-Updates of the ReplayTimeline instead.
     }
 
     private void InRecordMode()
@@ -31,7 +31,7 @@ public class DirectFollow : MonoBehaviour
         // this.enabled = true;
     }
 
-    private void Update()
+    private void Update()   //< This could be made more performant by only turning on the object during Record Mode. That way, the SessionMode check here would not be necessary.
     {
         if (target == null) return;
 
