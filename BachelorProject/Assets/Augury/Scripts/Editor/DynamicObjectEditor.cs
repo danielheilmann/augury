@@ -13,11 +13,16 @@ public class DynamicObjectEditor : Editor
         if (handler != null)
         {
             if (confirmAmount == 0)
-                if (GUILayout.Button("Request new Unique ID"))
-                    confirmAmount += 1;
+                if (GUILayout.Button("Request Unique ID"))
+                {
+                    if (handler.hasID)
+                        confirmAmount += 1;
+                    else
+                        handler.RequestNewID(); //< If the object does not have an ID, it can be requested immediately without confirmation.
+                }
 
             if (confirmAmount == 1)
-                if (GUILayout.Button("You sure?"))
+                if (GUILayout.Button("Do you really want to overwrite the existing ID?"))
                     confirmAmount += 1;
 
             if (confirmAmount == 2)
