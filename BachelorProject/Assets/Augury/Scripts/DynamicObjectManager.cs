@@ -81,18 +81,26 @@ public class DynamicObjectManager : MonoBehaviour
     }
 
     [ContextMenu("Register all unregistered DynamicObjects in scene")]
-    public void RegisterAllDynamicObjectsInScene()
+    public void RegisterAllDynamicObjectsInScene()   //< Needs to be public so the CustomInspector can call it.
     {
-        DynamicObject[] dynObjectsInScene = FindObjectsOfType<DynamicObject>(true);
+        DynamicObject[] dynObjectsInScene = FindObjectsOfType<DynamicObject>(true); //< To also find inactive objects in the current scene.
+
         foreach (DynamicObject dynObj in dynObjectsInScene)
         {
             if (dynObj.hasID)
             {
                 if (!dynObjects.ContainsKey(dynObj.id)) //< If the object has an ID already but is not yet registered.
                     Register(dynObj);
+                else
+                {
+                    if (dynObjects[dynObj.id] != dynObj)
+                        Debug.LogError($"Another dynamic object with the ID \"{dynObj.id}\" is already registered. Please request a new ID for \"{dynObj.gameObject.name}\".", dynObj.gameObject);
+                    // else
+                    //     If this object is already registered under this ID, there is no need to do anything.
+                }
             }
             else
-                dynObj.RequestNewID();
+                Debug.LogWarning($"{dynObj.gameObject.name} does not have an ID assigned yet. Please stop the application and assign an ID to this object using the \"Request new Unique ID\" button.");
         }
     }
 }

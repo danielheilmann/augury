@@ -10,7 +10,7 @@ public class DynamicObject : MonoBehaviour
     public UnityEvent OnPositionUpdate { get; private set; } = new();
     public UnityEvent OnRotationUpdate { get; private set; } = new();
     public UnityEvent OnScaleUpdate { get; private set; } = new();
-    [SerializeField] public string id; //{ get; private set; } //< Currently commented out so it's visible in the inspector
+    [SerializeField] public string id; //{ get; private set; } //< Currently commented out the set;get; so the variable is visible in the inspector
     public bool hasID => !string.IsNullOrEmpty(id);
     [SerializeField, ReadOnly] public Dictionary<DateTime, Vector3> positionHistory = new();
     [SerializeField, ReadOnly] public Dictionary<DateTime, Quaternion> rotationHistory = new();
@@ -27,7 +27,10 @@ public class DynamicObject : MonoBehaviour
 
     private void Start()
     {
-        DynamicObjectManager.Register(this); //< To re-register in case this object was deleted or the manager had changed scenes.
+        if (hasID)
+            DynamicObjectManager.Register(this); //< To re-register in case this object was deleted or generally instantiated after the DynamicObjectManager ran its initial scan on Start().
+        else
+            Debug.LogError($"{this.gameObject.name} does not have an ID assigned yet. Please stop the application and assign an ID to this object using the \"Request new Unique ID\" button.");
     }
 
     private void OnEnable()
@@ -39,7 +42,7 @@ public class DynamicObject : MonoBehaviour
         SessionManager.OnReplayStart.AddListener(OnReplaySessionStart);
         SessionManager.OnReplayStop.AddListener(OnReplaySessionStop);
 
-        //> Just in case for if this object was disabled (or not instantiated yet) when the recording session was started.
+        //> Just in case for if this object had been disabled (or not instantiated yet) when the recording session was started.
         if (SessionManager.currentMode == SessionManager.DataMode.Record)
             OnRecordSessionStart();
     }
@@ -66,19 +69,9 @@ public class DynamicObject : MonoBehaviour
             OnRecordSessionStop();
     }
 
+    #region Methods to be called during Recording
     private void OnRecordSessionStart() => Initialize();
     private void OnRecordSessionStop() => FileSystemHandler.SaveDynamicObject(this);
-    private void OnReplaySessionStart()
-    {
-        if (rb == null) return; //< Which is the case for dynamic objects without a Rigidbody. (e.g. a Lazy Follower)
-        wasKinematicByDefault = rb.isKinematic;
-        rb.isKinematic = true; //< To prevent physics from interfering with the replay movement.
-    }
-    private void OnReplaySessionStop()
-    {
-        if (rb == null) return;
-        rb.isKinematic = wasKinematicByDefault;
-    }
 
     private void Initialize()
     {
@@ -115,6 +108,20 @@ public class DynamicObject : MonoBehaviour
             OnScaleUpdate.Invoke();
         }
     }
+    #endregion
+
+    #region Methods to be called during Replay
+    private void OnReplaySessionStart()
+    {
+        if (rb == null) return; //< Which is the case for dynamic objects without a Rigidbody. (e.g. a Lazy Follower)
+        wasKinematicByDefault = rb.isKinematic;
+        rb.isKinematic = true; //< To prevent physics from interfering with the replay movement.
+    }
+    private void OnReplaySessionStop()
+    {
+        if (rb == null) return;
+        rb.isKinematic = wasKinematicByDefault;
+    }
 
     public void OverwritePosition(Vector3 position)
     {
@@ -133,6 +140,7 @@ public class DynamicObject : MonoBehaviour
         transform.localScale = scale;
         OnScaleUpdate.Invoke();
     }
+    #endregion
 
     [ContextMenu("Request new Unique ID")]
     public void RequestNewID()
