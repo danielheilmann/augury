@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(Collider))]
 public class MachinePartAcceptor : MonoBehaviour
 {
+    public UnityEvent OnMachineComplete = new UnityEvent();
+
     [SerializeField] private GameObject previewCardboardBox;
     private bool isCardboardBoxPlaced = false;
     [SerializeField] private GameObject previewBrokenMicrowave;
@@ -120,16 +122,11 @@ public class MachinePartAcceptor : MonoBehaviour
             yield return new WaitForSeconds(2f);
             questItem.GetComponent<Rigidbody>().isKinematic = false;  //< Lever falls to the ground, comically.
             yield return new WaitForSeconds(2f);
-            GameManager.Instance.RollCredits();
+            OnMachineComplete.Invoke();
             yield break;
         }
 
         if (isCardboardBoxPlaced && isBrokenMicrowavePlaced && isHamsterWheelPlaced && isBatteryPlaced && isAntennaTVPlaced) //< Once everything else was placed, allow the lever to be placed.
             previewLever.SetActive(true);
-    }
-
-    private void OnMachineCompleted()
-    {
-
     }
 }

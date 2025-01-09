@@ -75,14 +75,14 @@ public class SessionManager : MonoBehaviour
         }
     }
 
-    public static void StopRecording()
+    private static void StopRecording()
     {
         Debug.Log($"Stopping Record Mode.");
         currentMode = DataMode.Idle;
         OnRecordStop.Invoke();
     }
 
-    public static void StopReplaying()
+    private static void StopReplaying()
     {
         Debug.Log($"Stopping Replay Mode.");
         currentMode = DataMode.Idle;

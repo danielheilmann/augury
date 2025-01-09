@@ -43871,6 +43871,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 087e9f60a4ca0424d95fbe5f3854c2d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnMachineComplete:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 276029660}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: RollCredits
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   previewCardboardBox: {fileID: 7049938430908390946}
   previewBrokenMicrowave: {fileID: 7049938432606041560}
   previewHamsterWheel: {fileID: 7049938431737234965}
@@ -72022,13 +72037,13 @@ SceneRoots:
   - {fileID: 1530663757}
   - {fileID: 1388943894}
   - {fileID: 994177234}
+  - {fileID: 1296454029}
   - {fileID: 942300662}
   - {fileID: 980074725}
   - {fileID: 1177751372}
   - {fileID: 1004895335}
   - {fileID: 977012639}
   - {fileID: 1337761513}
-  - {fileID: 1296454029}
   - {fileID: 638413345}
   - {fileID: 6828669131773576018}
   - {fileID: 308144028}
