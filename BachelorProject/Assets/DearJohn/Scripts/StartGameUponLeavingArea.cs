@@ -11,7 +11,7 @@ public class StartGameUponLeavingArea : MonoBehaviour
 
     private void OnEnable()
     {
-        playerCharacter = GameManager.Instance.GetCurrentPlayerCharacter;
+        playerCharacter = GameManager.Instance.GetCurrentPlayerCharacter();
         GameManager.OnGameStart.AddListener(DeactivateSelf); //< Deactivate this script once the game has started as its job is done.
     }
 

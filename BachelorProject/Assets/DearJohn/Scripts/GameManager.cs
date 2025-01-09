@@ -15,12 +15,11 @@ public class GameManager : MonoBehaviour
     public static UnityEvent OnGamePause = new UnityEvent();
     public static UnityEvent OnGameResume = new UnityEvent();
     public static UnityEvent OnGameEnd = new UnityEvent();
-    public GameObject GetCurrentPlayerCharacter => SessionManager.currentMode == SessionManager.DataMode.Replay ? Fakeplayer : XRRig;
-    [SerializeField] private GameObject XRRig;
-    [SerializeField] private GameObject Fakeplayer;
     public static GameStage currentGameStage = GameStage.Menu;
     public static bool hasGameStarted = false;
     public static bool isGamePaused = false;
+    [SerializeField] private GameObject XRRig;
+    [SerializeField] private GameObject Fakeplayer;
 
     private void Awake()
     {
@@ -79,14 +78,17 @@ public class GameManager : MonoBehaviour
 
         if (SessionManager.currentMode == SessionManager.DataMode.Replay)  //< Do not proceed to post-game when Replaying earlier data
             return;
-            
+
         Debug.Log("Game Ended!");
         currentGameStage = GameStage.PostGame;
         OnGameEnd.Invoke();
     }
 
-    private GameObject DiscoverActivePlayerCharacter()
+    public GameObject GetCurrentPlayerCharacter()
     {
-        return GameObject.FindGameObjectWithTag("Player");
+        if (SessionManager.Instance.currentMode == SessionManager.DataMode.Replay)
+            return Fakeplayer; //< The representation of the player that is driven by DynamicObject-Updates on the ReplayTimeline.
+        else
+            return XRRig;
     }
 }
