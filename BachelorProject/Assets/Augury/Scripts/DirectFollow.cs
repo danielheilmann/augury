@@ -33,8 +33,7 @@ public class DirectFollow : MonoBehaviour
 
     private void Update()
     {
-        if (target == null)
-            return;
+        if (target == null) return;
 
         if (SessionManager.currentMode == SessionManager.DataMode.Record)
         {

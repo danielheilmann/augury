@@ -7,11 +7,13 @@ public class GenerationHandlerEditor : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
+
         var handler = target as SessionManager;
-        
         if (handler == null) return;
+        
         if (!Application.isPlaying) return;
 
+        #region Buttons
         if (SessionManager.currentMode == SessionManager.DataMode.Idle)
         {
             GUILayout.BeginHorizontal();
@@ -19,7 +21,6 @@ public class GenerationHandlerEditor : Editor
             if (GUILayout.Button("Start Recording"))
             {
                 handler.StartRecordSession();
-                GameManager.Instance?.Initialize();
             }
             if (GUILayout.Button("Start Replaying"))
             {
@@ -33,7 +34,7 @@ public class GenerationHandlerEditor : Editor
             if (GUILayout.Button($"Stop Current ({SessionManager.currentMode})"))
                 SessionManager.StopCurrentSession();
         }
-
+        #endregion
         GUILayout.Space(10);
         if (GUILayout.Button($"Only Start Game (without Session)"))
                 GameManager.Instance?.Initialize();

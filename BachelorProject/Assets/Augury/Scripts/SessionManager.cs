@@ -43,7 +43,7 @@ public class SessionManager : MonoBehaviour
         wasRecordingInterrupted = false;
         Debug.Log($"Starting Record Mode.");
         currentMode = DataMode.Record;
-        OnRecordStart?.Invoke();
+        OnRecordStart.Invoke();
     }
 
     public void StartReplaySession()
@@ -56,7 +56,7 @@ public class SessionManager : MonoBehaviour
 
         Debug.Log($"Starting Replay Mode.");
         currentMode = DataMode.Replay;
-        OnReplayStart?.Invoke();
+        OnReplayStart.Invoke();
     }
 
     public static void StopCurrentSession()
@@ -79,13 +79,13 @@ public class SessionManager : MonoBehaviour
     {
         Debug.Log($"Stopping Record Mode.");
         currentMode = DataMode.Idle;
-        OnRecordStop?.Invoke();
+        OnRecordStop.Invoke();
     }
 
     public static void StopReplaying()
     {
         Debug.Log($"Stopping Replay Mode.");
         currentMode = DataMode.Idle;
-        OnReplayStop?.Invoke();
+        OnReplayStop.Invoke();
     }
 }
