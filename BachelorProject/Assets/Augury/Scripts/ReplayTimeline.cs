@@ -17,6 +17,8 @@ public class ReplayTimeline : MonoBehaviour
     private DateTime currentTimelineTime = DateTime.MinValue;
     [SerializeField, ReadOnly] private bool isInitialized = false;
     [SerializeField, ReadOnly] private bool isPaused = true;
+    [Range(0.1f, 10f)]
+    [SerializeField] public float speedMultiplier = 1.0f;
 
     private void Update() => ProgressReplayTime();
 
@@ -179,7 +181,7 @@ public class ReplayTimeline : MonoBehaviour
         }
 
         //> Increment timeline time
-        currentTimelineTime = currentTimelineTime.AddSeconds(Time.deltaTime);
+        currentTimelineTime = currentTimelineTime.AddSeconds(Time.deltaTime * speedMultiplier);
     }
 
     private void ProcessGPAction(ReplayActionGP action)

@@ -5,15 +5,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
-//TODO | Feature List:
-// 1. Think about how to handle scene changes to accurately apply the correct data from each session
-
 public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager Instance { get; private set; }
-    public static UnityEvent OnReplayBegin = new();
-    public static UnityEvent OnReplayPause = new();
-    public static UnityEvent OnReplayUnpause = new();
+    public UnityEvent OnReplayBegin = new();
+    public UnityEvent OnReplayPause = new();
+    public UnityEvent OnReplayUnpause = new();
 
     public bool isActivelyReplaying { get; private set; } = false;
     public bool isPaused { get; private set; } = false;
@@ -122,8 +119,9 @@ public class ReplayManager : MonoBehaviour
     {
         Debug.Log($"Beginning Replay of Session \"{selectedSession}\"");
         isActivelyReplaying = true;
+
         timeline.Play();
-        // OnReplayBegin?.Invoke();
+        OnReplayBegin.Invoke();
     }
 
     private void OnReplayFinished()
@@ -137,9 +135,10 @@ public class ReplayManager : MonoBehaviour
     public void PauseReplay()
     {
         Debug.Log("Pausing Replay.");
-        timeline.Pause();
         isPaused = true;
-        // OnReplayPause?.Invoke();
+
+        timeline.Pause();
+        OnReplayPause?.Invoke();
     }
 
     [ContextMenu("Unpause Replay")]
@@ -147,7 +146,8 @@ public class ReplayManager : MonoBehaviour
     {
         Debug.Log("Unpausing Replay.");
         isPaused = false;
+
         timeline.Play();
-        // OnReplayUnpause?.Invoke();
+        OnReplayUnpause.Invoke();
     }
 }

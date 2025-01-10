@@ -14,6 +14,8 @@ public class ReplayManagerEditor : Editor
 
         if (handler.isActivelyReplaying)
         {
+            handler.timeline.speedMultiplier = EditorGUILayout.Slider("Playback Speed", handler.timeline.speedMultiplier, 0.1f, 10f);
+
             if (handler.isPaused)
             {
                 if (GUILayout.Button("Unpause Replay"))

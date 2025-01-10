@@ -56,6 +56,8 @@ public class ControlPanelEditor : Editor
 
                 if (replayManager.isActivelyReplaying)
                 {
+                    replayManager.timeline.speedMultiplier = EditorGUILayout.Slider("Playback Speed", replayManager.timeline.speedMultiplier, 0.1f, 10f);
+
                     if (replayManager.isPaused)
                     {
                         if (GUILayout.Button("Unpause Replay"))
