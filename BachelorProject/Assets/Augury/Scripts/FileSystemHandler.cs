@@ -278,7 +278,7 @@ public static class FileSystemHandler
 
             if (!sessionCollection.ContainsKey(sessionIdentifier)) //< Create a new session only if the collection does not contain one with that identifier already.
             {
-                SessionFileReference newSessionReference = new(sessionIdentifier, appVersion, sceneName, filePath);
+                SessionFileReference newSessionReference = new(sessionIdentifier, appVersion, sceneName, Path.GetDirectoryName(filePath).Split(directorySeparator).Last());
                 sessionCollection.Add(sessionIdentifier, newSessionReference);
             }
             //> Store entries in the respective session. This allows for multiple entries per session.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using SimpleJSON;
+using System.IO;
 
 public class SessionFileReference
 {
@@ -15,11 +16,12 @@ public class SessionFileReference
     public JSONObject gazePointsJSON { get; private set; }
     public List<JSONObject> dynamicObjectJSONs { get; private set; }
 
-    public SessionFileReference(string sessionIdentifier, string appVersion, string sceneName, string path)
+    public SessionFileReference(string sessionIdentifier, string appVersion, string sceneName, string folderTitle)
     {
         this.sessionIdentifier = sessionIdentifier;
         this.appVersion = appVersion;
         this.sceneName = sceneName;
+        this.path = folderTitle;
 
         gazePointsJSON = null;
         dynamicObjectJSONs = new List<JSONObject>();
@@ -40,6 +42,8 @@ public class SessionFileReference
 
     public override string ToString()
     {
-        return $"{sessionIdentifier} | {sceneName} | v{appVersion}";
+        // return $"{sessionIdentifier} | {sceneName} | v{appVersion}";
+        // Debug.Log($"Filepath: {path}");
+        return $"{path}";
     }
 }
