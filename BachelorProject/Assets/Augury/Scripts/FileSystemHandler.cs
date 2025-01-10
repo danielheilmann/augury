@@ -13,7 +13,7 @@ using System.Linq;
 public static class FileSystemHandler
 {
     //> File-Related Constants
-    private const string DataDirectoryName = "RecordedSessionData";
+    // private const string DataDirectoryName = "RecordedSessionData"; //< The name of the local folder in which all data was stored before storing it persistentDataPath.
     private const string FileExtension = ".json";
 
     //> Session-Related Constants
@@ -46,7 +46,7 @@ public static class FileSystemHandler
     private static string currentSceneName => SceneManager.GetActiveScene().name;
 
     //> Property that ensures the data directory exists and returns its path
-    private static string dataDir { get { if (!Directory.Exists(DataDirectoryName)) Directory.CreateDirectory(DataDirectoryName); return DataDirectoryName; } }
+    private static string dataDir => Application.persistentDataPath;
 
     #region Writing Data
     /// <summary> Creates a file in the application's data path, in a subfolder as declared by the "FolderName" const in the <see cref="FileSystemHandler"/> class. </summary>   
@@ -68,7 +68,8 @@ public static class FileSystemHandler
         string fileName = $"{RecordManager.sessionIdentifier}_{currentSceneName}_{label}{FileExtension}";
         string filePath = $"{sessionDir}{dirSeparator}{fileName}";
         File.WriteAllText(filePath, fileContent);
-        Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
+        Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}");
+        // Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}"); //< Commented out to reduce log clutter
 
         return filePath;
     }
