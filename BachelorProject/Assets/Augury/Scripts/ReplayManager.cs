@@ -72,7 +72,12 @@ public class ReplayManager : MonoBehaviour
 
             onlyValidSessions.Add(session);
         }
-        Debug.Log($"Fetched the following valid sessions:\n{onlyValidSessions.ToSeparatedString("\n")}");
+
+        if (onlyValidSessions.Count == 0)
+            Debug.Log("There are no valid sessions in the data directory.");
+        else
+            Debug.Log($"Fetched the following valid sessions:\n{onlyValidSessions.ToSeparatedString("\n")}");
+
         return onlyValidSessions;
     }
 

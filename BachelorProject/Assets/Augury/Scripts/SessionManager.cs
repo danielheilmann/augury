@@ -70,7 +70,7 @@ public class SessionManager : MonoBehaviour
         switch (currentMode)
         {
             case DataMode.Idle:
-                Debug.Log($"Currently in \"Idle\". There is nothing to stop.");
+                // Debug.Log($"Currently in \"Idle\". There is nothing to stop.");
                 break;
             case DataMode.Record:
                 StopRecording();

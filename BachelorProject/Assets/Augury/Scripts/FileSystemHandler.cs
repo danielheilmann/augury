@@ -41,10 +41,11 @@ public static class FileSystemHandler
     public const string KEY_ROTATIONHISTORY = "rotationHistory";
     public const string KEY_SCALEHISTORY = "scaleHistory";
 
-    //> Parameters to simplify access to certain values
-    private static char directorySeparator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
+    //> Parameters that serve as shortcuts access to certain values
+    private static char dirSeparator = Path.DirectorySeparatorChar; //< static because it cannot be const as Path.DirectorySeparatorChar needs to be read.
     private static string currentSceneName => SceneManager.GetActiveScene().name;
 
+    //> Property that ensures the data directory exists and returns its path
     private static string dataDir { get { if (!Directory.Exists(DataDirectoryName)) Directory.CreateDirectory(DataDirectoryName); return DataDirectoryName; } }
 
     #region Writing Data
@@ -60,12 +61,12 @@ public static class FileSystemHandler
             return "";
         }
 
-        string sessionDir = $"{dataDir}{directorySeparator}{RecordManager.sessionIdentifier}";
+        string sessionDir = $"{dataDir}{dirSeparator}{RecordManager.sessionIdentifier}";
         if (!Directory.Exists(sessionDir))
             Directory.CreateDirectory(sessionDir);
 
         string fileName = $"{RecordManager.sessionIdentifier}_{currentSceneName}_{label}{FileExtension}";
-        string filePath = $"{sessionDir}{directorySeparator}{fileName}";
+        string filePath = $"{sessionDir}{dirSeparator}{fileName}";
         File.WriteAllText(filePath, fileContent);
         Debug.Log($"<color=#cc80ff>Saved data to file: </color>{filePath}\n{fileContent}");
 
@@ -257,15 +258,9 @@ public static class FileSystemHandler
     #region Reading Data
     public static List<SessionFileReference> FetchAllSessions()
     {
-        if (!Directory.Exists(DataDirectoryName))
-        {
-            Debug.LogWarning($"The data directory is empty, there are no sessions to fetch.");
-            return null;
-        }
-        
-        Dictionary<string, SessionFileReference> sessionCollection = new();
+        Dictionary<string, SessionFileReference> sessionCollection = new(); //< Key: SessionIdentifier, Value: SessionFileReference
 
-        string[] filePaths = Directory.GetFiles(DataDirectoryName, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
+        string[] filePaths = Directory.GetFiles(dataDir, "*" + FileExtension, searchOption: SearchOption.AllDirectories);
         foreach (string filePath in filePaths)
         {
             string fileContentString = File.ReadAllText(filePath);
@@ -278,7 +273,7 @@ public static class FileSystemHandler
 
             if (!sessionCollection.ContainsKey(sessionIdentifier)) //< Create a new session only if the collection does not contain one with that identifier already.
             {
-                SessionFileReference newSessionReference = new(sessionIdentifier, appVersion, sceneName, Path.GetDirectoryName(filePath).Split(directorySeparator).Last());
+                SessionFileReference newSessionReference = new(sessionIdentifier, appVersion, sceneName, Path.GetDirectoryName(filePath).Split(dirSeparator).Last());
                 sessionCollection.Add(sessionIdentifier, newSessionReference);
             }
             //> Store entries in the respective session. This allows for multiple entries per session.
