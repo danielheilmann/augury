@@ -18761,7 +18761,7 @@ MonoBehaviour:
   _expectedSessionRuntimeInMinutes: 4
   _visualizeInRecordMode: 0
   _skipSavingDataToFile: 0
-  _openExplorerOnSave: 0
+  _openExplorerOnSave: 1
   _prettyJSONExport: 0
 --- !u!1001 &539491126
 PrefabInstance:
