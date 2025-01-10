@@ -111,13 +111,15 @@ public class ReplayManager : MonoBehaviour
         timeline.Initialize(selectedSession.sessionStartTime);
         timeline.OnTimelineFinished.AddListener(OnReplayFinished);
 
+        validSessions.Clear(); //< Clear the list of valid sessions once a session has been loaded.
+
         Debug.Log($"Loaded Session: {selectedSession}");
     }
 
     [ContextMenu("Begin Replay")]
     public void BeginReplay()
     {
-        Debug.Log($"Beginning Replay of Session \"{selectedSession}\"");
+        Debug.Log($"Begun replaying Session: {selectedSession}");
         isActivelyReplaying = true;
 
         timeline.Play();
@@ -126,7 +128,7 @@ public class ReplayManager : MonoBehaviour
 
     private void OnReplayFinished()
     {
-        Debug.Log($"Finished Replay of Session \"{selectedSession}\"");
+        Debug.Log($"Finished replaying Session: {selectedSession}");
         timeline.OnTimelineFinished.RemoveListener(OnReplayFinished);
         Clear();  //< Delete Timeline and reset all values once the replay has finished.
     }
