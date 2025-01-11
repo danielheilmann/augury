@@ -269,6 +269,18 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[1]
       value: 
       objectReference: {fileID: 2100000, guid: 6e43ce47e44aa8c40b7cd6a79f0f7cbe, type: 2}
+    - target: {fileID: 4333363533418979006, guid: 4b34c12fcbe948c4d8164b75993ac848, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333363533418979006, guid: 4b34c12fcbe948c4d8164b75993ac848, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 87.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333363533418979006, guid: 4b34c12fcbe948c4d8164b75993ac848, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6611900686237769879, guid: 4b34c12fcbe948c4d8164b75993ac848, type: 3}
       propertyPath: m_Name
       value: I_TutorialTV
