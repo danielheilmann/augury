@@ -145,7 +145,7 @@ public class ReplayManager : MonoBehaviour
         isPaused = true;
 
         timeline.Pause();
-        OnReplayPause?.Invoke();
+        OnReplayPause.Invoke();
     }
 
     [ContextMenu("Unpause Replay")]

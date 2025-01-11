@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour
     {
         if (!isGamePaused) { Debug.Log($"Game is not paused!"); return; }
 
+        isGamePaused = false;
         Debug.Log("Game Resumed!");
         OnGameResume.Invoke();
     }

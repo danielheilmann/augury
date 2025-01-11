@@ -8,9 +8,11 @@ public class StartGameUponLeavingArea : MonoBehaviour
 {
     [SerializeField] private float areaRadiusInMeters = 2f;
     private GameObject playerCharacter;
+    private bool caughtRandomTrigger = false;   //< This setup is necessary because in the Replay Mode, this script is looking at a target follow object, which, just for one frame, will teleport itself to world origin. Therefore, this "lock" is here to prevent that teleport from triggering the code here too early.
 
     private void OnEnable()
     {
+        caughtRandomTrigger = false;
         playerCharacter = GameManager.Instance.GetCurrentPlayerCharacter();
         GameManager.OnGameStart.AddListener(DeactivateSelf); //< Deactivate this script once the game has started as its job is done.
     }
@@ -20,8 +22,12 @@ public class StartGameUponLeavingArea : MonoBehaviour
     private void Update()
     {
         //> This object stays inactive until the GameManager enables it.
+        // Debug.Log($"Distance: {Vector3.Distance(playerCharacter.transform.position, transform.position)}");
         if (Vector3.Distance(playerCharacter.transform.position, transform.position) > areaRadiusInMeters)
-            GameManager.Instance.StartGame();
+            if (caughtRandomTrigger)
+                GameManager.Instance.StartGame();
+            else
+                caughtRandomTrigger = true;
     }
 
     // private void OnTriggerExit(Collider other)

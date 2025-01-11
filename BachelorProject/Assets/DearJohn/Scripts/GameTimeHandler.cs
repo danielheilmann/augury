@@ -16,11 +16,12 @@ public class GameTimeHandler : MonoBehaviour
         else
             Destroy(this);
     }
-    
+
     private void OnEnable()
     {
         GameManager.OnGameStart.AddListener(Begin);
         GameManager.OnGamePause.AddListener(Pause);
+        GameManager.OnGameResume.AddListener(Resume);
         GameManager.OnGameEnd.AddListener(Stop);
     }
 
@@ -28,6 +29,7 @@ public class GameTimeHandler : MonoBehaviour
     {
         GameManager.OnGameStart.RemoveListener(Begin);
         GameManager.OnGamePause.RemoveListener(Pause);
+        GameManager.OnGameResume.RemoveListener(Resume);
         GameManager.OnGameEnd.RemoveListener(Stop);
     }
 
@@ -36,7 +38,11 @@ public class GameTimeHandler : MonoBehaviour
         if (isPaused)
             return;
 
-        currentGameTimeInSeconds += Time.deltaTime;
+        if (SessionManager.currentMode == SessionManager.DataMode.Replay)
+            currentGameTimeInSeconds += Time.deltaTime * ReplayManager.Instance.timeline.speedMultiplier;
+        else
+            currentGameTimeInSeconds += Time.deltaTime;
+
         // Debug.Log($"Current Game Time: {currentGameTimeInSeconds}");
 
         if (currentGameTimeInSeconds >= EndGameAfterSeconds)
@@ -45,12 +51,9 @@ public class GameTimeHandler : MonoBehaviour
         }
     }
 
-    public void Begin()
-    {
-        isPaused = false;
-    }
-
+    public void Begin() => isPaused = false;
     public void Pause() => isPaused = true;
+    public void Resume() => isPaused = false;
 
     public void Stop()
     {

@@ -57,6 +57,7 @@ public class ControlPanelEditor : Editor
                 if (replayManager.isActivelyReplaying)
                 {
                     replayManager.timeline.speedMultiplier = EditorGUILayout.Slider("Playback Speed", replayManager.timeline.speedMultiplier, 0.1f, 10f);
+                    //< Keep in mind to pause and unpause the replay after changing the timeline speed to sync audio, game speed and replay speed again.
 
                     if (replayManager.isPaused)
                     {

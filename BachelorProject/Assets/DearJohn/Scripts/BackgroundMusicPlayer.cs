@@ -46,6 +46,9 @@ public class BackgroundMusicPlayer : MonoBehaviour
 
     public void Resume()
     {
+        // Debug.Log($"Audiosource Time: {audioSource.time} | GameTime: {GameTimeHandler.currentGameTimeInSeconds}");
+        audioSource.time = GameTimeHandler.currentGameTimeInSeconds;
+        audioSource.pitch = ReplayManager.Instance?.timeline?.speedMultiplier ?? 1f;
         audioSource.UnPause();
     }
 
