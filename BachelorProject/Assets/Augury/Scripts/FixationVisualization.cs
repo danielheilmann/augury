@@ -56,7 +56,7 @@ public class FixationVisualization : MonoBehaviour
         gameObject.transform.SetParent(fixation.isLocal ? dynObj.transform : FixationVisualizer.Instance.transform, true);
 
         //> Set up the canvas and line
-        canvas.transform.LookAt(position - surfaceNormal);
+        canvas.transform.rotation = Quaternion.LookRotation(-surfaceNormal);
         textField.text = (fid + 1).ToString(); //< To display the numbers starting from 1 instead of 0.
 
         UpdateLine();
