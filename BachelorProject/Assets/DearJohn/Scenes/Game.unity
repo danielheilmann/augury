@@ -18782,7 +18782,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _deviceMode: 1
-  _expectedSessionRuntimeInMinutes: 4
+  _expectedSessionRuntimeInMinutes: 6
   _visualizeInRecordMode: 0
   _skipSavingDataToFile: 0
   _openExplorerOnSave: 1

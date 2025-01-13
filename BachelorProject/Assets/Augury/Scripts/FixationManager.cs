@@ -13,7 +13,7 @@ public class FixationManager : MonoBehaviour
     //#> Private Variables 
     [Header("Settings")]
     [SerializeField] private float distanceThreshold = 0.3f;
-    [SerializeField] private int pointCountThresholdForFixationCreation = 5;  //? Maybe change this so that the tweakable part states how long an are needs to be fixated? (calculate this against timer tick rate)
+    [SerializeField] private int pointCountThresholdForFixationCreation = 4;  //? Maybe change this so that the tweakable variable states how long (in milliseconds) a point needs to be fixated? (e.g. calculate the current variable against timer tick rate)
 
     [Header("Visualization of Private Lists")]  //> Only serialized for visualization in editor
     [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new();
