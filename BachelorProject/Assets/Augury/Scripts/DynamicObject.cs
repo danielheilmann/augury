@@ -42,8 +42,8 @@ public class DynamicObject : MonoBehaviour
         SessionManager.OnReplayStart.AddListener(OnReplaySessionStart);
         SessionManager.OnReplayStop.AddListener(OnReplaySessionStop);
 
-        //> Just in case for if this object had been disabled (or not instantiated yet) when the recording session was started.
-        if (SessionManager.currentMode == SessionManager.DataMode.Record)
+        //> Just in case for if this object had been disabled (or not instantiated yet) when the recording session was initially started.
+        if (SessionManager.currentMode == SessionManager.DataMode.Record && positionHistory.Count == 0) //< As long as count is 0, this object is not initialized yet, otherwise, it was enabled when the session was started and had just been disabled later.
             OnRecordSessionStart();
     }
 

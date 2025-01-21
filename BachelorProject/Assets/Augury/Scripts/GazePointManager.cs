@@ -71,7 +71,7 @@ public class GazePointManager : MonoBehaviour
     }
     public void InitializeWithCustomCapacity(int capacity)
     {
-        pointCapacity = capacity;
+        pointCapacity = Mathf.Max(1, capacity); //< Ensure that the capacity is at least 1.
         points = new List<GazePoint>(pointCapacity);
         for (int i = 0; i < pointCapacity; i++)
             points.Add(new GazePoint());

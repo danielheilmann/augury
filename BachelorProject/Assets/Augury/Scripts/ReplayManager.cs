@@ -124,6 +124,12 @@ public class ReplayManager : MonoBehaviour
     [ContextMenu("Begin Replay")]
     public void BeginReplay()
     {
+        if (timeline == null)
+        {
+            Debug.LogWarning($"No session loaded. {(selectedSession == null ? "Please select a session" : "Please load the currently selected session")} and try again.");
+            return;
+        }
+
         Debug.Log($"Begun replaying Session: {selectedSession}");
         isActivelyReplaying = true;
 
