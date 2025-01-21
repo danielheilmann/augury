@@ -1,0 +1,152 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &546150361284292284
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1331497090286132710}
+  - component: {fileID: 2940619890752015710}
+  - component: {fileID: 2769654570869159086}
+  - component: {fileID: -7331824975402268951}
+  - component: {fileID: 4494102027133892947}
+  - component: {fileID: 5173261600093345367}
+  - component: {fileID: 8045217026495680964}
+  - component: {fileID: 186625988348682355}
+  m_Layer: 0
+  m_Name: AuguryController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1331497090286132710
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2940619890752015710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5074166d18ba6744bbbaaf990860e052, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2769654570869159086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46f825a19797ae84d99df92616978991, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _deviceMode: 1
+  _expectedSessionRuntimeInMinutes: 1
+  _visualizeInRecordMode: 0
+  _skipSavingDataToFile: 0
+  _openExplorerOnSave: 0
+  _prettyJSONExport: 0
+--- !u!114 &-7331824975402268951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee2532a1954ac4449ea96cc3f6ae934, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _ticksPerSecond: 20
+--- !u!114 &4494102027133892947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b73bd7bfaacce749bc72fc822c84c92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5173261600093345367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd87a5bda995813438db3ea98a0ad6f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnRecordStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRecordStop:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReplayStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReplayStop:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &8045217026495680964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d772ed0d53473f94e871a0f10f5e31f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &186625988348682355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546150361284292284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89b5c0f6cfc4a4440b7923bde7deaa32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnReplayBegin:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReplayPause:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReplayUnpause:
+    m_PersistentCalls:
+      m_Calls: []
