@@ -8,6 +8,7 @@ using UnityEngine.Events;
 public class FixationManager : MonoBehaviour
 {
     public static UnityEvent<Fixation> OnFixationCreated = new();
+    public static FixationManager Instance { get; private set; }
 
     [Header("Settings")]
     [SerializeField] private float distanceThresholdInMeters = 0.3f;
@@ -16,6 +17,19 @@ public class FixationManager : MonoBehaviour
     [Header("Visualization of Private Lists")]  //> Only serialized for visualization in editor
     [SerializeField, NonReorderable, ReadOnly] private List<GazePoint> activeGazePointGroup = new();
     [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new();
+
+    private int effectiveDurationThresholdInMilliseconds => Mathf.RoundToInt((1000 / Timer.ticksPerSecond) * pointCountThresholdForFixationCreation);
+    
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError($"{this} cannot set itself as instance as one has already been set by {Instance.gameObject}. Deleting self.");
+            Destroy(this);
+        }
+    }
 
     private void OnEnable()
     {
