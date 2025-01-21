@@ -7,12 +7,10 @@ using UnityEngine.Events;
 // 2. Adaptive circle size based on amount of gazepoints in active group before fixation creation
 public class FixationManager : MonoBehaviour
 {
-    //#> Static Variables 
     public static UnityEvent<Fixation> OnFixationCreated = new();
 
-    //#> Private Variables 
     [Header("Settings")]
-    [SerializeField] private float distanceThreshold = 0.3f;
+    [SerializeField] private float distanceThresholdInMeters = 0.3f;
     [SerializeField] private int pointCountThresholdForFixationCreation = 4;  //? Maybe change this so that the tweakable variable states how long (in milliseconds) a point needs to be fixated? (e.g. calculate the current variable against timer tick rate)
 
     [Header("Visualization of Private Lists")]  //> Only serialized for visualization in editor
@@ -67,7 +65,7 @@ public class FixationManager : MonoBehaviour
     private void EvaluateFixation(GazePoint gazePoint)
     {
         Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
-        bool evaluationTerminationCondition = Vector3.Distance(gazePoint.globalPosition, currentFixationGroupAveragePosition) > distanceThreshold || IsOnDifferentDynObj(gazePoint.dynObjID);
+        bool evaluationTerminationCondition = Vector3.Distance(gazePoint.globalPosition, currentFixationGroupAveragePosition) > distanceThresholdInMeters || IsOnDifferentDynObj(gazePoint.dynObjID);
 
         if (evaluationTerminationCondition)
         {

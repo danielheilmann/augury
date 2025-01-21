@@ -34,7 +34,7 @@ public class RecordManager : MonoBehaviour
         SessionManager.OnRecordStop.RemoveListener(OnStop);
     }
 
-    public void OnStart()
+    private void OnStart()
     {
         Timer.Instance?.Begin();
 

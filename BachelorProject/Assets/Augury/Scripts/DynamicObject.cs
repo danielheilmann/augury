@@ -53,6 +53,8 @@ public class DynamicObject : MonoBehaviour
         //!> Should still listen to the SessionStart and -Stop events, even if it is inactive, so the following two lines are supposed to be "missing".
         // SessionManager.OnRecordStart.RemoveListener(OnSessionStart);
         // SessionManager.OnRecordStop.RemoveListener(OnSessionStop); 
+        // SessionManager.OnReplayStart.RemoveListener(OnReplaySessionStart);
+        // SessionManager.OnReplayStop.RemoveListener(OnReplaySessionStop);
     }
 
     private void OnDestroy()

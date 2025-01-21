@@ -96,7 +96,7 @@ public class FixationVisualizer : MonoBehaviour
 
     public void IncreasePoolSize(int amount)
     {
-        Debug.Log($"Increasing pool size from {visualizations.Capacity} to {visualizations.Capacity + amount}.");
+        // Debug.Log($"Increasing pool size from {visualizations.Capacity} to {visualizations.Capacity + amount}.");
         visualizations.Capacity += amount;
         FillPool();
     }

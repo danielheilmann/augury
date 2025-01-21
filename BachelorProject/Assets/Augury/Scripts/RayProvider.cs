@@ -26,7 +26,7 @@ public class RayProvider : MonoBehaviour
         }
     }
 
-    // private void OnDrawGizmos()
+    // private void OnDrawGizmosSelected()
     // {
     //     Debug.DrawRay(this.transform.position, this.transform.forward * 10, Color.red, duration: 2.0f, depthTest: true);
     // }

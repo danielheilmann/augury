@@ -54,7 +54,7 @@ public class ReplayManager : MonoBehaviour
         validSessions = null;
     }
 
-    void Initialize()
+    private void Initialize()
     {
         Clear();
         validSessions = FetchValidSessions();

@@ -22,7 +22,10 @@ public class SessionManager : MonoBehaviour
         if (Instance == null)
             Instance = this;
         else
-            Destroy(gameObject);
+        {
+            Debug.LogError($"{this} cannot set itself as instance as one has already been set by {Instance.gameObject}. Deleting self.");
+            Destroy(this);
+        }
     }
 
     private void Start()
