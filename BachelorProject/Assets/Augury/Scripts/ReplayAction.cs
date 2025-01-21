@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using SimpleJSON;
 
-public class ReplayAction
+public abstract class ReplayAction
 {
     public enum ActionType { GazePoint, DynamicObject }
 
