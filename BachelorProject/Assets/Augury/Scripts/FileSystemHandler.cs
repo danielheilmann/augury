@@ -233,7 +233,7 @@ public static class FileSystemHandler
     #endregion
 
     #region Automatically open File Explorer at file location
-    private static void OpenFileExplorerAt(string filePath)
+    public static void OpenFileExplorerAt(string filePath)
     {
         System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
         process.FileName = "explorer.exe";

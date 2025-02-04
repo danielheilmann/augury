@@ -6,12 +6,13 @@ using TMPro;
 /// <summary>
 /// A class that serves as an interface to all components on the FixationVisualization GameObject Prefab.
 /// </summary>
+[SelectionBase]
 public class FixationVisualization : MonoBehaviour
 {
     private const float offsetFactor = 0.01f;  //< During placement, the visualization canvas is lifted from the surface by an amount equal to surfaceNormal * offsetFactor.
     public Fixation fixation { get; private set; } = null;
     public int fid => fixation != null ? fixation.gfid : -1;
-    [SerializeField, ReadOnly] private Canvas canvas;
+    [SerializeField, ReadOnly] public Canvas canvas;
     [SerializeField, ReadOnly] private TextMeshProUGUI textField;
     [SerializeField, ReadOnly] private LineRenderer line;  //!< Line positions are in world space.
     // private Color lineColor;
@@ -82,6 +83,7 @@ public class FixationVisualization : MonoBehaviour
     #endregion
 
     #region Line Update Methods
+    [ContextMenu("Invoke Line Update")]
     private void UpdateLine()
     {
         //> To update lines between the 3 points (previous, this & next) whenever this fixation point is moved:
