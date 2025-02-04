@@ -25,6 +25,9 @@ public class ReplayTimeline : MonoBehaviour
     #region Filling Timeline with Actions
     public void GenerateActionsFromGazePointsJSON(JSONObject gazePointsJSON)
     {
+        if (GazePointManager.Instance == null)  //< If the GazePoint Module is disabled or not present, do not load any GazePoints into the timeline.
+            return;
+
         if (gazePointsJSON == null)
         {
             Debug.LogError($"Trying to generate actions from null gazePointsJSON. Aborting.");
