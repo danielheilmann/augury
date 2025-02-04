@@ -62,7 +62,7 @@ public class GazePointVisualizer : MonoBehaviour
 
         DeleteAllVisualizations();
 
-        pool = new List<GameObject>(poolSize);
+        pool = new List<GameObject>(poolSize);  //?< Could be made more efficient by not discarding the entire pool but instead resetting the objects and reusing them.
         for (int i = 0; i < poolSize; i++)
             IncreasePool();
 

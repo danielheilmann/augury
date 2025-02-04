@@ -19,7 +19,7 @@ public class FixationManager : MonoBehaviour
     [SerializeField, NonReorderable, ReadOnly] private List<Fixation> fixations = new();
 
     private int effectiveDurationThresholdInMilliseconds => Mathf.RoundToInt((1000 / Timer.ticksPerSecond) * pointCountThresholdForFixationCreation);
-    
+
     private void Awake()
     {
         if (Instance == null)
@@ -78,9 +78,11 @@ public class FixationManager : MonoBehaviour
     #region Create Fixation
     private void EvaluateFixation(GazePoint gazePoint)
     {
+        // if (gazePoint.isLocal)  //! Temporary System override to disable the evaluation of local fixation alltogether
+        //     return; //< Simply prevents Local GazePoints from contributing to fixations in any way
+
         Vector3 currentFixationGroupAveragePosition = CalculateAveragePosition(activeGazePointGroup);
         bool evaluationTerminationCondition = Vector3.Distance(gazePoint.globalPosition, currentFixationGroupAveragePosition) > distanceThresholdInMeters || IsOnDifferentDynObj(gazePoint.dynObjID);
-
         if (evaluationTerminationCondition)
         {
             if (activeGazePointGroup.Count > pointCountThresholdForFixationCreation) //< If current PointGroup contains enough points, collapse into a new Fixation.
