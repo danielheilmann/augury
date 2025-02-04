@@ -11,6 +11,7 @@ public class ReplayManager : MonoBehaviour
     public UnityEvent OnReplayBegin = new();
     public UnityEvent OnReplayPause = new();
     public UnityEvent OnReplayUnpause = new();
+    public UnityEvent OnReplayFinished = new();
 
     public bool isActivelyReplaying { get; private set; } = false;
     public bool isPaused { get; private set; } = false;
@@ -114,7 +115,7 @@ public class ReplayManager : MonoBehaviour
             timeline.GenerateActionsFromDynamicObjectJSON(dynObjJSON);
 
         timeline.Initialize(selectedSession.sessionStartTime);
-        timeline.OnTimelineFinished.AddListener(OnReplayFinished);
+        timeline.OnTimelineFinished.AddListener(ReplayFinished);
 
         validSessions.Clear(); //< Clear the list of valid sessions once a session has been loaded.
 
@@ -137,11 +138,12 @@ public class ReplayManager : MonoBehaviour
         OnReplayBegin.Invoke();
     }
 
-    private void OnReplayFinished()
+    private void ReplayFinished()
     {
         Debug.Log($"Finished replaying Session: {selectedSession}");
-        timeline.OnTimelineFinished.RemoveListener(OnReplayFinished);
+        timeline.OnTimelineFinished.RemoveListener(ReplayFinished);
         Clear();  //< Delete Timeline and reset all values once the replay has finished.
+        OnReplayFinished.Invoke();
     }
 
     [ContextMenu("Pause Replay")]
