@@ -21,6 +21,7 @@ public class Settings : MonoBehaviour
     public static bool prettyJSONExport { get; private set; } = false;
     /// <summary> Enabling this will result in GazePoints and Fixations being visualized in Record Mode as well. This is useful for debugging of GazePoint / Fixation creation. </summary>
     public static bool visualizeInRecordMode { get; private set; } = false;
+    public static float timerTicksPerSecond { get; private set; } = 20.0f;
 
     [Header("Global Setting Overrides")]
     [SerializeField] private DeviceMode _deviceMode = DeviceMode.XR;
@@ -34,6 +35,7 @@ public class Settings : MonoBehaviour
     [SerializeField] private bool _openExplorerOnSave = false;
     [Tooltip("Turning this off disables pretty formatting in all generated JSON files, which will reduce file size and is therefore recommended.")]
     [SerializeField] private bool _prettyJSONExport = false;
+    [SerializeField] private float _timerTicksPerSecond = 20.0f;
 
     private void Awake()
     {
@@ -61,5 +63,6 @@ public class Settings : MonoBehaviour
         expectedSessionRuntimeInMinutes = _expectedSessionRuntimeInMinutes;
         prettyJSONExport = _prettyJSONExport;
         visualizeInRecordMode = _visualizeInRecordMode;
+        timerTicksPerSecond = _timerTicksPerSecond;
     }
 }
