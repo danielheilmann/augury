@@ -19,6 +19,11 @@ public class BackgroundMusicPlayer : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    private void Start()
+    {
+        audioSource.clip = backgroundTrack;
+    }
+
     private void OnEnable()
     {
         GameManager.OnGameStart.AddListener(Play);
@@ -35,7 +40,6 @@ public class BackgroundMusicPlayer : MonoBehaviour
 
     public void Play()
     {
-        audioSource.clip = backgroundTrack;
         audioSource.Play();
     }
 
@@ -47,7 +51,9 @@ public class BackgroundMusicPlayer : MonoBehaviour
     public void Resume()
     {
         // Debug.Log($"Audiosource Time: {audioSource.time} | GameTime: {GameTimeHandler.currentGameTimeInSeconds}");
-        audioSource.time = GameTimeHandler.currentGameTimeInSeconds;
+        if (GameTimeHandler.currentGameTimeInSeconds <= backgroundTrack.length)
+            audioSource.time = GameTimeHandler.currentGameTimeInSeconds;
+
         audioSource.pitch = ReplayManager.Instance?.timeline?.speedMultiplier ?? 1f;
         audioSource.UnPause();
     }
