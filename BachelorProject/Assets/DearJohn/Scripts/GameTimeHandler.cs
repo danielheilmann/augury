@@ -51,9 +51,22 @@ public class GameTimeHandler : MonoBehaviour
         }
     }
 
-    public void Begin() => isPaused = false;
-    public void Pause() => isPaused = true;
-    public void Resume() => isPaused = false;
+    public void Begin()
+    {
+        isPaused = false;
+    }
+
+    public void Pause()
+    {
+        if (GameManager.hasGameStarted)
+            isPaused = true;
+    }
+
+    public void Resume()
+    {
+        if (GameManager.hasGameStarted)
+            isPaused = false;
+    }
 
     public void Stop()
     {
