@@ -108,6 +108,12 @@ public class FixationVisualization : MonoBehaviour
             return;
         }
 
+        if (precedingFixation.fixation.dynamicObject != this.fixation.dynamicObject) //< If the preceding fixation is on a different object, do not draw a line to it.
+        {
+            RetractLine();
+            return;
+        }
+
         SetLineDestination(precedingFixation.transform.position);
     }
 
